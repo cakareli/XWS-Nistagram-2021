@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+
+  gateway:
+    image: nginx:1.19.8-alpine
+    ports:
+      - 8081:8081
+    networks:
+      - backend
+    volumes:
+      - ./Gateway/nginx.conf:/etc/nginx/nginx.conf
+      - ./Gateway/api_gateway.conf:/etc/nginx/api_gateway.conf
+
+  authentication-service:
+    image: authentication-service:compose_build
+    build:
+      context: ./authenticationService
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    environment:
+      PORT: 8081
+
+  user-service:
+    image: user-service:compose_build
+    build:
+      context: ./userService
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    environment:
+      PORT: 8081
+
+  media-content-service:
+    image: media-content-service:compose_build
+    build:
+      context: ./mediaContentService
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    environment:
+      PORT: 8081
+
+  follow-service:
+    image: follow-service:compose_build
+    build:
+      context: ./followService
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    environment:
+      PORT: 8081
+
+networks:
+  backend:
+    name: nistagram-backend
+    driver: bridge
