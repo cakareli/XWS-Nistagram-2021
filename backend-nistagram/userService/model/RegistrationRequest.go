@@ -1,10 +1,8 @@
 package model
 
-import (
-	"time"
-)
+import "time"
 
-type User struct {
+type RegistrationRequest struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
 	Surname string `json:"surname"`
@@ -12,8 +10,6 @@ type User struct {
 	PhoneNumber string `json:"phoneNumber"`
 	Gender Gender `json:"gender"`
 	BirthDate time.Time `json:"birthDate"`
-	UserRole UserRole `json:"userRole"`
 	Biography string `json:"biography"`
 	WebSite string `json:"webSite"`
 }
-
