@@ -19,7 +19,7 @@ services:
     networks:
       - backend
     environment:
-      PORT: 8081
+      PORT: ${AUTHENTICATION_SERVICE_PORT}
 
   user-service:
     image: user-service:compose_build
@@ -29,7 +29,7 @@ services:
     networks:
       - backend
     environment:
-      PORT: 8081
+      PORT: ${USER_SERVICE_PORT}
 
   media-content-service:
     image: media-content-service:compose_build
@@ -39,7 +39,7 @@ services:
     networks:
       - backend
     environment:
-      PORT: 8081
+      PORT: ${MEDIA_CONTENT_SERVICE_PORT}
 
   follow-service:
     image: follow-service:compose_build
@@ -49,7 +49,7 @@ services:
     networks:
       - backend
     environment:
-      PORT: 8081
+      PORT: ${FOLLOW_SERVICE_PORT}
 
 networks:
   backend:
