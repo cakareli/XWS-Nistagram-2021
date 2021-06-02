@@ -1,3 +1,3 @@
-module github.com/cakareli/XWS-Nistagram-2021/backend-nistagram/authenticationService
+module XWS-Nistagram-2021/backend-nistagram/authenticationService
 
-go 1.14
+go 1.16

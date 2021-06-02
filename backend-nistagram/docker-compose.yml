@@ -51,6 +51,16 @@ services:
     environment:
       PORT: ${FOLLOW_SERVICE_PORT}
 
+  notification-service:
+    image: notification-service:compose_build
+    build:
+      context: ./notificationService
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    environment:
+      PORT: ${NOTIFICATION_SERVICE_PORT}
+
 networks:
   backend:
     name: nistagram-backend

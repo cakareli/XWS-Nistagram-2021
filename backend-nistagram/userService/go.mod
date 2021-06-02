@@ -1,3 +1,3 @@
-module accelerate.com/main
+module XWS-Nistagram-2021/backend-nistagram/userService
 
-go 1.14
+go 1.16
