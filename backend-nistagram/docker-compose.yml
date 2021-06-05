@@ -30,6 +30,8 @@ services:
       - backend
     environment:
       PORT: ${USER_SERVICE_PORT}
+    depends_on:
+      - mongo-db
 
   media-content-service:
     image: media-content-service:compose_build
@@ -60,6 +62,15 @@ services:
       - backend
     environment:
       PORT: ${NOTIFICATION_SERVICE_PORT}
+
+  mongo-db:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-volumes:/data/db/
+    networks:
+      - backend
 
 networks:
   backend:
