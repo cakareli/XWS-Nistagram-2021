@@ -1,20 +1,39 @@
 package main
 
 import (
+	"XWS-Nistagram-2021/backend-nistagram/authenticationService/handler"
+	"XWS-Nistagram-2021/backend-nistagram/authenticationService/repository"
+	"XWS-Nistagram-2021/backend-nistagram/authenticationService/service"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
+func initAuthenticationRepository() *repository.AuthenticationRepository {
+	return &repository.AuthenticationRepository{}
+}
+
+func initAuthenticationService(repository *repository.AuthenticationRepository) *service.AuthenticationService {
+	return &service.AuthenticationService{AuthenticationRepository: repository}
+}
+
+func initAuthentcationHandler(service *service.AuthenticationService) *handler.AuthenticationHandler {
+	return &handler.AuthenticationHandler{AuthenticationService: service}
+}
+
+func handleFunc(handler *handler.AuthenticationHandler) {
+	router := mux.NewRouter().StrictSlash(true)
+
+	router.HandleFunc("/hello", handler.Hello).Methods("GET")
+
+	fmt.Println("Server running...")
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
+}
+
 func main() {
-
-	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request){
-		fmt.Fprintf(w, "Hello from AUTHENTICATION SERVICE!")
-	})
-
-
-	fmt.Printf("Starting server at port 8081\n")
-	if err := http.ListenAndServe(":8081", nil); err != nil {
-		log.Fatal(err)
-	}
+	authenticationRepository := initAuthenticationRepository()
+	authenticationService := initAuthenticationService(authenticationRepository)
+	authenticationHandler := initAuthentcationHandler(authenticationService)
+	handleFunc(authenticationHandler)
 }
