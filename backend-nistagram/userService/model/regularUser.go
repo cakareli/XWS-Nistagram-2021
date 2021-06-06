@@ -1,16 +1,16 @@
 package model
 
 type RegularUser struct {
-	User
-	IsDisabled bool `json:"isDisabled"`
-	RegularUser []RegularUser `json:"regularUser"` //!!!!!!!!!!!!!
-	UserType UserType `json:"userType"`
-	LikedPosts []Post `json:"likedPosts"`
-	DislikedPosts []Post `json:"dislikedPosts"`
-	ProfilePrivacy ProfilePrivacy `json:"profilePrivacy"`
-	Notifications []Notification `json:"notifications"`
-	MediaContents []MediaContent `json:"mediaContents"`
-	Collections []Collection `json:"collection"`
-	Followings []Following `json:"followings"`
-	Followers []Follower `json:"followers"`
+	User `bson:",inline"`
+	IsDisabled bool `bson:"isDisabled,omitempty"`
+	BlockedUsers []int `bson:"regularUser,omitempty"`
+	UserType *UserType `bson:"userType,omitempty"`
+	LikedPosts []Post `bson:"likedPosts,omitempty"`
+	DislikedPosts []Post `bson:"dislikedPosts,omitempty"`
+	ProfilePrivacy ProfilePrivacy `bson:"profilePrivacy,omitempty"`
+	Notifications []Notification `bson:"notifications,omitempty"`
+	MediaContents []MediaContent `bson:"mediaContents,omitempty"`
+	Collections []Collection `bson:"collection,omitempty"`
+	Followings []Following `bson:"followings,omitempty"`
+	Followers []Follower `bson:"followers,omitempty"`
 }

@@ -11,6 +11,6 @@ type AuthenticationHandler struct {
 }
 
 func(handler *AuthenticationHandler) Hello(res http.ResponseWriter, req *http.Request){
-		fmt.Fprint(res, "Hello from controller!")
-		handler.AuthenticationService.Hello()
+	fmt.Fprint(res, "Hello from controller!")
+	handler.AuthenticationService.Hello()
 }

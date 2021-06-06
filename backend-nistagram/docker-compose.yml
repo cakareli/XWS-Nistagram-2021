@@ -72,16 +72,6 @@ services:
     networks:
       - backend
 
-  #consul:
-  #  image: consul
-  #  ports:
- #     - "8500:8500"
- #     - "8600:8600/tcp"
- #     - "8600:8600/udp"
- #   command: "agent -server -bind 0.0.0.0 -client 0.0.0.0 -bootstrap-expect 1"
-  #  volumes:
- #     - ./consul:/consul/data
-
 networks:
   backend:
     name: nistagram-backend

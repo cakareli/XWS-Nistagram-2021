@@ -1,24 +1,43 @@
 package main
 
 import (
-	"XWS-Nistagram-2021/backend-nistagram/userService/model"
+	"XWS-Nistagram-2021/backend-nistagram/userService/handler"
+	"XWS-Nistagram-2021/backend-nistagram/userService/repository"
+	"XWS-Nistagram-2021/backend-nistagram/userService/service"
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"log"
-	"net/http"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"net/http"
 )
+
+func initUserRepository(database *mongo.Database) *repository.UserRepository {
+	return &repository.UserRepository{Database: database}
+}
+
+func initUserService(repository *repository.UserRepository) *service.UserService {
+	return &service.UserService{UserRepository: repository}
+}
+
+func initUserHandler(service *service.UserService) *handler.UserHandler {
+	return &handler.UserHandler{UserService: service}
+}
+
+func handleFunc(handler *handler.UserHandler) {
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/hello", handler.Hello).Methods("GET")
+
+	router.HandleFunc("/create-regular-user", handler.Create).Methods("POST")
+
+	fmt.Println("Server running...")
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
+}
 
 func main() {
 
-	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request){
-		fmt.Fprintf(w, "Hello from USER SERVICE!")
-	})
-
 	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
-
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
@@ -29,41 +48,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Println("Connected to MongoDB!")
 
-	user := model.User{
-		Id: 1,
-		Name: "Dimitrije",
-		Surname: "Bulaja",
-		Gender: model.Male,
-	}
-
 	userDatabase := client.Database("user")
-	userCollection := userDatabase.Collection("users")
 
-	userResult, err := userCollection.InsertOne(context.TODO(), bson.D{
-		{Key: "user", Value: user},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(*userResult)
-
-	filterCursor, err := userCollection.Find(context.TODO(), bson.M{"user.surname": "Bulaja"})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var usersFiltered []bson.M
-	if err = filterCursor.All(context.TODO(), &usersFiltered); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(usersFiltered)
-
-
-	fmt.Printf("Starting server at port 8081\n")
-	if err := http.ListenAndServe(":8081", nil); err != nil {
-		log.Fatal(err)
-	}
+	userRepository := initUserRepository(userDatabase)
+	userService := initUserService(userRepository)
+	userHandler := initUserHandler(userService)
+	handleFunc(userHandler)
 }
