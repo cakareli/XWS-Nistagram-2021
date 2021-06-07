@@ -4,15 +4,17 @@
         <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">       
-          <v-toolbar flat app height="45" color="#A29D9C" width="600px">
-            <v-row>
-                <v-col>
-                  <v-toolbar-title >
-                    <span outlined class="font-weight-light">NISTA</span>
-                    <span>GRAM</span>
-                  </v-toolbar-title>
-                </v-col>            
-              </v-row>
+          <v-toolbar flat height="45" color="#A29D9C" width="600px">
+            <v-app-bar app>
+                <v-row>
+                    <v-col>
+                    <v-toolbar-title >
+                        <span outlined class="font-weight-light">NISTA</span>
+                        <span>GRAM</span>
+                    </v-toolbar-title>
+                    </v-col>            
+                </v-row>
+              </v-app-bar>
           </v-toolbar>
           <v-container>
               <v-form ref="registrationForm">
@@ -27,14 +29,14 @@
                             <v-text-field label="Phone number*" v-model="form.phoneNumber" :rules="rules.phoneNumberRules"></v-text-field>
                             <label>Choose gender*</label>
                             <v-radio-group v-model="form.gender" required>
-                                <v-radio label="Male" value="MALE" primary />
+                                <v-radio label="Male" value="MALE"/>
                                 <v-radio label="Female" value="FEMALE"/>
                             </v-radio-group>
                             <v-menu max-width="290">
                                 <template v-slot:activator="{ on }">
-                                    <v-text-field :value="birthday" placeholder="Birthday date*" v-on="on" :rules="rules.dateRules"></v-text-field>
+                                    <v-text-field :value="form.birthday" placeholder="Birthday date*" v-on="on" :rules="rules.dateRules"></v-text-field>
                                 </template>
-                                <v-date-picker v-model="birthday"></v-date-picker>
+                                <v-date-picker v-model="form.birthday"></v-date-picker>
                             </v-menu>
                             <label>Choose role*</label>
                             <v-radio-group v-model="form.role" required>
@@ -56,6 +58,9 @@
 </template>
 
 <script>
+
+import axios from 'axios';
+
 export default {
     name: 'Registration',
     data() {
@@ -68,9 +73,9 @@ export default {
                 repeatedPassword: "",
                 email: "",
                 phoneNumber: "",
-                gender : "MALE",
+                gender : 1,
                 birthday : "",
-                role : "REGULAR",
+                role : 1,
                 website: "",
                 biography: "",
             },
@@ -116,9 +121,31 @@ export default {
     },
     methods: {
         submit(){
-            if(this.$refs.registrationForm.validate()){
-                console.log(this.form.name, this.form.surname)
+            let RegularUserDTO = {
+                Name: this.form.name,
+                Surname: this.form.surname,
+                Username: this.form.username,
+                Password: this.form.password,
+                Email: this.form.email,
+                PhoneNumber: this.form.phoneNumber,
+                Gender: 1,
+                BirthDate: this.form.birthday,
+                UserRole: this.form.userRole,
+                UserType: 1,
+                Biography: this.form.biography,
+                WebSite: this.form.website,
+                IsDisabled: false,
+                PrivacyType: 1,
+                AllMessageRequests: true,
+                TagsAllowed: true,               
             }
+            axios.post('http://localhost:8081/create-regular-user', RegularUserDTO)
+            .then(response=>{
+                console.log(response.status);
+                
+                setTimeout(() => { this.$router.push({path: '/'})}, 2000);
+            })
+            
         },
     }
 }
