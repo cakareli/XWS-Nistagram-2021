@@ -5,6 +5,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/userService/model"
 	"XWS-Nistagram-2021/backend-nistagram/userService/repository"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserService struct {
@@ -20,11 +21,29 @@ func (service *UserService) CreateRegularUser(regularUserDto dto.RegularUserDTO)
 	fmt.Println("Creating regular user")
 
 	if service.UserRepository.ExistByUsername(regularUserDto.Username) {
-		return fmt.Errorf("Given username is already taken")
+		return fmt.Errorf("Username is already taken")
 	}
 
 	var regularUser = createRegularUserFromRegularUserDTO(&regularUserDto)
 	err := service.UserRepository.CreateRegularUser(regularUser)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *UserService) UpdateRegularUser(userUpdateDto dto.UserUpdateDTO) error {
+	fmt.Println("Updating regular user")
+
+	if service.UserRepository.ExistByUsername(userUpdateDto.Username) {
+		id, _ := primitive.ObjectIDFromHex(userUpdateDto.Id)
+		if service.UserRepository.UsernameChanged(userUpdateDto.Username, id) {
+			return fmt.Errorf("Username is already taken")
+		}
+	}
+
+	var regularUser = createRegularUserFromUserUpdateDTO(&userUpdateDto)
+	err := service.UserRepository.UpdateRegularUser(regularUser)
 	if err != nil {
 		return err
 	}
@@ -52,6 +71,23 @@ func createRegularUserFromRegularUserDTO(regularUserDto *dto.RegularUserDTO) *mo
 	regularUser.UserRole = regularUserDto.UserRole
 	regularUser.UserType = regularUserDto.UserType
 	regularUser.Gender = regularUserDto.Gender
+
+	return &regularUser
+}
+
+func createRegularUserFromUserUpdateDTO(userUpdateDto *dto.UserUpdateDTO) *model.RegularUser{
+	id, _ := primitive.ObjectIDFromHex(userUpdateDto.Id)
+	var regularUser model.RegularUser
+	regularUser.Id = id
+	regularUser.Name = userUpdateDto.Name
+	regularUser.Surname = userUpdateDto.Surname
+	regularUser.Username = userUpdateDto.Username
+	regularUser.Email = userUpdateDto.Email
+	regularUser.PhoneNumber = userUpdateDto.PhoneNumber
+	regularUser.Gender= userUpdateDto.Gender
+	regularUser.BirthDate = userUpdateDto.BirthDate
+	regularUser.Biography = userUpdateDto.Biography
+	regularUser.WebSite = userUpdateDto.WebSite
 
 	return &regularUser
 }

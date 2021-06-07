@@ -30,6 +30,7 @@ func handleFunc(handler *handler.UserHandler) {
 	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 
 	router.HandleFunc("/create-regular-user", handler.Create).Methods("POST")
+	router.HandleFunc("/update-regular-user", handler.Update).Methods("POST")
 
 	fmt.Println("Server running...")
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
