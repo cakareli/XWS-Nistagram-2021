@@ -38,7 +38,7 @@ func handleFunc(handler *handler.UserHandler) {
 
 func main() {
 
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

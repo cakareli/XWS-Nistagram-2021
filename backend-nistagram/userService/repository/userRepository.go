@@ -15,14 +15,14 @@ type UserRepository struct {
 }
 
 func (repository *UserRepository) Hello (){
-	fmt.Printf("Hello from Repository");
+	fmt.Printf("Hello from Repository")
 }
 
 func (repository *UserRepository) CreateRegularUser(user *model.RegularUser) error{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 		_, err := regularUserCollection.InsertOne(context.TODO(), &user)
 	if err != nil {
-		return fmt.Errorf("Regular user is NOT created")
+		return fmt.Errorf("regular user is NOT created")
 	}
 	return nil
 }

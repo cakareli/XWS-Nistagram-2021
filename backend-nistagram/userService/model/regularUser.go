@@ -4,7 +4,7 @@ type RegularUser struct {
 	User `bson:",inline"`
 	IsDisabled bool `bson:"isDisabled,omitempty"`
 	BlockedUsers []int `bson:"regularUser,omitempty"`
-	UserType *UserType `bson:"userType,omitempty"`
+	UserType UserType `bson:"userType,omitempty"`
 	LikedPosts []Post `bson:"likedPosts,omitempty"`
 	DislikedPosts []Post `bson:"dislikedPosts,omitempty"`
 	ProfilePrivacy ProfilePrivacy `bson:"profilePrivacy,omitempty"`
