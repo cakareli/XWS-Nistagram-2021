@@ -1,0 +1,144 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #00060a;
+  font-family: "Roboto", sans-serif;
+}
+
+#app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+    height: 60px;
+    width: 650px;
+    position: sticky;
+    top: 0;
+    background: #ccc7c7;
+    border-bottom: 1px solid #f0e7e7;
+    z-index: 99;
+    
+  
+    img {
+      align-items: center;
+      justify-content: center;
+      display: block;
+      margin: 0 auto;
+      max-width: 50px;
+      padding-top: 1px;
+    }
+}
+
+
+
+.feed-backgorund {
+    height: 600px;
+    width: 650px;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    background: #fafafa;
+    border-bottom: 1px solid #eeeeee;
+    z-index: 99;
+}
+
+.lower-toolbar {
+    height: 50px;
+    width: 650px;
+    position: sticky;
+    position: -webkit-sticky;
+    bottom: 0;
+    background: #f0e7e7;
+    border-top: 1px solid #f0e7e7;
+    z-index: 99;
+
+    img {
+      align-items: stretch;
+      justify-content: center;
+      max-width: 50px;
+      margin: 5px 55px 5px 5px;
+      padding-left: 10px; 
+    }
+}
+
+.app-phone {
+    background-color: white;
+    height: 620px;
+    width: 650px;
+    overflow: hidden;
+}
+
+.registration-backgorund {
+  columns: 2;
+  height: 600px;
+  width: 650px;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  background: #fafafa;
+  border-bottom: 1px solid #eeeeee;
+  z-index: 99;
+}
+
+.column {
+  float: left;
+  width: 100px;
+  padding: 10px;
+  height: 475px; 
+  background: #fafafa;
+
+  input{
+    background: #b8b5b5;
+    height: 25px;
+    width: 140px;
+    border-radius: 10%;
+  }
+
+  textarea{
+    background: #b8b5b5;
+    height: 200px;
+    width: 150px;
+  }
+}
+
+.row {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.column-home {
+  float: left;
+  width: 275px;
+  height: 35px;
+  border-radius: 5%;
+  background: #a8a5a5;
+}
+
+.row-home {
+  content: "";
+  display: table;
+  clear: both;
+
+  button:hover {
+    background: rgb(73, 72, 72);
+  }
+}
+
+.submit {
+  width: 120px;
+  height: 35px;
+  justify-content: right;
+  align-content: right;
+  background: #6cee82;
+  border-radius: 5%;
+}
+
+.submit:hover {
+  background: #579662;
+}

@@ -1,16 +1,24 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import GuestHome from '@/views/guest/GuestHome.vue'
+import Home from '@/views/guest/Home.vue'
+import Registration from "@/views/Registration.vue"
 
 Vue.use(VueRouter);
 
 const routes = [
     {
         path: '/',
-        component: GuestHome,
-        name : 'GuestHome'
+        component: Home,
+        name : 'Home'   
+    }, 
+
+    {
+        path: '/registration',
+        component: Registration,
+        name: 'Registration',
     }
+      
 ];
 
 const router = new VueRouter({
