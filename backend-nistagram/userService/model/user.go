@@ -14,7 +14,7 @@ type User struct {
 	PhoneNumber string `bson:"phoneNumber,omitempty"`
 	Gender *Gender `bson:"gender,omitempty"`
 	BirthDate *primitive.DateTime `bson:"birthDate,omitempty"`
-	UserRole *UserRole `bson:"userRole,omitempty"`
+	UserRole UserRole `bson:"userRole,omitempty"`
 	Biography string `bson:"biography,omitempty"`
 	WebSite string `bson:"webSite,omitempty"`
 }

@@ -14,17 +14,17 @@ type UserService struct {
 
 func (service *UserService) Hello () {
 	fmt.Printf("Hello from service!")
-	service.UserRepository.Hello();
+	service.UserRepository.Hello()
 }
 
-func (service *UserService) CreateRegularUser(regularUserDto dto.RegularUserDTO) error {
+func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.RegularUserRegistration) error {
 	fmt.Println("Creating regular user")
 
-	if service.UserRepository.ExistByUsername(regularUserDto.Username) {
-		return fmt.Errorf("Username is already taken")
+	if service.UserRepository.ExistByUsername(regularUserRegistrationDto.Username) {
+		return fmt.Errorf("username is already taken")
 	}
 
-	var regularUser = createRegularUserFromRegularUserDTO(&regularUserDto)
+	var regularUser = createRegularUserFromRegularUserRegistrationDTO(&regularUserRegistrationDto)
 	err := service.UserRepository.CreateRegularUser(regularUser)
 	if err != nil {
 		return err
@@ -32,17 +32,17 @@ func (service *UserService) CreateRegularUser(regularUserDto dto.RegularUserDTO)
 	return nil
 }
 
-func (service *UserService) UpdateRegularUser(userUpdateDto dto.UserUpdateDTO) error {
+func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
 	fmt.Println("Updating regular user")
 
-	if service.UserRepository.ExistByUsername(userUpdateDto.Username) {
-		id, _ := primitive.ObjectIDFromHex(userUpdateDto.Id)
-		if service.UserRepository.UsernameChanged(userUpdateDto.Username, id) {
-			return fmt.Errorf("Username is already taken")
+	if service.UserRepository.ExistByUsername(regularUserUpdateDto.Username) {
+		id, _ := primitive.ObjectIDFromHex(regularUserUpdateDto.Id)
+		if service.UserRepository.UsernameChanged(regularUserUpdateDto.Username, id) {
+			return fmt.Errorf("username is already taken")
 		}
 	}
 
-	var regularUser = createRegularUserFromUserUpdateDTO(&userUpdateDto)
+	var regularUser = createRegularUserFromRegularUserUpdateDTO(&regularUserUpdateDto)
 	err := service.UserRepository.UpdateRegularUser(regularUser)
 	if err != nil {
 		return err
@@ -50,11 +50,11 @@ func (service *UserService) UpdateRegularUser(userUpdateDto dto.UserUpdateDTO) e
 	return nil
 }
 
-func createRegularUserFromRegularUserDTO(regularUserDto *dto.RegularUserDTO) *model.RegularUser{
+func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistration) *model.RegularUser{
 	profilePrivacy := model.ProfilePrivacy{
-		PrivacyType: regularUserDto.PrivacyType,
-		AllMessageRequests: regularUserDto.AllMessageRequests,
-		TagsAllowed: regularUserDto.TagsAllowed,
+		PrivacyType: model.PrivacyType(0),
+		AllMessageRequests: true,
+		TagsAllowed: true,
 	}
 	var regularUser model.RegularUser
 	regularUser.Name = regularUserDto.Name
@@ -67,15 +67,15 @@ func createRegularUserFromRegularUserDTO(regularUserDto *dto.RegularUserDTO) *mo
 	regularUser.Biography = regularUserDto.Biography
 	regularUser.WebSite = regularUserDto.WebSite
 	regularUser.ProfilePrivacy = profilePrivacy
-	regularUser.IsDisabled = regularUserDto.IsDisabled
-	regularUser.UserRole = regularUserDto.UserRole
-	regularUser.UserType = regularUserDto.UserType
+	regularUser.IsDisabled = false
+	regularUser.UserRole = model.UserRole(0)
+	regularUser.UserType = model.UserType(0)
 	regularUser.Gender = regularUserDto.Gender
 
 	return &regularUser
 }
 
-func createRegularUserFromUserUpdateDTO(userUpdateDto *dto.UserUpdateDTO) *model.RegularUser{
+func createRegularUserFromRegularUserUpdateDTO(userUpdateDto *dto.RegularUserUpdateDTO) *model.RegularUser{
 	id, _ := primitive.ObjectIDFromHex(userUpdateDto.Id)
 	var regularUser model.RegularUser
 	regularUser.Id = id
