@@ -20,9 +20,7 @@ func (repository *UserRepository) Hello (){
 
 func (repository *UserRepository) CreateRegularUser(user *model.RegularUser) error{
 	regularUserCollection := repository.Database.Collection("regularUsers")
-		_, err := regularUserCollection.InsertOne(context.TODO(), bson.D{
-		{Key: "regularUser", Value: user},
-	})
+		_, err := regularUserCollection.InsertOne(context.TODO(), &user)
 	if err != nil {
 		return fmt.Errorf("Regular user is NOT created")
 	}
@@ -31,7 +29,7 @@ func (repository *UserRepository) CreateRegularUser(user *model.RegularUser) err
 
 func (repository *UserRepository) ExistByUsername(username string) bool{
 	regularUserCollection := repository.Database.Collection("regularUsers")
-	filterCursor, err := regularUserCollection.Find(context.TODO(), bson.M{"regularUser.username": username})
+	filterCursor, err := regularUserCollection.Find(context.TODO(), bson.M{"username": username})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,15 +49,15 @@ func (repository *UserRepository) UpdateRegularUser(user *model.RegularUser) err
 
 	_, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
 		bson.D{
-			{"$set", bson.D{{"regularUser.name", user.Name}}},
-			{"$set", bson.D{{"regularUser.surname", user.Surname}}},
-			{"$set", bson.D{{"regularUser.username", user.Username}}},
-			{"$set", bson.D{{"regularUser.email", user.Email}}},
-			{"$set", bson.D{{"regularUser.phoneNumber", user.PhoneNumber}}},
-			{"$set", bson.D{{"regularUser.gender", user.Gender}}},
-			{"$set", bson.D{{"regularUser.birthDate", user.BirthDate}}},
-			{"$set", bson.D{{"regularUser.biography", user.Biography}}},
-			{"$set", bson.D{{"regularUser.webSite", user.WebSite}}},
+			{"$set", bson.D{{"name", user.Name}}},
+			{"$set", bson.D{{"surname", user.Surname}}},
+			{"$set", bson.D{{"username", user.Username}}},
+			{"$set", bson.D{{"email", user.Email}}},
+			{"$set", bson.D{{"phoneNumber", user.PhoneNumber}}},
+			{"$set", bson.D{{"gender", user.Gender}}},
+			{"$set", bson.D{{"birthDate", user.BirthDate}}},
+			{"$set", bson.D{{"biography", user.Biography}}},
+			{"$set", bson.D{{"webSite", user.WebSite}}},
 		})
 	if err != nil {
 		log.Fatal(err)
@@ -70,7 +68,7 @@ func (repository *UserRepository) UpdateRegularUser(user *model.RegularUser) err
 
 func (repository *UserRepository) UsernameChanged(username string, id primitive.ObjectID) bool{
 	regularUserCollection := repository.Database.Collection("regularUsers")
-	filterCursor, err := regularUserCollection.Find(context.TODO(), bson.M{"_id": id, "regularUser.username": username})
+	filterCursor, err := regularUserCollection.Find(context.TODO(), bson.M{"_id": id, "username": username})
 	if err != nil {
 		log.Fatal(err)
 	}

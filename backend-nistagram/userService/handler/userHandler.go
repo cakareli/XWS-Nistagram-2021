@@ -26,7 +26,7 @@ func (handler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	err = handler.UserService.CreateRegularUser(regularUserDto)
 	if err != nil {
-		if err.Error() == "Given username is already taken" {
+		if err.Error() == "Username is already taken" {
 			w.WriteHeader(http.StatusConflict)
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
