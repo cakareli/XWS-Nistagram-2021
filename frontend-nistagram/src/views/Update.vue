@@ -1,5 +1,5 @@
 <template>
-  <v-app class="grey lighten-4"> 
+ <v-app class="grey lighten-4"> 
       <v-container center>
         <v-row>
         <v-col width="300px"></v-col>
@@ -15,7 +15,7 @@
               </v-row>
           </v-toolbar>
           <v-container>
-              <v-form ref="registrationForm">
+              <v-form ref="editForm">
                 <v-row > 
                     <v-col>                       
                             <v-text-field label="Name*" v-model="form.name" :rules="rules.nameRules"></v-text-field>
@@ -43,7 +43,7 @@
                             </v-radio-group>
                             <v-text-field label="Web site*" v-model="form.website" :rules="rules.websiteRules"></v-text-field>
                             <v-textarea label="Biography" v-model="form.biography" :rules="rules.biographyRules"></v-textarea>
-                            <v-btn class="success" @click="submit">Submit</v-btn>
+                            <v-btn class="success" @click="edit">Edit</v-btn>
                     </v-col>                
                 </v-row>
              </v-form>
@@ -57,7 +57,7 @@
 
 <script>
 export default {
-    name: 'Registration',
+    name: 'Update',
     data() {
         return {
             form: {
@@ -115,8 +115,8 @@ export default {
         }
     },
     methods: {
-        submit(){
-            if(this.$refs.registrationForm.validate()){
+        edit(){
+            if(this.$refs.editForm.validate()){
                 console.log(this.form.name, this.form.surname)
             }
         },
@@ -124,6 +124,3 @@ export default {
 }
 </script>
 
-<style>
-
-</style>

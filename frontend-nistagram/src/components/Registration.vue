@@ -1,19 +1,25 @@
 <template>
-  <v-dialog>
+  <!-- <v-dialog width="400">
     <template v-slot:activator="{ on }">
-        <v-btn v-on="on">Register</v-btn>
+        <v-btn v-on="on" width="325" height="35" left>Register</v-btn>
     </template>
     <v-card>
         <v-card-title>
             <h2>Registration</h2>
         </v-card-title>
     </v-card>
-    </v-dialog>
+  </v-dialog> -->
+  <h1>AAA</h1>
 </template>
 
 <script>
 export default {
-    name: 'Registration'
+    name: 'Registration',
+    data(){
+        return{
+
+        }
+    }
 }
 </script>
 
