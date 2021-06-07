@@ -20,6 +20,8 @@ services:
       - backend
     environment:
       PORT: ${AUTHENTICATION_SERVICE_PORT}
+    depends_on:
+      - postgres
 
   user-service:
     image: user-service:compose_build
@@ -69,6 +71,20 @@ services:
       - 27017:27017
     volumes:
       - ./mongo-volumes:/data/db/
+    networks:
+      - backend
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgre-volumes:/data/db
     networks:
       - backend
 
