@@ -4,8 +4,11 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/userService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/userService/model"
 	"XWS-Nistagram-2021/backend-nistagram/userService/repository"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
 type UserService struct {
@@ -29,6 +32,19 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 	if err != nil {
 		return err
 	}
+	postBody, _ := json.Marshal(map[string]string{
+		"email": regularUserRegistrationDto.Email,
+		"password": regularUserRegistrationDto.Password,
+		"username": regularUserRegistrationDto.Username,
+		"name": regularUserRegistrationDto.Name,
+		"surname": regularUserRegistrationDto.Surname,
+	})
+	resp, err := http.Post("http://authentication-service:8081/register", "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
 	return nil
 }
 
@@ -47,6 +63,20 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 	if err != nil {
 		return err
 	}
+
+	postBody, _ := json.Marshal(map[string]string{
+		"id": regularUser.Id.Hex(),
+		"email": regularUser.Email,
+		"username": regularUser.Username,
+		"name": regularUser.Name,
+		"surname": regularUser.Surname,
+	})
+	resp, err := http.Post("http://authentication-service:8081/update", "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
 	return nil
 }
 
