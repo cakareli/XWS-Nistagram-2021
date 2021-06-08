@@ -183,17 +183,17 @@ export default {
     submit() {
       if (this.$refs.registrationForm.validate()) {
         axios
-          .post("http://localhost:8081/create-regular-user", {
-            Name: this.form.name,
-            Surname: this.form.surname,
-            Username: this.form.username,
-            Password: this.form.password,
-            Email: this.form.email,
-            PhoneNumber: this.form.phoneNumber,
-            Gender: parseInt(this.form.gender, 10),
-            BirthDate: this.form.birthday + this.time,
-            Biography: this.form.biography,
-            WebSite: this.form.website,
+          .post("http://localhost:8081/api/user/create-regular-user", {
+            name: this.form.name,
+            surname: this.form.surname,
+            username: this.form.username,
+            password: this.form.password,
+            email: this.form.email,
+            phoneNumber: this.form.phoneNumber,
+            gender: parseInt(this.form.gender, 10),
+            birthDate: this.form.birthday + this.time,
+            biography: this.form.biography,
+            webSite: this.form.website,
           })
           .then((response) => {
             console.log(response.status);

@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"net/http"
+	cors "github.com/rs/cors"
 )
 
 func initAuthenticationRepository(database *gorm.DB) *repository.AuthenticationRepository {
@@ -35,8 +36,10 @@ func handleFunc(handler *handler.AuthenticationHandler) {
 	router.HandleFunc("/login", handler.Login).Methods("POST")
 	router.HandleFunc("/update", handler.UpdateUser).Methods("POST")
 
-	fmt.Println("Server running...")
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
+	c := SetupCors()
+
+	http.Handle("/", c.Handler(router))
+	http.ListenAndServe(":8081", c.Handler(router))
 }
 
 func initDatabase() *gorm.DB {
@@ -56,6 +59,15 @@ func initDatabase() *gorm.DB {
 	database.AutoMigrate(&model.User{})
 
 	return database
+}
+
+func SetupCors() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // All origins, for now
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+		AllowCredentials: true,
+	})
 }
 
 func main() {

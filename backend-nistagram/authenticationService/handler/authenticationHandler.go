@@ -73,11 +73,9 @@ func(handler *AuthenticationHandler) Login(res http.ResponseWriter, req *http.Re
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	token, err := util.CreateJWT(user.Id, &user.UserRole)
+	token, err := util.CreateJWT(user.UserId, &user.UserRole)
 	response := dto.LoginResponseDTO{
-		UserId: user.UserId,
 		Token: token,
-		Role: user.UserRole,
 	}
 	responseJSON, err := json.Marshal(response)
 	if err != nil {

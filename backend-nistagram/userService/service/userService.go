@@ -66,7 +66,7 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"userId": regularUserUpdateDto.Id,
+		"_id": regularUserUpdateDto.Id,
 		"email": regularUserUpdateDto.Email,
 		"username": regularUserUpdateDto.Username,
 		"name": regularUserUpdateDto.Name,

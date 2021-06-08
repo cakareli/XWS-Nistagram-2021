@@ -1,5 +1,8 @@
 <template>
   <v-app class="grey lighten-4">
+    <v-snackbar v-model="snackbar" centered timeout="3500">
+      <span>{{snackbarText}}</span>
+      </v-snackbar>  
     <v-container center>
       <v-row>
         <v-col width="300px"></v-col>
@@ -46,6 +49,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { setToken } from '../security/token.js'
+
 export default {
   name: "Login",
   data() {
@@ -63,13 +69,34 @@ export default {
             "Username can only contain numbers and letters!",
         ],
       },
+      snackbar: false,
+      snackbarText : "",
     };
   },
   methods: {
     submit() {
-      if (this.$refs.loginForm.validate()) {
-        console.log(this.form.username);
-      }
+            let loginCredentials = {
+                username: this.form.username,
+                password: this.form.password
+            }
+            axios.post('http://localhost:8081/api/auth/login', loginCredentials)
+            .then(response =>{
+                console.log(response)
+                let token = response.data.token;
+                setToken(token);
+                this.$router.push({ path: "/account" });
+            }).catch(error => {
+                if(error.response.status === 400){
+                    this.snackbarText = "Account with that username doesn't exist!";
+                    this.snackbar = true;
+                }else if(error.response.status === 500){
+                    this.snackbarText = "Internal server error occurred!";
+                    this.snackbar = true;
+                }else if(error.response.status === 401){
+                    this.snackbarText = "You have entered wrong password!";
+                    this.snackbar = true;
+                }
+            })
     },
   },
 };

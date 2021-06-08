@@ -23,7 +23,6 @@
             <v-form ref="updateForm">
               <v-row>
                 <v-col>
-                  <v-text-field label="Id" v-model="form.id"></v-text-field>
                   <v-text-field
                     label="Name*"
                     v-model="form.name"
@@ -89,6 +88,7 @@
 
 <script>
 import axios from "axios";
+import { getId } from '../security/token.js'
 
 export default {
   name: "Update",
@@ -104,7 +104,6 @@ export default {
       snackbarText: "",
 
       form: {
-        id: "",
         name: "",
         surname: "",
         username: "",
@@ -177,17 +176,17 @@ export default {
     update() {
       if (this.$refs.updateForm.validate()) {
         axios
-          .post("http://localhost:8081/update-regular-user", {
-            Id: this.id,
-            Name: this.form.name,
-            Surname: this.form.surname,
-            Username: this.form.username,
-            Email: this.form.email,
-            PhoneNumber: this.form.phoneNumber,
-            Gender: parseInt(this.form.gender, 10),
-            BirthDate: this.form.birthday + this.time,
-            Biography: this.form.biography,
-            Website: this.form.website,
+          .post("http://localhost:8081/api/user/update-regular-user", {
+            _id: getId(),
+            name: this.form.name,
+            surname: this.form.surname,
+            username: this.form.username,
+            email: this.form.email,
+            phoneNumber: this.form.phoneNumber,
+            hender: parseInt(this.form.gender, 10),
+            birthDate: this.form.birthday + this.time,
+            biography: this.form.biography,
+            webSite: this.form.website,
           })
           .then((response) => {
             console.log(response.status);
