@@ -17,7 +17,7 @@ func (service *AuthenticationService) Hello () {
 }
 
 func (service *AuthenticationService) RegisterUser (dto dto.RegularUserRegistrationDTO) error {
-	user := model.User{ Email: dto.Email, UserRole: 0, Name: dto.Name, Surname: dto.Surname, Password: dto.Password, Username: dto.Username}
+	user := model.User{ Email: dto.Email, UserRole: 0, UserId: dto.UserId, Name: dto.Name, Surname: dto.Surname, Password: dto.Password, Username: dto.Username}
 	err := service.AuthenticationRepository.RegisterUser(&user)
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func (service *AuthenticationService) RegisterUser (dto dto.RegularUserRegistrat
 }
 
 func (service *AuthenticationService) UpdateUser (dto dto.RegularUserUpdateDTO) error {
-	user, err := service.AuthenticationRepository.FindUserByUsername(dto.Username)
+	user, err := service.AuthenticationRepository.FindUserByUserId(dto.UserId)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (service *AuthenticationService) UpdateUser (dto dto.RegularUserUpdateDTO) 
 	user.Surname = dto.Surname;
 	user.Username = dto.Username;
 	user.Email = dto.Email;
-	err = service.AuthenticationRepository.RegisterUser(user)
+	err = service.AuthenticationRepository.UpdateUser(user)
 	if err != nil {
 		return err
 	}

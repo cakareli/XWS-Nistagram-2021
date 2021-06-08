@@ -1,7 +1,7 @@
 package dto
 
 type RegularUserUpdateDTO struct {
-	Id string `json:_id`
+	UserId string `json:"userId"`
 	Email string `json:"email"`
 	Username string `json:"username"`
 	Name string `json:"name"`

@@ -41,11 +41,10 @@ func (handler *AuthenticationHandler) UpdateUser (res http.ResponseWriter, req *
 	var regularUserUpdateDTO dto.RegularUserUpdateDTO
 	err := json.NewDecoder(req.Body).Decode(&regularUserUpdateDTO)
 	if err != nil {
-		fmt.Println(err)
 		res.WriteHeader(http.StatusBadRequest)
 		return;
 	}
-
+	fmt.Println(err)
 	err = handler.AuthenticationService.UpdateUser(regularUserUpdateDTO)
 	if err != nil {
 		fmt.Println(err)
@@ -76,7 +75,7 @@ func(handler *AuthenticationHandler) Login(res http.ResponseWriter, req *http.Re
 	}
 	token, err := util.CreateJWT(user.Id, &user.UserRole)
 	response := dto.LoginResponseDTO{
-		Username: user.Username,
+		UserId: user.UserId,
 		Token: token,
 		Role: user.UserRole,
 	}

@@ -33,6 +33,7 @@ func handleFunc(handler *handler.AuthenticationHandler) {
 	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/register", handler.RegisterUser).Methods("POST")
 	router.HandleFunc("/login", handler.Login).Methods("POST")
+	router.HandleFunc("/update", handler.UpdateUser).Methods("POST")
 
 	fmt.Println("Server running...")
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
@@ -42,7 +43,7 @@ func initDatabase() *gorm.DB {
 	var database *gorm.DB
 	err := godotenv.Load()
 	dsn := fmt.Sprintf("host=postgres user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Kolkata",
-		"postgres", "root", "auth-service", "5432")
+		"postgres", "1234567", "auth-service", "5432")
 
 	log.Print("Connecting to PostgreSQL DB...")
 	database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{

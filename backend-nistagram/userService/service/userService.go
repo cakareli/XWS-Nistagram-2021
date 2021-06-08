@@ -28,11 +28,12 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 	}
 
 	var regularUser = createRegularUserFromRegularUserRegistrationDTO(&regularUserRegistrationDto)
-	err := service.UserRepository.CreateRegularUser(regularUser)
+	createdUserId, err := service.UserRepository.CreateRegularUser(regularUser)
 	if err != nil {
 		return err
 	}
 	postBody, _ := json.Marshal(map[string]string{
+		"userId": createdUserId,
 		"email": regularUserRegistrationDto.Email,
 		"password": regularUserRegistrationDto.Password,
 		"username": regularUserRegistrationDto.Username,
@@ -65,12 +66,13 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 	}
 
 	postBody, _ := json.Marshal(map[string]string{
-		"id": regularUser.Id.Hex(),
-		"email": regularUser.Email,
-		"username": regularUser.Username,
-		"name": regularUser.Name,
-		"surname": regularUser.Surname,
+		"userId": regularUserUpdateDto.Id,
+		"email": regularUserUpdateDto.Email,
+		"username": regularUserUpdateDto.Username,
+		"name": regularUserUpdateDto.Name,
+		"surname": regularUserUpdateDto.Surname,
 	})
+
 	resp, err := http.Post("http://authentication-service:8081/update", "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)

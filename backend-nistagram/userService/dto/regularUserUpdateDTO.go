@@ -6,7 +6,7 @@ import (
 )
 
 type RegularUserUpdateDTO struct {
-	Id string `json:_id`
+	Id string `json:"_id"`
 	Name string `json:"name"`
 	Surname string `json:"surname"`
 	Username string `json:username`
