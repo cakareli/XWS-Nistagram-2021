@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -32,13 +33,28 @@ func handleFunc(handler *handler.UserHandler) {
 	router.HandleFunc("/create-regular-user", handler.Create).Methods("POST")
 	router.HandleFunc("/update-regular-user", handler.Update).Methods("POST")
 
+	c := SetupCors()
+
 	fmt.Println("Server running...")
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
+	//http.Handle("/", c.Handler(router))
+	//log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), c.Handler(router)))
+
+	http.Handle("/", c.Handler(router))
+	http.ListenAndServe(":8081", c.Handler(router))
+}
+
+func SetupCors() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // All origins, for now
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+		AllowCredentials: true,
+	})
 }
 
 func main() {
 
-	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
