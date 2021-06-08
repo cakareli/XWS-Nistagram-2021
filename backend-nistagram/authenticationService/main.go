@@ -41,7 +41,7 @@ func handleFunc(handler *handler.AuthenticationHandler) {
 func initDatabase() *gorm.DB {
 	var database *gorm.DB
 	err := godotenv.Load()
-	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Kolkata",
+	dsn := fmt.Sprintf("host=postgres user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Kolkata",
 		"postgres", "root", "auth-service", "5432")
 
 	log.Print("Connecting to PostgreSQL DB...")

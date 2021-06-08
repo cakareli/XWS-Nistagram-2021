@@ -23,6 +23,15 @@ func (repository *AuthenticationRepository) RegisterUser(user *model.User) error
 	return nil
 }
 
+func (repository *AuthenticationRepository) UpdateUser(user *model.User) error {
+	result := repository.Database.Save(user)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("User not registered!")
+	}
+	fmt.Println("User successfuly updated!")
+	return nil
+}
+
 func (repository *AuthenticationRepository) FindUserByUsername(username string) (*model.User, error){
 	user := &model.User{}
 	err := repository.Database.Table("users").First(&user, "username = ?", username).Error

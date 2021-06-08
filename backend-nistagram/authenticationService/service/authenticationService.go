@@ -17,7 +17,7 @@ func (service *AuthenticationService) Hello () {
 }
 
 func (service *AuthenticationService) RegisterUser (dto dto.RegularUserRegistrationDTO) error {
-	user := model.User{Id: dto.Id, Email: dto.Email, UserRole: dto.Role, Name: dto.Name, Surname: dto.Surname, Password: dto.Password, Username: dto.Username}
+	user := model.User{ Email: dto.Email, UserRole: 0, Name: dto.Name, Surname: dto.Surname, Password: dto.Password, Username: dto.Username}
 	err := service.AuthenticationRepository.RegisterUser(&user)
 	if err != nil {
 		return err
@@ -25,7 +25,23 @@ func (service *AuthenticationService) RegisterUser (dto dto.RegularUserRegistrat
 	return nil
 }
 
-func (service *AuthenticationService) Login (dto dto.LoginDTO) (*model.User, error){
+func (service *AuthenticationService) UpdateUser (dto dto.RegularUserUpdateDTO) error {
+	user, err := service.AuthenticationRepository.FindUserByUsername(dto.Username)
+	if err != nil {
+		return err
+	}
+	user.Name = dto.Name;
+	user.Surname = dto.Surname;
+	user.Username = dto.Username;
+	user.Email = dto.Email;
+	err = service.AuthenticationRepository.RegisterUser(user)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *AuthenticationService) FindByUsername (dto dto.LoginDTO) (*model.User, error){
 	user, err := service.AuthenticationRepository.FindUserByUsername(dto.Username)
 	if err != nil {
 		return nil, err
