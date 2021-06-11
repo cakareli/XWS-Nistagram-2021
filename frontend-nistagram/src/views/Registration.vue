@@ -5,7 +5,10 @@
         <v-col width="300px"></v-col>
         <v-col width="600px">
           <v-toolbar flat height="45" color="#A29D9C" width="600px">
-            <v-app-bar app>
+            <v-app-bar app height="45">
+              <v-app-bar-nav-icon @click="$router.push('/')">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-app-bar-nav-icon>
               <v-row>
                 <v-col>
                   <v-toolbar-title>

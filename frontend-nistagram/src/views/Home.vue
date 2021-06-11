@@ -4,8 +4,8 @@
       <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">
-          <v-toolbar height="45" color="#A29D9C" width="600px">
-            <v-app-bar app>
+          <v-toolbar height="45" color="#A29D9C" width="600px" >
+            <v-app-bar app height="45">
               <v-row>
                 <v-col>
                   <v-toolbar-title>
@@ -22,7 +22,7 @@
               </v-row>
             </v-app-bar>
           </v-toolbar>
-          <v-toolbar height="35" class="grey lighten-4" width="600px">
+          <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="600px">
             <v-app-bar app>
               <v-row align="center" justify="space-around">
                 <v-col>
@@ -94,9 +94,24 @@
 </template>
 
 <script>
+
+//import { getToken } from '../security/token.js'
+
 export default {
   name: "Home",
   data() {
-    return {};
+    return {
+    }
   },
+  methods: {
+    checkLoggedUser(){
+     if(this.getToken() !== ''){
+         this.$refs.guestToolbar.removeAttribute("hidden")
+       }
+      
+    }
+  },
+  mounted(){
+    this.checkLoggedUser();
+  }
 };

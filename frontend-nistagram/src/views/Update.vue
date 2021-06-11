@@ -4,10 +4,13 @@
       <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">
-          <v-toolbar flatheight="45" color="#A29D9C" width="600px">
-            <v-app-bar app>
+          <v-toolbar height="45" color="#A29D9C" width="600px">
+            <v-app-bar app height="45">
+              <v-app-bar-nav-icon @click="$router.push('/account')">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-app-bar-nav-icon>
               <v-row>
-                <v-col>
+                <v-col width="550px">
                   <v-toolbar-title>
                     <span outlined class="font-weight-light">NISTA</span>
                     <span>GRAM</span>
