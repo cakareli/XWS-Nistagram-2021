@@ -44,6 +44,8 @@ services:
       - backend
     environment:
       PORT: ${MEDIA_CONTENT_SERVICE_PORT}
+    depends_on:
+      - mongo-db
 
   follow-service:
     image: follow-service:compose_build
