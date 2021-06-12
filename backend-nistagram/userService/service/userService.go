@@ -41,8 +41,8 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 		"name": regularUserRegistrationDto.Name,
 		"surname": regularUserRegistrationDto.Surname,
 	})
-	request_url := fmt.Sprintf("http://%s:%s/register", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
-	resp, err := http.Post(request_url, "application/json", bytes.NewBuffer(postBody))
+	requestUrl := fmt.Sprintf("http://%s:%s/register", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -74,8 +74,8 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 		"name": regularUserUpdateDto.Name,
 		"surname": regularUserUpdateDto.Surname,
 	})
-	request_url := fmt.Sprintf("http://%s:%s/update", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
-	resp, err := http.Post(request_url, "application/json", bytes.NewBuffer(postBody))
+	requestUrl := fmt.Sprintf("http://%s:%s/update", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
 		return err

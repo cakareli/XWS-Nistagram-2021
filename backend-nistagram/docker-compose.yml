@@ -3,6 +3,7 @@ services:
 
   gateway:
     image: nginx:1.19.8-alpine
+    restart: always
     ports:
       - 8081:8081
     networks:
@@ -13,6 +14,7 @@ services:
 
   authentication-service:
     image: authentication-service:compose_build
+    restart: always
     build:
       context: ./authenticationService
       dockerfile: Dockerfile
@@ -29,6 +31,7 @@ services:
 
   user-service:
     image: user-service:compose_build
+    restart: always
     build:
       context: ./userService
       dockerfile: Dockerfile
@@ -43,6 +46,7 @@ services:
 
   media-content-service:
     image: media-content-service:compose_build
+    restart: always
     build:
       context: ./mediaContentService
       dockerfile: Dockerfile
@@ -55,6 +59,7 @@ services:
 
   follow-service:
     image: follow-service:compose_build
+    restart: always
     build:
       context: ./followService
       dockerfile: Dockerfile
@@ -65,6 +70,7 @@ services:
 
   notification-service:
     image: notification-service:compose_build
+    restart: always
     build:
       context: ./notificationService
       dockerfile: Dockerfile
@@ -75,6 +81,7 @@ services:
 
   mongo-db:
     image: mongo
+    restart: always
     ports:
       - 27017:27017
     volumes:
