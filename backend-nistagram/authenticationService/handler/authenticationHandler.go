@@ -37,6 +37,23 @@ func (handler *AuthenticationHandler) RegisterUser (res http.ResponseWriter, req
 	res.WriteHeader(http.StatusCreated);
 }
 
+func (handler *AuthenticationHandler) UpdateUser (res http.ResponseWriter, req *http.Request) {
+	var regularUserUpdateDTO dto.RegularUserUpdateDTO
+	err := json.NewDecoder(req.Body).Decode(&regularUserUpdateDTO)
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return;
+	}
+	fmt.Println(err)
+	err = handler.AuthenticationService.UpdateUser(regularUserUpdateDTO)
+	if err != nil {
+		fmt.Println(err)
+		res.WriteHeader(http.StatusBadRequest)
+		return;
+	}
+	res.WriteHeader(http.StatusOK);
+}
+
 func(handler *AuthenticationHandler) Login(res http.ResponseWriter, req *http.Request){
 	var loginDTO dto.LoginDTO
 	err := json.NewDecoder(req.Body).Decode(&loginDTO)
@@ -46,7 +63,7 @@ func(handler *AuthenticationHandler) Login(res http.ResponseWriter, req *http.Re
 		return
 	}
 	var user *model.User
-	user, err = handler.AuthenticationService.Login(loginDTO)
+	user, err = handler.AuthenticationService.FindByUsername(loginDTO)
 	if err != nil {
 		fmt.Println(err)
 		res.WriteHeader(http.StatusBadRequest)
@@ -56,11 +73,9 @@ func(handler *AuthenticationHandler) Login(res http.ResponseWriter, req *http.Re
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	token, err := util.CreateJWT(user.Id, &user.UserRole)
+	token, err := util.CreateJWT(user.UserId, &user.UserRole)
 	response := dto.LoginResponseDTO{
-		Username: user.Username,
 		Token: token,
-		Role: user.UserRole,
 	}
 	responseJSON, err := json.Marshal(response)
 	if err != nil {

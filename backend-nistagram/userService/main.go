@@ -7,10 +7,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
+	"os"
 )
 
 func initUserRepository(database *mongo.Database) *repository.UserRepository {
@@ -27,13 +29,31 @@ func initUserHandler(service *service.UserService) *handler.UserHandler {
 
 func handleFunc(handler *handler.UserHandler) {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 
+	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/create-regular-user", handler.Create).Methods("POST")
 	router.HandleFunc("/update-regular-user", handler.Update).Methods("POST")
 
+	c := SetupCors()
+
 	fmt.Println("Server running...")
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), router))
+	//http.Handle("/", c.Handler(router))
+	//log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), c.Handler(router)))
+
+	http.Handle("/", c.Handler(router))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func SetupCors() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // All origins, for now
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+		AllowCredentials: true,
+	})
 }
 
 func main() {

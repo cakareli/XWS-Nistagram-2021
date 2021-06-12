@@ -4,8 +4,12 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/userService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/userService/model"
 	"XWS-Nistagram-2021/backend-nistagram/userService/repository"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
+	"os"
 )
 
 type UserService struct {
@@ -25,10 +29,25 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 	}
 
 	var regularUser = createRegularUserFromRegularUserRegistrationDTO(&regularUserRegistrationDto)
-	err := service.UserRepository.CreateRegularUser(regularUser)
+	createdUserId, err := service.UserRepository.CreateRegularUser(regularUser)
 	if err != nil {
 		return err
 	}
+	postBody, _ := json.Marshal(map[string]string{
+		"userId": createdUserId,
+		"email": regularUserRegistrationDto.Email,
+		"password": regularUserRegistrationDto.Password,
+		"username": regularUserRegistrationDto.Username,
+		"name": regularUserRegistrationDto.Name,
+		"surname": regularUserRegistrationDto.Surname,
+	})
+	request_url := fmt.Sprintf("http://%s:%s/register", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(request_url, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
 	return nil
 }
 
@@ -47,6 +66,21 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 	if err != nil {
 		return err
 	}
+
+	postBody, _ := json.Marshal(map[string]string{
+		"_id": regularUserUpdateDto.Id,
+		"email": regularUserUpdateDto.Email,
+		"username": regularUserUpdateDto.Username,
+		"name": regularUserUpdateDto.Name,
+		"surname": regularUserUpdateDto.Surname,
+	})
+	request_url := fmt.Sprintf("http://%s:%s/update", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(request_url, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
 	return nil
 }
 

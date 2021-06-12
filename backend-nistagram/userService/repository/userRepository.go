@@ -18,13 +18,13 @@ func (repository *UserRepository) Hello (){
 	fmt.Printf("Hello from Repository")
 }
 
-func (repository *UserRepository) CreateRegularUser(user *model.RegularUser) error{
+func (repository *UserRepository) CreateRegularUser(user *model.RegularUser) (string ,error){
 	regularUserCollection := repository.Database.Collection("regularUsers")
-		_, err := regularUserCollection.InsertOne(context.TODO(), &user)
+		res, err := regularUserCollection.InsertOne(context.TODO(), &user)
 	if err != nil {
-		return fmt.Errorf("regular user is NOT created")
+		return "", fmt.Errorf("regular user is NOT created")
 	}
-	return nil
+	return res.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
 func (repository *UserRepository) ExistByUsername(username string) bool{

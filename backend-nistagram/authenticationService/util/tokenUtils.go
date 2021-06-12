@@ -12,12 +12,12 @@ import (
 const secret = "nistagram_secret"
 
 type TokenClaims struct {
-	UserId int `json:"userId"`
+	UserId string `json:"userId"`
 	Role model.UserRole `json:"role"`
 	jwt.StandardClaims
 }
 
-func CreateJWT(userId int, role *model.UserRole) (string, error) {
+func CreateJWT(userId string, role *model.UserRole) (string, error) {
 	tokenClaims := TokenClaims{UserId: userId, Role: *role, StandardClaims: jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(time.Minute * 50).Unix(),
 		IssuedAt: time.Now().Unix(),
@@ -42,7 +42,7 @@ func GetJWT(r http.Header) string {
 	return ""
 }
 
-func GetUserIdFromToken(r *http.Request) (int){
+func GetUserIdFromToken(r *http.Request) (string){
 	tokenString := GetJWT(r.Header)
 
 	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -52,6 +52,6 @@ func GetUserIdFromToken(r *http.Request) (int){
 		return claims.UserId
 	} else {
 		fmt.Println(err)
-		return 0;
+		return "";
 	}
 }
