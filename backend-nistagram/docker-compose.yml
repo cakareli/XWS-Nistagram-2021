@@ -20,6 +20,10 @@ services:
       - backend
     environment:
       PORT: ${AUTHENTICATION_SERVICE_PORT}
+      PSQL_USER: ${PSQL_USER}
+      PSQL_PASS: ${PSQL_PASS}
+      PSQL_DBNAME: ${PSQL_DBNAME}
+      PSQL_PORT: ${PSQL_PORT}
     depends_on:
       - postgres
 
@@ -32,6 +36,8 @@ services:
       - backend
     environment:
       PORT: ${USER_SERVICE_PORT}
+      AUTHENTICATION_SERVICE_DOMAIN: ${AUTHENTICATION_SERVICE_DOMAIN}
+      AUTHENTICATION_SERVICE_PORT: ${AUTHENTICATION_SERVICE_PORT}
     depends_on:
       - mongo-db
 

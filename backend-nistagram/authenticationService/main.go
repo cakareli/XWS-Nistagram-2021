@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	cors "github.com/rs/cors"
+	"os"
 )
 
 func initAuthenticationRepository(database *gorm.DB) *repository.AuthenticationRepository {
@@ -39,15 +40,14 @@ func handleFunc(handler *handler.AuthenticationHandler) {
 	c := SetupCors()
 
 	http.Handle("/", c.Handler(router))
-	http.ListenAndServe(":8081", c.Handler(router))
+	http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
 }
 
 func initDatabase() *gorm.DB {
 	var database *gorm.DB
 	err := godotenv.Load()
 	dsn := fmt.Sprintf("host=postgres user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Kolkata",
-		"postgres", "1234567", "auth-service", "5432")
-
+		os.Getenv("PSQL_USER"), os.Getenv("PSQL_PASS"), os.Getenv("PSQL_DBNAME"), os.Getenv("PSQL_PORT"))
 	log.Print("Connecting to PostgreSQL DB...")
 	database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),

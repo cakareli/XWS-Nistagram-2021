@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
+	"os"
 )
 
 func initUserRepository(database *mongo.Database) *repository.UserRepository {
@@ -40,7 +41,7 @@ func handleFunc(handler *handler.UserHandler) {
 	//log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), c.Handler(router)))
 
 	http.Handle("/", c.Handler(router))
-	http.ListenAndServe(":8081", c.Handler(router))
+	http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
 }
 
 func SetupCors() *cors.Cors {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 
 
 	fmt.Printf("Starting server at port 8081\n")
-	if err := http.ListenAndServe(":8081", nil); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), nil); err != nil {
 		log.Fatal(err)
 	}
 }
