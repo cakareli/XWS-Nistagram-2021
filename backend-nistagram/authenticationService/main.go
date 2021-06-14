@@ -32,7 +32,6 @@ func initAuthentcationHandler(service *service.AuthenticationService) *handler.A
 func handleFunc(handler *handler.AuthenticationHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/register", handler.RegisterUser).Methods("POST")
 	router.HandleFunc("/login", handler.Login).Methods("POST")
 	router.HandleFunc("/update", handler.UpdateUser).Methods("POST")
