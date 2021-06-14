@@ -30,6 +30,7 @@ func initUserHandler(service *service.RegularUserService) *handler.RegularUserHa
 func handleFunc(handler *handler.RegularUserHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
+	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
 	router.HandleFunc("/register-regular-user", handler.Register).Methods("POST")
 	router.HandleFunc("/update-regular-user", handler.Update).Methods("PUT")
 
@@ -50,6 +51,8 @@ func SetupCors() *cors.Cors {
 		AllowCredentials: true,
 	})
 }
+
+
 
 func initDatabase() *mongo.Database{
 	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")

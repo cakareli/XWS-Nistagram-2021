@@ -4,8 +4,11 @@
       <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">
-          <v-toolbar flat height="45" color="#A29D9C" width="600px">
-            <v-app-bar app>
+          <v-toolbar flat height="45" color="grey" width="800px">
+            <v-app-bar app height="45">
+              <v-app-bar-nav-icon @click="$router.push('/')">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-app-bar-nav-icon>
               <v-row>
                 <v-col>
                   <v-toolbar-title>
@@ -100,6 +103,7 @@
 
 <script>
 import axios from "axios";
+import { setToken } from '../security/token.js'
 
 export default {
   name: "Registration",
@@ -167,7 +171,6 @@ export default {
         ],
         websiteRules: [
           (website) => !!website || "Website is required",
-          //website => /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/.test(website) || 'Website not valid!'
         ],
         dateRules: [
           (birthday) => !!birthday || "Birthday is required",
@@ -183,7 +186,7 @@ export default {
     submit() {
       if (this.$refs.registrationForm.validate()) {
         axios
-          .post("http://localhost:8081/api/user/create-regular-user", {
+          .post("http://localhost:8081/api/user/register-regular-user", {
             name: this.form.name,
             surname: this.form.surname,
             username: this.form.username,
@@ -199,8 +202,29 @@ export default {
             console.log(response.status);
             this.snackbarText = "Your account has been successfuly created!";
             this.snackbar = true;
+            let loginCredentials = {
+                username: this.form.username,
+                password: this.form.password
+            }
+            axios.post('http://localhost:8081/api/auth/login', loginCredentials)
+            .then(response =>{
+                console.log(response)
+                let token = response.data.token;
+                setToken(token);
+            }).catch(error => {
+                if(error.response.status === 400){
+                    this.snackbarText = "Account with that username doesn't exist!";
+                    this.snackbar = true;
+                }else if(error.response.status === 500){
+                    this.snackbarText = "Internal server error occurred!";
+                    this.snackbar = true;
+                }else if(error.response.status === 401){
+                    this.snackbarText = "You have entered wrong password!";
+                    this.snackbar = true;
+                }
+            })
             setTimeout(() => {
-              this.$router.push({ path: "/account" });
+              this.$router.push({ path: "/" });
             }, 2000);
           })
           .catch((error) => {

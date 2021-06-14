@@ -4,6 +4,8 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/userService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/userService/service"
 	"encoding/json"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
 
@@ -49,4 +51,20 @@ func (handler *RegularUserHandler) Update(w http.ResponseWriter, r *http.Request
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.Request){
+
+
+	w.Header().Set("content-type", "application/json")
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	regularUser, err := handler.RegularUserService.FindUserById(id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(regularUser)
 }

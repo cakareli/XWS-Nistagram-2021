@@ -79,6 +79,12 @@ func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUp
 	return nil
 }
 
+func (service *RegularUserService) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
+	fmt.Print("Searching for logged user...")
+	regularUser, err := service.RegularUserRepository.FindUserById(userId)
+	return regularUser, err
+}
+
 func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistrationDTO) *model.RegularUser{
 	profilePrivacy := model.ProfilePrivacy{
 		PrivacyType: model.PrivacyType(0),

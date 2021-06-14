@@ -7,8 +7,11 @@
       <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">
-          <v-toolbar flat height="45" color="#A29D9C" width="600px">
-            <v-app-bar app>
+          <v-toolbar flat height="45" width="800px">
+            <v-app-bar app height="45" color="grey">
+              <v-app-bar-nav-icon @click="$router.push('/')">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-app-bar-nav-icon>
               <v-row>
                 <v-col>
                   <v-toolbar-title>
@@ -84,7 +87,7 @@ export default {
                 console.log(response)
                 let token = response.data.token;
                 setToken(token);
-                this.$router.push({ path: "/account" });
+                this.$router.push({ path: "/" });
             }).catch(error => {
                 if(error.response.status === 400){
                     this.snackbarText = "Account with that username doesn't exist!";

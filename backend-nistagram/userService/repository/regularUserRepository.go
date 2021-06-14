@@ -80,3 +80,14 @@ func (repository *RegularUserRepository) UsernameChanged(username string, id pri
 	}
 	return false
 }
+
+func (repository *RegularUserRepository) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
+	var regularUser *model.RegularUser
+	result:= repository.Database.Collection("regularUsers").FindOne(context.Background(), bson.M{"_id": userId})
+	result.Decode(&regularUser)
+
+	if regularUser.Id.IsZero(){
+		return regularUser, fmt.Errorf("regular user is NOT found")
+	}
+	return regularUser, nil
+}
