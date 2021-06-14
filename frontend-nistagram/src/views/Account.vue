@@ -4,8 +4,8 @@
       <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">
-          <v-toolbar height="45" color="#A29D9C" width="600px" >
-            <v-app-bar  app height="45">
+          <v-toolbar height="45" width="800px" >
+            <v-app-bar  app height="45" color="grey">
               <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
               <v-row >
                 <v-col>
@@ -58,6 +58,12 @@
                       Verify</v-list-item-title>
                   </v-list-item>
 
+                  <v-list-item @click="logout">
+                    <v-list-item-title>
+                      <v-icon small>mdi-logout</v-icon>
+                      Log out</v-list-item-title>
+                  </v-list-item>
+
                 </v-list-item-group>
               </v-list>
             </v-navigation-drawer>
@@ -66,9 +72,6 @@
           <v-container>
             <v-row height="100px" width="600px">
               <v-col width="50px">
-                <!-- <v-avatar color="indigo" size="70">
-                  <span>Img</span>                 
-                </v-avatar>                         -->
               </v-col>
             </v-row>
             <v-row>
@@ -83,8 +86,8 @@
               </v-col>
             </v-row>
           </v-container>
-          <v-bottom-navigation height="35" width="600px">
-            <v-btn value="home">
+          <v-bottom-navigation height="35" width="800px" background-color="grey">
+            <v-btn value="home" @click="$router.push('/')">
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
@@ -119,7 +122,7 @@
 <script>
 
 import axios from "axios";
-import { getId, getToken } from '../security/token.js'
+import { getId, getToken, removeToken } from '../security/token.js'
 
 export default {
   name: "Account",
@@ -159,6 +162,10 @@ export default {
             }
         })
     },
+    logout(){
+      removeToken()
+        this.$router.push("/").catch(()=>{})
+    }
   },
   mounted(){
     this.loadRegisteredUser();

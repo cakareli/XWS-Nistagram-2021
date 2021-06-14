@@ -4,7 +4,7 @@
       <v-row>
         <v-col width="300px"></v-col>
         <v-col width="600px">
-          <v-toolbar flat height="45" color="#A29D9C" width="600px">
+          <v-toolbar flat height="45" color="grey" width="800px">
             <v-app-bar app height="45">
               <v-app-bar-nav-icon @click="$router.push('/')">
                 <v-icon>mdi-arrow-left</v-icon>
@@ -171,7 +171,6 @@ export default {
         ],
         websiteRules: [
           (website) => !!website || "Website is required",
-          //website => /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/.test(website) || 'Website not valid!'
         ],
         dateRules: [
           (birthday) => !!birthday || "Birthday is required",
@@ -203,7 +202,6 @@ export default {
             console.log(response.status);
             this.snackbarText = "Your account has been successfuly created!";
             this.snackbar = true;
-            // **************
             let loginCredentials = {
                 username: this.form.username,
                 password: this.form.password
@@ -213,7 +211,6 @@ export default {
                 console.log(response)
                 let token = response.data.token;
                 setToken(token);
-                //this.$router.push({ path: "/" });
             }).catch(error => {
                 if(error.response.status === 400){
                     this.snackbarText = "Account with that username doesn't exist!";
@@ -226,7 +223,6 @@ export default {
                     this.snackbar = true;
                 }
             })
-            // ********************
             setTimeout(() => {
               this.$router.push({ path: "/" });
             }, 2000);
