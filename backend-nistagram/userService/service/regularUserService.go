@@ -12,24 +12,19 @@ import (
 	"os"
 )
 
-type UserService struct {
-	UserRepository *repository.UserRepository
+type RegularUserService struct {
+	RegularUserRepository *repository.RegularUserRepository
 }
 
-func (service *UserService) Hello () {
-	fmt.Printf("Hello from service!")
-	service.UserRepository.Hello()
-}
-
-func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.RegularUserRegistration) error {
+func (service *RegularUserService) Register(regularUserRegistrationDto dto.RegularUserRegistrationDTO) error {
 	fmt.Println("Creating regular user")
 
-	if service.UserRepository.ExistByUsername(regularUserRegistrationDto.Username) {
+	if service.RegularUserRepository.ExistByUsername(regularUserRegistrationDto.Username) {
 		return fmt.Errorf("username is already taken")
 	}
 
 	var regularUser = createRegularUserFromRegularUserRegistrationDTO(&regularUserRegistrationDto)
-	createdUserId, err := service.UserRepository.CreateRegularUser(regularUser)
+	createdUserId, err := service.RegularUserRepository.Register(regularUser)
 	if err != nil {
 		return err
 	}
@@ -51,18 +46,18 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 	return nil
 }
 
-func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
+func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
 	fmt.Println("Updating regular user")
 
-	if service.UserRepository.ExistByUsername(regularUserUpdateDto.Username) {
+	if service.RegularUserRepository.ExistByUsername(regularUserUpdateDto.Username) {
 		id, _ := primitive.ObjectIDFromHex(regularUserUpdateDto.Id)
-		if service.UserRepository.UsernameChanged(regularUserUpdateDto.Username, id) {
+		if service.RegularUserRepository.UsernameChanged(regularUserUpdateDto.Username, id) {
 			return fmt.Errorf("username is already taken")
 		}
 	}
 
 	var regularUser = createRegularUserFromRegularUserUpdateDTO(&regularUserUpdateDto)
-	err := service.UserRepository.UpdateRegularUser(regularUser)
+	err := service.RegularUserRepository.Update(regularUser)
 	if err != nil {
 		return err
 	}
@@ -84,7 +79,7 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 	return nil
 }
 
-func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistration) *model.RegularUser{
+func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistrationDTO) *model.RegularUser{
 	profilePrivacy := model.ProfilePrivacy{
 		PrivacyType: model.PrivacyType(0),
 		AllMessageRequests: true,

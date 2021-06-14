@@ -4,27 +4,22 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/userService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/userService/service"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-type UserHandler struct {
-	UserService *service.UserService
+type RegularUserHandler struct {
+	RegularUserService *service.RegularUserService
 }
 
-func(handler *UserHandler) Hello(res http.ResponseWriter, req *http.Request){
-	fmt.Fprint(res, "Hello from controller!")
-	handler.UserService.Hello()
-}
-
-func (handler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var regularUserRegistrationDto dto.RegularUserRegistration
+func (handler *RegularUserHandler) Register(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var regularUserRegistrationDto dto.RegularUserRegistrationDTO
 	err := json.NewDecoder(r.Body).Decode(&regularUserRegistrationDto)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.UserService.CreateRegularUser(regularUserRegistrationDto)
+	err = handler.RegularUserService.Register(regularUserRegistrationDto)
 	if err != nil {
 		if err.Error() == "username is already taken" {
 			w.WriteHeader(http.StatusConflict)
@@ -34,17 +29,17 @@ func (handler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
-	w.Header().Set("Content-Type", "application/json")
 }
 
-func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (handler *RegularUserHandler) Update(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var userUpdateDto dto.RegularUserUpdateDTO
 	err := json.NewDecoder(r.Body).Decode(&userUpdateDto)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.UserService.UpdateRegularUser(userUpdateDto)
+	err = handler.RegularUserService.Update(userUpdateDto)
 	if err != nil {
 		if err.Error() == "username is already taken" {
 			w.WriteHeader(http.StatusConflict)
@@ -54,5 +49,4 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
-	w.Header().Set("Content-Type", "application/json")
 }

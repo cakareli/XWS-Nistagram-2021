@@ -30,13 +30,11 @@ func initPostHandler(service *service.PostService) *handler.PostHandler {
 func handleFunc(handler *handler.PostHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/regular-user-posts/{username}", handler.GetAllRegularUserPosts).Methods("GET")
 	router.HandleFunc("/public-posts", handler.GetAllPublicPosts).Methods("GET")
 
 	c := SetupCors()
 
-	fmt.Println("Server running...")
 	http.Handle("/", c.Handler(router))
 	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
 	if err != nil {
@@ -53,15 +51,13 @@ func SetupCors() *cors.Cors {
 	})
 }
 
-func main() {
-
+func initDatabase() *mongo.Database{
 	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
-	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Check the connection
+
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -69,9 +65,14 @@ func main() {
 	fmt.Println("Connected to MongoDB!")
 
 	mediaContentDatabase := client.Database("media-content")
+	return mediaContentDatabase
+}
 
+func main() {
+	mediaContentDatabase := initDatabase()
 	postRepository := initPostRepository(mediaContentDatabase)
 	postService := initPostService(postRepository)
 	postHandler := initPostHandler(postService)
+
 	handleFunc(postHandler)
 }

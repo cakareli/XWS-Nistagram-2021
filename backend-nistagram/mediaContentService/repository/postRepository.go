@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
@@ -12,13 +11,8 @@ type PostRepository struct {
 	Database *mongo.Database
 }
 
-func (repository *PostRepository) Hello (){
-	fmt.Printf("Hello from Repository")
-}
-
 func (repository *PostRepository) GetAllByUsername(username string) []bson.D{
 	postsCollection := repository.Database.Collection("posts")
-
 	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"regularUser.username": username})
 	if err != nil {
 		log.Fatal(err)
@@ -31,10 +25,8 @@ func (repository *PostRepository) GetAllByUsername(username string) []bson.D{
 	return postsFiltered
 }
 
-
 func (repository *PostRepository) GetAllPublic() []bson.D{
 	postsCollection := repository.Database.Collection("posts")
-
 	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"regularUser.privacyType": 0})
 	if err != nil {
 		log.Fatal(err)
