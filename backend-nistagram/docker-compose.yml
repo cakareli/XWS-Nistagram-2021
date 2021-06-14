@@ -81,11 +81,10 @@ services:
 
   mongo-db:
     image: mongo
-    restart: always
     ports:
       - 27017:27017
     volumes:
-      - ./mongo-volumes:/data/db/
+      - /data/db:/data/db
     networks:
       - backend
 
