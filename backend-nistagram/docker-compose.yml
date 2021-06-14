@@ -3,7 +3,7 @@ services:
 
   gateway:
     image: nginx:1.19.8-alpine
-    restart: always
+    restart: on-failure
     ports:
       - 8081:8081
     networks:
@@ -14,7 +14,7 @@ services:
 
   authentication-service:
     image: authentication-service:compose_build
-    restart: always
+    restart: on-failure
     build:
       context: ./authenticationService
       dockerfile: Dockerfile
@@ -31,7 +31,7 @@ services:
 
   user-service:
     image: user-service:compose_build
-    restart: always
+    restart: on-failure
     build:
       context: ./userService
       dockerfile: Dockerfile
@@ -46,7 +46,7 @@ services:
 
   media-content-service:
     image: media-content-service:compose_build
-    restart: always
+    restart: on-failure
     build:
       context: ./mediaContentService
       dockerfile: Dockerfile
@@ -59,7 +59,7 @@ services:
 
   follow-service:
     image: follow-service:compose_build
-    restart: always
+    restart: on-failure
     build:
       context: ./followService
       dockerfile: Dockerfile
@@ -70,7 +70,7 @@ services:
 
   notification-service:
     image: notification-service:compose_build
-    restart: always
+    restart: on-failure
     build:
       context: ./notificationService
       dockerfile: Dockerfile
@@ -97,14 +97,14 @@ services:
     ports:
       - 7474:7474
       - 7687:7687
-    restart: always
+    restart: on-failure
     networks:
       - backend
     command: neo4j
 
   postgres:
     image: postgres
-    restart: always
+    restart: on-failure
     environment:
       POSTGRES_USER: ${PSQL_USER}
       POSTGRES_DB: ${PSQL_DBNAME}
