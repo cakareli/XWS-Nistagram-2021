@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"XWS-Nistagram-2021/backend-nistagram/authenticationService/model"
 	"fmt"
 	"gorm.io/gorm"
-	"XWS-Nistagram-2021/backend-nistagram/authenticationService/model"
 )
 
 type AuthenticationRepository struct {
@@ -49,3 +49,4 @@ func (repository *AuthenticationRepository) FindUserByUserId(userId string) (*mo
 	}
 	return user, nil
 }
+

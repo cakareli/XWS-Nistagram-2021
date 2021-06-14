@@ -60,6 +60,7 @@
                     <template v-slot:activator="{ on }">
                       <v-text-field
                         :value="form.birthday"
+                        v-model="form.birthday"
                         placeholder="Birthday date*"
                         v-on="on"
                         :rules="rules.dateRules"
@@ -91,14 +92,14 @@
 
 <script>
 import axios from "axios";
-import { getId } from '../security/token.js'
+import { getId, getToken } from '../security/token.js'
 
 export default {
   name: "Update",
 
-  // mounted() {
-  //     this.loadRegisteredUser();
-  // },
+  mounted() {
+      this.loadRegisteredUser();
+  },
 
   data() {
     return {
@@ -112,7 +113,7 @@ export default {
         username: "",
         email: "",
         phoneNumber: "",
-        gender: "0",
+        gender: "",
         birthday: "",
         website: "",
         biography: "",
@@ -186,7 +187,7 @@ export default {
             username: this.form.username,
             email: this.form.email,
             phoneNumber: this.form.phoneNumber,
-            hender: parseInt(this.form.gender, 10),
+            gender: parseInt(this.form.gender, 10),
             birthDate: this.form.birthday + this.time,
             biography: this.form.biography,
             webSite: this.form.website,
@@ -215,30 +216,36 @@ export default {
       }
     },
 
-    // loadRegisteredUser(){
-    //         axios.post('http://localhost:8081/update-regular-user')
-    //         .then(response => {
-    //             this.regularUser = response.data;
-    //             this.form.id = this.regularUser.id;
-    //             this.form.name = this.regularUser.name;
-    //             this.form.surname = this.regularUser.surname;
-    //             this.form.gender = this.regularUser.gender;
-    //             this.form.phoneNumber = this.regularUser.phoneNumber;
-    //             this.form.email = this.regularUser.email;
-    //             this.form.birthday = this.regularUser.birthday + this.time;
-    //             this.form.biography = this.regularUser.biography;
-    //             this.form.website = this.regularUser.website;
-    //         }).catch(error => {
-    //         if(error.response.status === 500){
-    //             this.snackbarText = "Internal server error occurred!";
-    //             this.snackbar = true;
-    //         }
-    //         if(error.response.status === 401){
-    //            this.snackbar = true
-    //            this.snackbarText = "You are unauthorized to get patient informations!";
-    //         }
-    //     })
-    // },
+    loadRegisteredUser(){
+            axios.get('http://localhost:8081/api/user/logged-user/'+getId(),
+            {
+                    headers : {
+                        Authorization: 'Bearer ' + getToken()
+                    }
+            })
+            .then(response => {
+                this.regularUser = response.data;
+                this.form.id = this.regularUser.id;
+                this.form.name = this.regularUser.Name;
+                this.form.surname = this.regularUser.Surname;
+                this.form.username = this.regularUser.Username;
+                this.form.gender = String(this.regularUser.Gender);
+                this.form.phoneNumber = this.regularUser.PhoneNumber;
+                this.form.email = this.regularUser.Email;
+                this.form.birthday = this.regularUser.BirthDate.substring(0,10);
+                this.form.biography = this.regularUser.Biography;
+                this.form.website = this.regularUser.WebSite;
+            }).catch(error => {
+            if(error.response.status === 500){
+                this.snackbarText = "Internal server error occurred!";
+                this.snackbar = true;
+            }
+            if(error.response.status === 401){
+               this.snackbar = true
+               this.snackbarText = "You are unauthorized to get patient informations!";
+            }
+        })
+    },
   },
 };
 </script>

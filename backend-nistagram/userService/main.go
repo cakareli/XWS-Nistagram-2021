@@ -32,6 +32,7 @@ func handleFunc(handler *handler.UserHandler) {
 
 	router.HandleFunc("/create-regular-user", handler.Create).Methods("POST")
 	router.HandleFunc("/update-regular-user", handler.Update).Methods("POST")
+	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
 
 	c := SetupCors()
 
@@ -54,6 +55,7 @@ func SetupCors() *cors.Cors {
 
 func main() {
 
+	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)

@@ -5,7 +5,7 @@
         <v-col width="300px"></v-col>
         <v-col width="600px">
           <v-toolbar height="45" color="#A29D9C" width="600px" >
-            <v-app-bar app height="45">
+            <v-app-bar  app height="45">
               <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
               <v-row >
                 <v-col>
@@ -22,10 +22,9 @@
                 </v-col>
               </v-row>
             </v-app-bar>
-            <v-navigation-drawer v-model="drawer" absolute  temporary height="500" class="grey lighten-4">
+            <v-navigation-drawer v-model="drawer" absolute temporary height="500" class="grey lighten-4">
               <v-list nav dense>
                 <v-list-item-group
-                  v-model="group"
                   active-class="deep-purple--text text--accent-4">
                   <v-list-item>
                     <v-list-item-title>
@@ -63,34 +62,22 @@
               </v-list>
             </v-navigation-drawer>
           </v-toolbar>
-          <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="600px" hidden>
-            <v-app-bar app>
-              <v-row align="center" justify="space-around">
-                <v-col>
-                  <v-btn
-                    width="250px"
-                    height="35px"
-                    @click="$router.push('/registration')"
-                    >Register</v-btn
-                  >
-                </v-col>
-                <v-col>
-                  <v-btn
-                    width="250px"
-                    height="35px"
-                    @click="$router.push('/login')"
-                    >Login</v-btn
-                  >
-                </v-col>
-              </v-row>
-            </v-app-bar>
-          </v-toolbar>
+
           <v-container>
+            <v-row height="100px" width="600px">
+              <v-col width="50px">
+                <!-- <v-avatar color="indigo" size="70">
+                  <span>Img</span>                 
+                </v-avatar>                         -->
+              </v-col>
+            </v-row>
             <v-row>
-              <v-col width="200px">     
+              <v-col>
+                <label>{{this.name}}</label>
+                <label>{{this.surname}}</label>
               </v-col>
               <v-col>
-                <v-btn height="500">
+                <v-btn height="400">
 
                 </v-btn>
               </v-col>
@@ -113,45 +100,68 @@
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
-            <v-dialog>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  value="profile"
-                  v-on="on"
-                  @click="$router.push('/account')"
-                >
-                  <v-icon>mdi-account</v-icon>
-                </v-btn>
-              </template>
-              <v-card>
-                <v-card-title>
-                  <h2>Account</h2>
-                </v-card-title>
-              </v-card>
-            </v-dialog>
+            
+            <v-btn
+              value="profile"
+              @click="$router.push('/account')"
+            >
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+              
           </v-bottom-navigation>
         </v-col>
         <v-col width="300px"></v-col>
       </v-row>
     </v-container>
   </v-app>
-  <!-- <v-container>
-    <v-row>
-      <v-col>
-        <h1>Account</h1>
-        <v-btn @click="$router.push('/update')">Edit profile</v-btn>
-      </v-col>
-    </v-row>
-  </v-container> -->
 </template>
 
 <script>
+
+import axios from "axios";
+import { getId, getToken } from '../security/token.js'
+
 export default {
   name: "Account",
   data() {
     return{
-      drawer : false
+      drawer : false,
+      name: "",
+      surname: "",
+      username: "",
+      biography: "",
+      website: ""
     }
+  },
+  methods: {
+    loadRegisteredUser(){
+            axios.get('http://localhost:8081/api/user/logged-user/'+getId(),
+            {
+                    headers : {
+                        Authorization: 'Bearer ' + getToken()
+                    }
+            })
+            .then(response => {
+                this.regularUser = response.data;
+                this.name = this.regularUser.Name + " ";
+                this.surname = this.regularUser.Surname;
+                this.username = this.regularUser.Username;
+                this.biography = this.regularUser.Biography;
+                this.website = this.regularUser.WebSite;
+            }).catch(error => {
+            if(error.response.status === 500){
+                this.snackbarText = "Internal server error occurred!";
+                this.snackbar = true;
+            }
+            if(error.response.status === 401){
+               this.snackbar = true
+               this.snackbarText = "You are unauthorized to get patient informations!";
+            }
+        })
+    },
+  },
+  mounted(){
+    this.loadRegisteredUser();
   }
 };
 </script>

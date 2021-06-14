@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	//"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AuthenticationHandler struct {
@@ -87,3 +88,23 @@ func(handler *AuthenticationHandler) Login(res http.ResponseWriter, req *http.Re
 	res.Write(responseJSON)
 	res.Header().Set("Content-Type", "application/json")
 }
+
+func (handler *AuthenticationHandler) FindUserById(w http.ResponseWriter, r *http.Request){
+	var userId string
+	var user *model.User
+	err := json.NewDecoder(r.Body).Decode(&userId)
+	if err != nil{
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	user,err = handler.AuthenticationService.FindUserById(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else{
+		w.WriteHeader(http.StatusOK)
+	}
+	fmt.Print("User:\nName:"+user.Name + "\nSurname:"+user.Surname)
+	w.Header().Set("Content-Type", "application/json")
+}
+

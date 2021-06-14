@@ -103,6 +103,7 @@
 
 <script>
 import axios from "axios";
+import { setToken } from '../security/token.js'
 
 export default {
   name: "Registration",
@@ -202,8 +203,32 @@ export default {
             console.log(response.status);
             this.snackbarText = "Your account has been successfuly created!";
             this.snackbar = true;
+            // **************
+            let loginCredentials = {
+                username: this.form.username,
+                password: this.form.password
+            }
+            axios.post('http://localhost:8081/api/auth/login', loginCredentials)
+            .then(response =>{
+                console.log(response)
+                let token = response.data.token;
+                setToken(token);
+                //this.$router.push({ path: "/" });
+            }).catch(error => {
+                if(error.response.status === 400){
+                    this.snackbarText = "Account with that username doesn't exist!";
+                    this.snackbar = true;
+                }else if(error.response.status === 500){
+                    this.snackbarText = "Internal server error occurred!";
+                    this.snackbar = true;
+                }else if(error.response.status === 401){
+                    this.snackbarText = "You have entered wrong password!";
+                    this.snackbar = true;
+                }
+            })
+            // ********************
             setTimeout(() => {
-              this.$router.push({ path: "/account" });
+              this.$router.push({ path: "/" });
             }, 2000);
           })
           .catch((error) => {

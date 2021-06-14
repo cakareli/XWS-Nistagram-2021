@@ -22,11 +22,11 @@
               </v-row>
             </v-app-bar>
           </v-toolbar>
-          <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="600px">
+          <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="600px"  v-show="!loggedUser">
             <v-app-bar app>
               <v-row align="center" justify="space-around">
                 <v-col>
-                  <v-btn
+                  <v-btn 
                     width="250px"
                     height="35px"
                     @click="$router.push('/registration')"
@@ -66,22 +66,14 @@
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
-            <v-dialog>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  value="profile"
-                  v-on="on"
-                  @click="$router.push('/account')"
-                >
-                  <v-icon>mdi-account</v-icon>
-                </v-btn>
-              </template>
-              <v-card>
-                <v-card-title>
-                  <h2>Account</h2>
-                </v-card-title>
-              </v-card>
-            </v-dialog>
+            
+            <v-btn
+              value="profile"
+              @click="$router.push('/account')"
+            >
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+              
           </v-bottom-navigation>
         </v-col>
         <v-col width="300px"></v-col>
@@ -95,23 +87,29 @@
 
 <script>
 
-//import { getToken } from '../security/token.js'
+import { getToken } from '../security/token.js'
 
 export default {
   name: "Home",
+  
+
   data() {
     return {
+      loggedUser: false,
     }
   },
+
   methods: {
     checkLoggedUser(){
-     if(this.getToken() !== ''){
-         this.$refs.guestToolbar.removeAttribute("hidden")
+     if(getToken !== ""){
+        this.loggedUser = true
        }
       
     }
   },
-  mounted(){
-    this.checkLoggedUser();
-  }
+  mounted() {
+    //this.checkLoggedUser();
+  },
 };
+
+</script>

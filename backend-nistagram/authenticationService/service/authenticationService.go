@@ -5,6 +5,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/authenticationService/model"
 	"XWS-Nistagram-2021/backend-nistagram/authenticationService/repository"
 	"fmt"
+	//"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AuthenticationService struct {
@@ -43,6 +44,14 @@ func (service *AuthenticationService) UpdateUser (dto dto.RegularUserUpdateDTO) 
 
 func (service *AuthenticationService) FindByUsername (dto dto.LoginDTO) (*model.User, error){
 	user, err := service.AuthenticationRepository.FindUserByUsername(dto.Username)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (service *AuthenticationService) FindUserById (id string) (*model.User, error){
+	user, err := service.AuthenticationRepository.FindUserByUserId(id)
 	if err != nil {
 		return nil, err
 	}

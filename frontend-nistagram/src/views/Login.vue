@@ -82,12 +82,12 @@ export default {
                 username: this.form.username,
                 password: this.form.password
             }
-            axios.post('http://localhost:8081/login', loginCredentials)
+            axios.post('http://localhost:8081/api/auth/login', loginCredentials)
             .then(response =>{
                 console.log(response)
                 let token = response.data.token;
                 setToken(token);
-                this.$router.push({ path: "/account" });
+                this.$router.push({ path: "/" });
             }).catch(error => {
                 if(error.response.status === 400){
                     this.snackbarText = "Account with that username doesn't exist!";
