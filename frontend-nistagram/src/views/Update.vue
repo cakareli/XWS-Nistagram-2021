@@ -180,7 +180,7 @@ export default {
     update() {
       if (this.$refs.updateForm.validate()) {
         axios
-          .post("http://localhost:8081/api/user/update-regular-user", {
+          .put("http://localhost:8081/api/user/update-regular-user", {
             _id: getId(),
             name: this.form.name,
             surname: this.form.surname,

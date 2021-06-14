@@ -5,10 +5,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type RegularUserRegistration struct {
+type RegularUserRegistrationDTO struct {
 	Name string `json:"name"`
 	Surname string `json:"surname"`
-	Username string `json:username`
+	Username string `json:"username"`
 	Password string `json:"password"`
 	Email string `json:"email"`
 	PhoneNumber string `json:"phoneNumber"`

@@ -1,8 +1,8 @@
 package model
 
 type Post struct {
-	MediaContent
-	Likes int `json:"likes"`
-	Dislikes int `json:"dislikes"`
-	Comment []Comment `json:"comments"`
+	MediaContent `bson:",inline,omitempty"`
+	Likes int `bson:"likes,omitempty"`
+	Dislikes int `bson:"dislikes,omitempty"`
+	Comment []Comment `bson:"comments,omitempty"`
 }

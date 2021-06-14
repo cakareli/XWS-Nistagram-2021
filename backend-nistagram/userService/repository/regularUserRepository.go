@@ -10,24 +10,20 @@ import (
 	"log"
 )
 
-type UserRepository struct {
+type RegularUserRepository struct {
 	Database *mongo.Database
 }
 
-func (repository *UserRepository) Hello (){
-	fmt.Printf("Hello from Repository")
-}
-
-func (repository *UserRepository) CreateRegularUser(user *model.RegularUser) (string ,error){
+func (repository *RegularUserRepository) Register(user *model.RegularUser) (string, error){
 	regularUserCollection := repository.Database.Collection("regularUsers")
-		res, err := regularUserCollection.InsertOne(context.TODO(), &user)
+	res, err := regularUserCollection.InsertOne(context.TODO(), &user)
 	if err != nil {
 		return "", fmt.Errorf("regular user is NOT created")
 	}
 	return res.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (repository *UserRepository) ExistByUsername(username string) bool{
+func (repository *RegularUserRepository) ExistByUsername(username string) bool{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 	filterCursor, err := regularUserCollection.Find(context.TODO(), bson.M{"username": username})
 	if err != nil {
@@ -44,10 +40,10 @@ func (repository *UserRepository) ExistByUsername(username string) bool{
 	return false
 }
 
-func (repository *UserRepository) UpdateRegularUser(user *model.RegularUser) error{
+func (repository *RegularUserRepository) Update(user *model.RegularUser) error{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 
-	_, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
+	updatedRegularUser, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
 		bson.D{
 			{"$set", bson.D{{"name", user.Name}}},
 			{"$set", bson.D{{"surname", user.Surname}}},
@@ -62,11 +58,13 @@ func (repository *UserRepository) UpdateRegularUser(user *model.RegularUser) err
 	if err != nil {
 		log.Fatal(err)
 		return err
+	} else if updatedRegularUser.MatchedCount == 0 {
+		return fmt.Errorf("user does not exist")
 	}
 	return nil
 }
 
-func (repository *UserRepository) UsernameChanged(username string, id primitive.ObjectID) bool{
+func (repository *RegularUserRepository) UsernameChanged(username string, id primitive.ObjectID) bool{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 	filterCursor, err := regularUserCollection.Find(context.TODO(), bson.M{"_id": id, "username": username})
 	if err != nil {
@@ -83,8 +81,7 @@ func (repository *UserRepository) UsernameChanged(username string, id primitive.
 	return false
 }
 
-func (repository *UserRepository) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
-//func (repository *UserRepository) FindUserById(userId string) *model.RegularUser{
+func (repository *RegularUserRepository) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
 	var regularUser *model.RegularUser
 	result:= repository.Database.Collection("regularUsers").FindOne(context.Background(), bson.M{"_id": userId})
 	result.Decode(&regularUser)

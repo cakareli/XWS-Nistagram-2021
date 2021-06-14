@@ -12,36 +12,35 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
+	"os"
 )
 
-func initUserRepository(database *mongo.Database) *repository.UserRepository {
-	return &repository.UserRepository{Database: database}
+func initUserRepository(database *mongo.Database) *repository.RegularUserRepository {
+	return &repository.RegularUserRepository{Database: database}
 }
 
-func initUserService(repository *repository.UserRepository) *service.UserService {
-	return &service.UserService{UserRepository: repository}
+func initUserService(repository *repository.RegularUserRepository) *service.RegularUserService {
+	return &service.RegularUserService{RegularUserRepository: repository}
 }
 
-func initUserHandler(service *service.UserService) *handler.UserHandler {
-	return &handler.UserHandler{UserService: service}
+func initUserHandler(service *service.RegularUserService) *handler.RegularUserHandler {
+	return &handler.RegularUserHandler{RegularUserService: service}
 }
 
-func handleFunc(handler *handler.UserHandler) {
+func handleFunc(handler *handler.RegularUserHandler) {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 
-	router.HandleFunc("/create-regular-user", handler.Create).Methods("POST")
-	router.HandleFunc("/update-regular-user", handler.Update).Methods("POST")
 	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
+	router.HandleFunc("/register-regular-user", handler.Register).Methods("POST")
+	router.HandleFunc("/update-regular-user", handler.Update).Methods("PUT")
 
 	c := SetupCors()
 
-	fmt.Println("Server running...")
-	//http.Handle("/", c.Handler(router))
-	//log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", "8081"), c.Handler(router)))
-
 	http.Handle("/", c.Handler(router))
-	http.ListenAndServe(":8081", c.Handler(router))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func SetupCors() *cors.Cors {
@@ -53,16 +52,16 @@ func SetupCors() *cors.Cors {
 	})
 }
 
-func main() {
 
-	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+
+func initDatabase() *mongo.Database{
 	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
-	// Connect to MongoDB
+
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Check the connection
+
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -71,8 +70,14 @@ func main() {
 
 	userDatabase := client.Database("user")
 
+	return userDatabase
+}
+
+func main() {
+	userDatabase := initDatabase()
 	userRepository := initUserRepository(userDatabase)
 	userService := initUserService(userRepository)
 	userHandler := initUserHandler(userService)
+
 	handleFunc(userHandler)
 }

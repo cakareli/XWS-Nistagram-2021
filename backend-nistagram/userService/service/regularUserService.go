@@ -9,26 +9,22 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"os"
 )
 
-type UserService struct {
-	UserRepository *repository.UserRepository
+type RegularUserService struct {
+	RegularUserRepository *repository.RegularUserRepository
 }
 
-func (service *UserService) Hello () {
-	fmt.Printf("Hello from service!")
-	service.UserRepository.Hello()
-}
-
-func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.RegularUserRegistration) error {
+func (service *RegularUserService) Register(regularUserRegistrationDto dto.RegularUserRegistrationDTO) error {
 	fmt.Println("Creating regular user")
 
-	if service.UserRepository.ExistByUsername(regularUserRegistrationDto.Username) {
+	if service.RegularUserRepository.ExistByUsername(regularUserRegistrationDto.Username) {
 		return fmt.Errorf("username is already taken")
 	}
 
 	var regularUser = createRegularUserFromRegularUserRegistrationDTO(&regularUserRegistrationDto)
-	createdUserId, err := service.UserRepository.CreateRegularUser(regularUser)
+	createdUserId, err := service.RegularUserRepository.Register(regularUser)
 	if err != nil {
 		return err
 	}
@@ -40,7 +36,8 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 		"name": regularUserRegistrationDto.Name,
 		"surname": regularUserRegistrationDto.Surname,
 	})
-	resp, err := http.Post("http://authentication-service:8081/register", "application/json", bytes.NewBuffer(postBody))
+	requestUrl := fmt.Sprintf("http://%s:%s/register", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -49,18 +46,18 @@ func (service *UserService) CreateRegularUser(regularUserRegistrationDto dto.Reg
 	return nil
 }
 
-func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
+func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
 	fmt.Println("Updating regular user")
 
-	if service.UserRepository.ExistByUsername(regularUserUpdateDto.Username) {
+	if service.RegularUserRepository.ExistByUsername(regularUserUpdateDto.Username) {
 		id, _ := primitive.ObjectIDFromHex(regularUserUpdateDto.Id)
-		if service.UserRepository.UsernameChanged(regularUserUpdateDto.Username, id) {
+		if service.RegularUserRepository.UsernameChanged(regularUserUpdateDto.Username, id) {
 			return fmt.Errorf("username is already taken")
 		}
 	}
 
 	var regularUser = createRegularUserFromRegularUserUpdateDTO(&regularUserUpdateDto)
-	err := service.UserRepository.UpdateRegularUser(regularUser)
+	err := service.RegularUserRepository.Update(regularUser)
 	if err != nil {
 		return err
 	}
@@ -72,8 +69,8 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 		"name": regularUserUpdateDto.Name,
 		"surname": regularUserUpdateDto.Surname,
 	})
-
-	resp, err := http.Post("http://authentication-service:8081/update", "application/json", bytes.NewBuffer(postBody))
+	requestUrl := fmt.Sprintf("http://%s:%s/update", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -82,13 +79,13 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 	return nil
 }
 
-func (service *UserService) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
+func (service *RegularUserService) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
 	fmt.Print("Searching for logged user...")
-	regularUser, err := service.UserRepository.FindUserById(userId)
+	regularUser, err := service.RegularUserRepository.FindUserById(userId)
 	return regularUser, err
 }
 
-func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistration) *model.RegularUser{
+func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistrationDTO) *model.RegularUser{
 	profilePrivacy := model.ProfilePrivacy{
 		PrivacyType: model.PrivacyType(0),
 		AllMessageRequests: true,
@@ -129,5 +126,3 @@ func createRegularUserFromRegularUserUpdateDTO(userUpdateDto *dto.RegularUserUpd
 
 	return &regularUser
 }
-
-

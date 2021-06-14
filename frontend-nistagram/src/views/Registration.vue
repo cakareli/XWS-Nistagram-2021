@@ -187,7 +187,7 @@ export default {
     submit() {
       if (this.$refs.registrationForm.validate()) {
         axios
-          .post("http://localhost:8081/api/user/create-regular-user", {
+          .post("http://localhost:8081/api/user/register-regular-user", {
             name: this.form.name,
             surname: this.form.surname,
             username: this.form.username,
