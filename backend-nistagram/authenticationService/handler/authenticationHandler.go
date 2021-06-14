@@ -14,11 +14,6 @@ type AuthenticationHandler struct {
 	AuthenticationService *service.AuthenticationService
 }
 
-func(handler *AuthenticationHandler) Hello(res http.ResponseWriter, req *http.Request){
-	fmt.Fprint(res, "Hello from controller!")
-	handler.AuthenticationService.Hello()
-}
-
 func (handler *AuthenticationHandler) RegisterUser (res http.ResponseWriter, req *http.Request) {
 	var regularUserRegistrationDTO dto.RegularUserRegistrationDTO
 	err := json.NewDecoder(req.Body).Decode(&regularUserRegistrationDTO)

@@ -88,6 +88,20 @@ services:
     networks:
       - backend
 
+  neo4j:
+    image: neo4j:latest
+    container_name: 'neo4j-db'
+    volumes:
+      - '$HOME/neo4j/data:/data'
+      - '$HOME/neo4j/conf/:/conf/'
+    ports:
+      - 7474:7474
+      - 7687:7687
+    restart: always
+    networks:
+      - backend
+    command: neo4j
+
   postgres:
     image: postgres
     restart: always

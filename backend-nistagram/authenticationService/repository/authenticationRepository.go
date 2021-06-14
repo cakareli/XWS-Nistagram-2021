@@ -10,10 +10,6 @@ type AuthenticationRepository struct {
 	Database *gorm.DB
 }
 
-func (repository *AuthenticationRepository) Hello (){
-	fmt.Printf("Hello from Repository");
-}
-
 func (repository *AuthenticationRepository) RegisterUser(user *model.User) error {
 	result := repository.Database.Create(user)
 	if result.RowsAffected == 0 {

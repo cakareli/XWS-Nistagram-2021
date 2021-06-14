@@ -4,16 +4,10 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/authenticationService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/authenticationService/model"
 	"XWS-Nistagram-2021/backend-nistagram/authenticationService/repository"
-	"fmt"
 )
 
 type AuthenticationService struct {
 	AuthenticationRepository *repository.AuthenticationRepository
-}
-
-func (service *AuthenticationService) Hello () {
-	fmt.Printf("Hello from service!")
-	service.AuthenticationRepository.Hello();
 }
 
 func (service *AuthenticationService) RegisterUser (dto dto.RegularUserRegistrationDTO) error {
