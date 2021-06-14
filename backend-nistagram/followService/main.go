@@ -6,14 +6,15 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/followService/service"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
 )
 
-func initFollowRepository() *repository.FollowRepository {
-	return &repository.FollowRepository{}
+func initFollowRepository(databaseDriver *neo4j.Driver) *repository.FollowRepository {
+	return &repository.FollowRepository{DatabaseDriver: databaseDriver}
 }
 
 func initFollowService(repository *repository.FollowRepository) *service.FollowService {
@@ -49,8 +50,28 @@ func handleFunc(handler *handler.FollowHandler) {
 	}
 }
 
+func initDatabase() *neo4j.Driver {
+	var (
+		driver neo4j.Driver
+		err    error
+	)
+	for {
+		driver, err = neo4j.NewDriver("bolt://"+os.Getenv("NEO4J_DBNAME")+":"+os.Getenv("NEO4J_PORT")+"/neo4j", neo4j.BasicAuth(os.Getenv("NEO4J_USER"), os.Getenv("NEO4J_PASS"), "Neo4j"))
+
+		if err != nil {
+			fmt.Println("Cannot connect to database!")
+		} else {
+			fmt.Println(" Successfully connected to the database!")
+			break
+		}
+	}
+	return &driver
+}
+
 func main() {
-	authenticationRepository := initFollowRepository()
+	database := initDatabase()
+
+	authenticationRepository := initFollowRepository(database)
 	authenticationService := initFollowService(authenticationRepository)
 	authenticationHandler := initFollowHandler(authenticationService)
 

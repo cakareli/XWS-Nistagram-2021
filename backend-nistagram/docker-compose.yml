@@ -63,6 +63,8 @@ services:
     build:
       context: ./followService
       dockerfile: Dockerfile
+    depends_on:
+      - neo4j
     networks:
       - backend
     environment:
@@ -81,6 +83,7 @@ services:
 
   mongo-db:
     image: mongo
+    restart: on-failure
     ports:
       - 27017:27017
     volumes:
@@ -94,6 +97,11 @@ services:
     volumes:
       - '$HOME/neo4j/data:/data'
       - '$HOME/neo4j/conf/:/conf/'
+    environment:
+      NEO4J_USER: ${NEO4J_USER}
+      NEO4J_PASS: ${NEO4J_PASS}
+      NEO4J_DBNAME: ${NEO4J_DBNAME}
+      NEO4J_PORT: ${NEO4J_PORT}
     ports:
       - 7474:7474
       - 7687:7687
