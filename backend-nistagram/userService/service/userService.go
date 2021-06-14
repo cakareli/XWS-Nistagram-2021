@@ -83,7 +83,6 @@ func (service *UserService) UpdateRegularUser(regularUserUpdateDto dto.RegularUs
 }
 
 func (service *UserService) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
-//func (service *UserService) FindUserById(userId string) (*model.RegularUser){
 	fmt.Print("Searching for logged user...")
 	regularUser, err := service.UserRepository.FindUserById(userId)
 	return regularUser, err

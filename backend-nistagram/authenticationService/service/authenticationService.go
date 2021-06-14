@@ -49,11 +49,3 @@ func (service *AuthenticationService) FindByUsername (dto dto.LoginDTO) (*model.
 	}
 	return user, nil
 }
-
-func (service *AuthenticationService) FindUserById (id string) (*model.User, error){
-	user, err := service.AuthenticationRepository.FindUserByUserId(id)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
