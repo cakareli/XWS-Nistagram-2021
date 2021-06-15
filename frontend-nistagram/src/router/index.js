@@ -5,6 +5,7 @@ import Registration from '../views/Registration.vue'
 import Login from '../views/Login.vue'
 import Update from '../views/Update.vue'
 import Account from '../views/Account.vue'
+import NewPost from '../views/NewPost.vue'
 
 Vue.use(VueRouter)
 
@@ -33,6 +34,11 @@ const routes = [
     path: '/account',
     name: 'Account',
     component: Account
+  },
+  {
+    path: '/new-post',
+    name: 'new-post',
+    component: NewPost
   },
 ]
 

@@ -82,7 +82,7 @@
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
-            <v-btn value="add" v-show="loggedUser">
+            <v-btn value="add" @click="$router.push('/new-post')" v-show="loggedUser">
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
