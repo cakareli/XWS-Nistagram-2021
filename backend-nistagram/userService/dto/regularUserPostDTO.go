@@ -5,6 +5,6 @@ import (
 )
 
 type RegularUserPostDTO struct {
-	Id string `json:"_id"`
-	PrivacyType *model.PrivacyType `json:"privacyType"`
+	Id string `bson:"_id"`
+	PrivacyType *model.PrivacyType `bson:"privacyType"`
 }

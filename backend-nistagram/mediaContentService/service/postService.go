@@ -4,8 +4,11 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/model"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/repository"
+	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"net/http"
+	"os"
 )
 
 type PostService struct {
@@ -52,12 +55,6 @@ func CreatePostsFromDocuments(PostsDocuments []bson.D) []model.Post {
 }
 
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
-	/*location := model.Location{
-		Country: postUploadDto.Country,
-		City: postUploadDto.City,
-		StreetName: postUploadDto.StreetName,
-		StreetNumber: postUploadDto.StreetNumber,
-	}
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
 		return nil, err
@@ -67,27 +64,29 @@ func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post,
 	post.Description = postUploadDto.Description
 	post.MediaPaths = postUploadDto.MediaPaths
 	post.UploadDate = postUploadDto.UploadDate
-	post.Location = location
-	post.RegularUser = regularUser
+	post.Location = postUploadDto.Location
+	post.RegularUser = *regularUser
 	post.Likes = 0
 	post.Dislikes = 0
 	if len(postUploadDto.MediaPaths) > 1 {
 		post.MediaContentType = model.MediaContentType(2)
 	} else {
 		post.MediaContentType = model.MediaContentType(0)
-	}*/
-
-	//return &regularUser, nil
-	return nil, nil
+	}
+	return &post, nil
 }
 
-/*func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
-	requestUrl := fmt.Sprintf("http://%s:%s/update", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
-	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
+	requestUrl := fmt.Sprintf("http://%s:%s/by-username/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
+	resp, err := http.Get(requestUrl)
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return nil, err
 	}
-	fmt.Println(resp.StatusCode)
-}*/
+	var regularUser model.RegularUser
+	decoder := json.NewDecoder(resp.Body)
+	decoder.Decode(&regularUser)
+
+	return &regularUser, nil
+}
 

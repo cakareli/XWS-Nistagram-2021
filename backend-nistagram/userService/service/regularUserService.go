@@ -69,7 +69,7 @@ func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUp
 		"name": regularUserUpdateDto.Name,
 		"surname": regularUserUpdateDto.Surname,
 	})
-	requestUrl := fmt.Sprintf("http://%s:%s/by-username", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	requestUrl := fmt.Sprintf("http://%s:%s/update", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
 	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
@@ -89,7 +89,6 @@ func (service *RegularUserService) FindUserById(userId primitive.ObjectID) (*mod
 }
 
 func (service *RegularUserService) FindUserByUsername(username string) (*dto.RegularUserPostDTO, error){
-	fmt.Print("Searching for regular user...")
 	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
 	if err != nil {
 		return nil, err

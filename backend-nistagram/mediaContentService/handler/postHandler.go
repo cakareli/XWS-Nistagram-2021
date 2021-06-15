@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/service"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -9,6 +10,25 @@ import (
 
 type PostHandler struct {
 	PostService *service.PostService
+}
+
+func (handler *PostHandler) CreateNewPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postUploadDto dto.PostUploadDTO
+	err := json.NewDecoder(r.Body).Decode(&postUploadDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.CreateNewPost(postUploadDto)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
 }
 
 func (handler *PostHandler) GetAllRegularUserPosts(w http.ResponseWriter, r *http.Request) {
