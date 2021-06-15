@@ -8,12 +8,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/rs/cors"
+	"gopkg.in/jmcvetta/neoism.v1"
 	"log"
 	"net/http"
 	"os"
 )
 
-func initFollowRepository(databaseDriver *neo4j.Driver) *repository.FollowRepository {
+func initFollowRepository(databaseDriver *neoism.Database) *repository.FollowRepository {
 	return &repository.FollowRepository{DatabaseDriver: databaseDriver}
 }
 
@@ -65,13 +66,18 @@ func initDatabase() *neo4j.Driver {
 			break
 		}
 	}
+
 	return &driver
 }
 
 func main() {
-	database := initDatabase()
-
-	authenticationRepository := initFollowRepository(database)
+	//_ = initDatabase()
+	db, err := neoism.Connect("http://neo4j:7474/db/data")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("kurcinela")
+	authenticationRepository := initFollowRepository(db)
 	authenticationService := initFollowService(authenticationRepository)
 	authenticationHandler := initFollowHandler(authenticationService)
 

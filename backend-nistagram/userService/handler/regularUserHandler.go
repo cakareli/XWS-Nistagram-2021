@@ -54,16 +54,26 @@ func (handler *RegularUserHandler) Update(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 }
 
+func (handler *RegularUserHandler) FindUserByUsername(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	regularUserPostDto, err := handler.RegularUserService.FindUserByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(regularUserPostDto)
+}
+
 func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.Request){
-
-
 	w.Header().Set("content-type", "application/json")
 	params := mux.Vars(r)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
 	regularUser, err := handler.RegularUserService.FindUserById(id)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	json.NewEncoder(w).Encode(regularUser)

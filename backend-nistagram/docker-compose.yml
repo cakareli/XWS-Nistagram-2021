@@ -54,6 +54,8 @@ services:
       - backend
     environment:
       PORT: ${MEDIA_CONTENT_SERVICE_PORT}
+      USER_SERVICE_DOMAIN: ${USER_SERVICE_DOMAIN}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
     depends_on:
       - mongo-db
 
