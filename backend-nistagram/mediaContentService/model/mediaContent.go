@@ -11,6 +11,6 @@ type MediaContent struct {
 	MediaPaths []string `bson:"mediaPaths,omitempty"`
 	UploadDate *primitive.DateTime `bson:"uploadDate,omitempty"`
 	MediaContentType MediaContentType `bson:"mediaContentType,omitempty"`
-	Location Location `bson:"location,omitempty"`
+	Location string `bson:"location,omitempty"`
 	RegularUser RegularUser `bson:"regularUser,omitempty"`
 }

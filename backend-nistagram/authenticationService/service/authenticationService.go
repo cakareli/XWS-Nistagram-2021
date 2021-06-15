@@ -24,10 +24,10 @@ func (service *AuthenticationService) UpdateUser (dto dto.RegularUserUpdateDTO) 
 	if err != nil {
 		return err
 	}
-	user.Name = dto.Name;
-	user.Surname = dto.Surname;
-	user.Username = dto.Username;
-	user.Email = dto.Email;
+	user.Name = dto.Name
+	user.Surname = dto.Surname
+	user.Username = dto.Username
+	user.Email = dto.Email
 	err = service.AuthenticationRepository.UpdateUser(user)
 	if err != nil {
 		return err

@@ -32,6 +32,7 @@ func handleFunc(handler *handler.PostHandler) {
 
 	router.HandleFunc("/regular-user-posts/{username}", handler.GetAllRegularUserPosts).Methods("GET")
 	router.HandleFunc("/public-posts", handler.GetAllPublicPosts).Methods("GET")
+	router.HandleFunc("/new-post", handler.CreateNewPost).Methods("POST")
 
 	c := SetupCors()
 

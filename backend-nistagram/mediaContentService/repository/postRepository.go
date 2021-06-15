@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/model"
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
@@ -9,6 +11,15 @@ import (
 
 type PostRepository struct {
 	Database *mongo.Database
+}
+
+func (repository *PostRepository) Create(post *model.Post) error {
+	regularUserCollection := repository.Database.Collection("posts")
+	_, err := regularUserCollection.InsertOne(context.TODO(), &post)
+	if err != nil {
+		return fmt.Errorf("post is NOT created")
+	}
+	return nil
 }
 
 func (repository *PostRepository) GetAllByUsername(username string) []bson.D{
