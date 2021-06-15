@@ -86,8 +86,19 @@ func (repository *RegularUserRepository) FindUserById(userId primitive.ObjectID)
 	result:= repository.Database.Collection("regularUsers").FindOne(context.Background(), bson.M{"_id": userId})
 	result.Decode(&regularUser)
 
-	if regularUser.Id.IsZero(){
-		return regularUser, fmt.Errorf("regular user is NOT found")
+	if regularUser == nil {
+		return nil, fmt.Errorf("regular user is NOT found")
+	}
+	return regularUser, nil
+}
+
+func (repository *RegularUserRepository) FindUserByUsername(username string) (*model.RegularUser, error){
+	var regularUser *model.RegularUser
+	result:= repository.Database.Collection("regularUsers").FindOne(context.Background(), bson.M{"username": username})
+	result.Decode(&regularUser)
+
+	if regularUser == nil {
+		return nil, fmt.Errorf("regular user is NOT found")
 	}
 	return regularUser, nil
 }
