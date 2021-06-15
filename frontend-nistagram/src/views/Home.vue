@@ -22,6 +22,60 @@
               </v-row>
             </v-app-bar>
           </v-toolbar>
+            <v-toolbar  height="90"  width="800px" v-show="loggedUser">
+              <v-app-bar app height="90" color="white">
+                <v-row height="80">               
+                  <v-col height="80">
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                  <v-col>
+                    <v-avatar size="60" color="green">
+                      <span>DF</span>
+                    </v-avatar>
+                    <label>denisfruza</label>
+                  </v-col>
+                </v-row>               
+              </v-app-bar>
+            </v-toolbar>
           <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="800px"  v-show="!loggedUser">
             <v-app-bar app>
               <v-row align="center" justify="space-around">
