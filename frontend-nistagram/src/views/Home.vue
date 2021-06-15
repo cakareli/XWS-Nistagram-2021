@@ -48,9 +48,30 @@
             </v-app-bar>
           </v-toolbar>
           <v-container>
-            <v-row>
-              <v-col> </v-col>
+            <v-row class="ma-3" allign="center" justify="center" v-for= "item in allPublicPosts" :key = "item.username">
+                <v-card class= "ma-3">
+                  <v-card-title>
+                    <h4>{{item.username}}</h4>
+                  </v-card-title>
+                    <v-row class="ma-2">
+                         <v-img src="//placehold.it/600x500" max-width="600"></v-img>
+                    </v-row>
+                    <v-row class="ma-2">
+                      <span> Likes: {{item.likes}}</span>
+                      <v-spacer/>
+                      <span> Dislikes: {{item.dislikes}}</span>
+                    </v-row>
+                    <v-row class="ma-2">
+                      <v-btn class="mr-3" @click="likePost(item.id)">Like</v-btn>
+                      <v-btn @click="dislikePost(item.id)">Dislike</v-btn>
+                      <v-spacer/>
+                      <v-btn class="mr-3" @click="commentPost(item.id)">Comment</v-btn>
+                      <v-btn @click="viewAllPostComments(item.id)">View all comments</v-btn>
+                    </v-row>
+                </v-card>
             </v-row>
+            <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog"/>
+            <AddPostComment :addPostCommentDialog.sync="addPostCommentDialog" :postId = "postId"/>
           </v-container>
           <v-bottom-navigation height="35" width="800px" background-color="grey">
             <v-btn value="home">
@@ -92,14 +113,27 @@
 <script>
 
 import { getId } from '../security/token.js'
+import AllPostComments from '../components/AllPostComments.vue'
+import AddPostComment from '../components/AddPostComment.vue'
 
 export default {
   name: "Home",
-  
-
+  components: {
+    AllPostComments,
+    AddPostComment,
+  },
   data() {
     return {
       loggedUser: false,
+      allPublicPosts : [
+        {id: "1", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
+        {id: "2", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
+        {id: "3", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
+        {id: "4", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"}
+      ],
+      allPostCommentsDialog: false,
+      addPostCommentDialog: false,
+      postId: "",
     }
   },
 
@@ -108,7 +142,24 @@ export default {
       if(getId().length != 0){
         this.loggedUser = true
       }      
-    }
+    },
+    loadAllPublicPosts() {
+
+    },
+    likePost(postId) {
+      console.log(postId)
+    },
+    dislikePost(postId){
+      console.log(postId)
+    },
+    commentPost(postId) {
+      this.postId = postId
+      this.addPostCommentDialog = true;
+    },
+    viewAllPostComments(postId){
+      console.log(postId)
+      this.allPostCommentsDialog = true;
+    },
   },
   mounted() {
     this.checkLoggedUser();
