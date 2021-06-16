@@ -83,19 +83,49 @@
                   <h3>{{this.name}}{{this.surname}}</h3>
                 </v-col>
               </v-row>
-              <v-row >
-                <v-col width="400px"></v-col>
-                <v-col>
-                  <v-avatar size="80" color="red">
-                    <span>{{this.avatar_name}}</span>
-                  </v-avatar> 
-                  <br>
-                  <h3 class="mx-3">Stories</h3> 
-                </v-col>
-              </v-row> 
-              <br><br><br><br><br><br><br><br><br>
-              <br><br><br>         
-            </v-container>
+                  
+          </v-container>
+
+          <v-card class="grey lighten-2" height="530">
+            <v-virtual-scroll height="530" item-height="500" item-width="500" :items="allUserPosts">
+              <template v-slot:default="{ item }" >              
+                    <v-card class="grey lighten-2">
+                      <v-card-title>
+                        <h4>{{item.username}}</h4>
+                      </v-card-title>
+                      <v-row class="ma-2" justify="center">
+                          <v-img v-bind:src="item.MediaPaths[0]" max-width="400" max-height="400"></v-img>
+                      </v-row>
+                      <v-row>
+                        <v-col width="200"></v-col>
+                        <v-col width="400">
+                          <v-textarea label="Description" outlined v-model="item.Description" readonly ></v-textarea>
+                        </v-col>
+                        <v-col width="200"></v-col>                       
+                      </v-row>
+                      <v-row class="ma-2">
+                        <span> Likes: {{item.Likes}}</span>
+                        <v-spacer/>
+                        <span> Dislikes: {{item.Dislikes}}</span>
+                      </v-row>
+                      
+                      <v-row class="ma-2">
+                        <v-btn class="mr-3" @click="likePost(item.Id)">Like</v-btn>
+                        <v-btn @click="dislikePost(item.Id)" >Dislike</v-btn>
+                        <v-spacer/>
+                        <v-btn class="mr-3" @click="viewAllTags(item.Id)" >Tags</v-btn>
+                        <v-btn class="mr-3" @click="commentPost(item.Id)" >Comment</v-btn>
+                        <v-btn @click="viewAllPostComments(item.Id)">View all comments</v-btn>
+                      </v-row>
+                    </v-card>                
+                <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog"/>
+                <AddPostComment :addPostCommentDialog.sync="addPostCommentDialog" /> 
+                <AllTags :allTagsDialog.sync="allTagsDialog" />
+                <v-divider></v-divider>
+              </template>             
+            </v-virtual-scroll>
+          </v-card>
+
           <v-bottom-navigation height="35" width="800px" background-color="grey">
             <v-btn value="home" @click="$router.push('/')">
               <v-icon>mdi-home</v-icon>
@@ -130,9 +160,14 @@
 
 import axios from "axios";
 import { getId, getToken, getUsername, removeToken } from '../security/token.js'
+import AllPostComments from '../components/AllPostComments.vue'
+import AddPostComment from '../components/AddPostComment.vue'
+import AllTags from '../components/AllTags.vue'
 
 export default {
   name: "Account",
+  components:
+        {AllPostComments, AddPostComment, AllTags},
   data() {
     return{
       drawer : false,
@@ -141,9 +176,10 @@ export default {
       username: "",
       biography: "",
       website: "",
-      avatar_name: "",
-      imagePaths: [],
-      imageIds: [],
+      allUserPosts: [],
+      allPostCommentsDialog: false,
+      addPostCommentDialog: false,
+      allTagsDialog: false,
     }
   },
   methods: {
@@ -176,31 +212,43 @@ export default {
       removeToken()
       this.$router.push("/").catch(()=>{})
     },
-    findAvatar(){
-      this.avatar_name = this.name.substring(0,1) + this.surname.substring(0,1)
-    },
     loadUsersPosts(){
       axios.get('http://localhost:8081/api/media-content/regular-user-posts/'+getUsername(),
       {
             headers : {
                           Authorization: 'Bearer ' + getToken()
                       }
-      })
-      .then(response => {
-        this.loadedImages = response.data
-        this.imagePaths = this.loadedImages.imagepath
-        alert("Image: "+this.imagePaths[0])
+      }).then(response => {
+        this.allUserPosts = response.data;
+        alert(this.allUserPosts.MediaPaths[0])
 
-      }).catch(error => {
+      }).catch(error => { 
         if(error.response.status === 500){
-          console.lof("Internal server error")
-      }
+        console.lof("Internal server error")
+        }
     })
-    }
+    },
+    likePost(postId) {
+      console.log(postId)
+    },
+    dislikePost(postId){
+      console.log(postId)
+    },
+    commentPost(postId) {
+      this.postId = postId
+      this.addPostCommentDialog = true;
+    },
+    viewAllPostComments(postId){
+      console.log(postId)
+      this.allPostCommentsDialog = true;
+    },
+    viewAllTags(postId){
+      console.log(postId)
+      this.allTagsDialog = true;
+    },
   },
   mounted(){
     this.loadRegisteredUser();
-    this.findAvatar();
     this.loadUsersPosts();
   }
 };
