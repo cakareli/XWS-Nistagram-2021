@@ -66,6 +66,7 @@ func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post,
 	post.UploadDate = postUploadDto.UploadDate
 	post.Location = postUploadDto.Location
 	post.RegularUser = *regularUser
+	post.RegularUser.Username = postUploadDto.Username
 	post.Likes = 0
 	post.Dislikes = 0
 	if len(postUploadDto.MediaPaths) > 1 {
