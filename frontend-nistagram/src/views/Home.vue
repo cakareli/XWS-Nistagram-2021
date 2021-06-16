@@ -15,70 +15,75 @@
                 </v-col>
                 <v-spacer></v-spacer>
                 <v-col>
-                  <v-btn outlined class="mx-5 white">
+                  <v-btn outlined class="mx-5 white" v-show="loggedUser">
                     <v-icon>mdi-send</v-icon>
                   </v-btn>
                 </v-col>
               </v-row>
             </v-app-bar>
           </v-toolbar>
-          <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="800px"  v-show="!loggedUser">
-            <v-app-bar app>
-              <v-row align="center" justify="space-around">
-                <v-col>
-                  <v-btn 
-                    width="250px"
-                    height="35px"
-                    @click="$router.push('/registration')"
-                    class="grey lighten-2"
-                    >Register</v-btn
-                  >
-                </v-col>
-                <v-spacer></v-spacer>
-                <v-col>
-                  <v-btn
-                    width="250px"
-                    height="35px"
-                    @click="$router.push('/login')"
-                    class="grey lighten-2"
-                    >Login</v-btn
-                  >
-                </v-col>
-              </v-row>
-            </v-app-bar>
-          </v-toolbar>
-          <v-container>
-            <v-row class="ma-3" allign="center" justify="center" v-for= "item in allPublicPosts" :key = "item.username">
-                <v-card class= "ma-3">
-                  <v-card-title>
-                    <h4>{{item.username}}</h4>
-                  </v-card-title>
-                    <v-row class="ma-2">
-                         <v-img src="//placehold.it/600x500" max-width="600"></v-img>
-                    </v-row>
-                    <v-row class="ma-2">
-                      <span> Likes: {{item.likes}}</span>
-                      <v-spacer/>
-                      <span> Dislikes: {{item.dislikes}}</span>
-                    </v-row>
-                    <v-row class="ma-2">
-                      <v-btn class="mr-3" @click="likePost(item.id)">Like</v-btn>
-                      <v-btn @click="dislikePost(item.id)">Dislike</v-btn>
-                      <v-spacer/>
-                      <v-btn class="mr-3" @click="commentPost(item.id)">Comment</v-btn>
-                      <v-btn @click="viewAllPostComments(item.id)">View all comments</v-btn>
-                    </v-row>
-                </v-card>
-            </v-row>
-            <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog"/>
-            <AddPostComment :addPostCommentDialog.sync="addPostCommentDialog" :postId = "postId"/>
-          </v-container>
+          <v-card height="60" v-show="!loggedUser">
+            <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="800px">
+              <v-app-bar app>
+                <v-row align="center" justify="space-around">
+                  <v-col>
+                    <v-btn 
+                      width="250px"
+                      height="35px"
+                      @click="$router.push('/registration')"
+                      class="grey lighten-2"
+                      >Register</v-btn
+                    >
+                  </v-col>
+                  <v-spacer></v-spacer>
+                  <v-col>
+                    <v-btn
+                      width="250px"
+                      height="35px"
+                      @click="$router.push('/login')"
+                      class="grey lighten-2"
+                      >Login</v-btn
+                    >
+                  </v-col>
+                </v-row>
+              </v-app-bar>
+            </v-toolbar>
+          </v-card>
+          <v-card class="grey lighten-2">
+            <v-virtual-scroll height="530" item-height="500" item-width="500" :items="allPublicPosts">
+              <template v-slot:default="{ item }" >              
+                    <v-card class="grey lighten-2">
+                      <v-card-title>
+                        <h4>{{item.username}}</h4>
+                      </v-card-title>
+                      <v-row class="ma-2" justify="center">
+                          <v-img src="//placehold.it/600x500" max-width="400" max-height="400"></v-img>
+                      </v-row>
+                      <v-row class="ma-2">
+                        <span> Likes: {{item.likes}}</span>
+                        <v-spacer/>
+                        <span> Dislikes: {{item.dislikes}}</span>
+                      </v-row>
+                      <v-row class="ma-2">
+                        <v-btn class="mr-3" @click="likePost(item.id)" v-show="loggedUser">Like</v-btn>
+                        <v-btn @click="dislikePost(item.id)" v-show="loggedUser">Dislike</v-btn>
+                        <v-spacer/>
+                        <v-btn class="mr-3" @click="commentPost(item.id)" v-show="loggedUser">Comment</v-btn>
+                        <v-btn @click="viewAllPostComments(item.id)">View all comments</v-btn>
+                      </v-row>
+                    </v-card>               
+                <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog"/>
+                <AddPostComment :addPostCommentDialog.sync="addPostCommentDialog" :postId = "postId"/> 
+                <v-divider></v-divider>
+              </template>             
+            </v-virtual-scroll>
+          </v-card>
           <v-bottom-navigation height="35" width="800px" background-color="grey">
             <v-btn value="home">
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search">
+            <v-btn value="search" @click="$router.push('/search')">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
@@ -112,7 +117,7 @@
 
 <script>
 
-import { getId } from '../security/token.js'
+import {getId} from '../security/token.js'
 import AllPostComments from '../components/AllPostComments.vue'
 import AddPostComment from '../components/AddPostComment.vue'
 
@@ -129,7 +134,19 @@ export default {
         {id: "1", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
         {id: "2", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
         {id: "3", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
-        {id: "4", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"}
+        {id: "4", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
+        {id: "5", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
+        {id: "6", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
+        {id: "7", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
+        {id: "8", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
+        {id: "9", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
+        {id: "10", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
+        {id: "11", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
+        {id: "12", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
+        {id: "13", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
+        {id: "14", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
+        {id: "15", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
+        {id: "16", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
       ],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,

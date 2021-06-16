@@ -1,30 +1,83 @@
 <template>
-    <v-container>
-        <v-snackbar v-model="snackbar" top timeout="3500">
-            <span>{{snackbarText}}</span>
-        </v-snackbar>
-        <v-flex>
-        <v-row>
-        <v-col>
-            <v-form v-model="form.isFormValid">
-                <v-btn raised class="grey lighten-3" @click="uploadFile">Upload Image</v-btn>
-                <input type="file" style="display: none" ref="fileInput" accept="image/*" @change="onFilePicked"/>
-                <v-text-field label ="Description" v-model="form.description" :rules="rules.description"></v-text-field>
-                <v-text-field label ="Location" v-model="form.location" :rules="rules.location"></v-text-field>
-                <v-row>
-                    <v-text-field label ="Tags" v-model="tag" @click="addTag"></v-text-field>
-                    <v-btn class="grey lighten-3 ma-3" @click="addTag">Add Tag</v-btn>
-                </v-row>
-                <v-textarea outlined label ="All tags" v-model="form.tags" rows="2" no-resize readonly></v-textarea>
-                <v-btn color="grey lighten-3" allign-right :disabled="!form.isFormValid" @click="submit">Publish Post</v-btn>
-            </v-form>
-        </v-col>
-        <v-col>
-            <img :src="imageUrl" height="500" width="400"/>
-        </v-col>
-        </v-row>
-        </v-flex>
-    </v-container>
+    <v-app class="grey lighten-4">
+        <v-container center>
+            <v-row>
+                <v-col width="300px"></v-col>
+                <v-col width="600px">
+                <v-toolbar height="45" width="800px" >
+                    <v-app-bar  app height="45" color="grey">
+                    <v-app-bar-nav-icon @click="$router.push('/account')">
+                        <v-icon>mdi-arrow-left</v-icon>
+                    </v-app-bar-nav-icon>
+                    <v-row >
+                        <v-col>
+                        <v-toolbar-title>
+                            <span outlined class="font-weight-light">NISTA</span>
+                            <span>GRAM</span>
+                        </v-toolbar-title>
+                        </v-col>
+                        <v-spacer></v-spacer>
+                        <v-col>
+                        <v-btn outlined class="mx-5 white" small>
+                            <v-icon>mdi-send</v-icon>
+                        </v-btn>
+                        </v-col>
+                    </v-row>
+                    </v-app-bar>
+                </v-toolbar>
+                <v-container class="grey lighten-2">
+                    <v-snackbar v-model="snackbar" top timeout="3500">
+                        <span>{{snackbarText}}</span>
+                    </v-snackbar>
+                    <v-flex>
+                    <v-row>
+                    <v-col>
+                        <v-form v-model="form.isFormValid">
+                            <v-btn raised class="grey lighten-3" @click="uploadFile">Upload Image</v-btn>
+                            <input type="file" style="display: none" ref="fileInput" accept="image/*" @change="onFilePicked"/>
+                            <v-text-field label ="Description" v-model="form.description" :rules="rules.description"></v-text-field>
+                            <v-text-field label ="Location" v-model="form.location" :rules="rules.location"></v-text-field>
+                            <v-row>
+                                <v-text-field label ="Tags" v-model="tag" @click="addTag"></v-text-field>
+                                <v-btn class="grey lighten-3 ma-3" @click="addTag">Add Tag</v-btn>
+                            </v-row>
+                            <v-textarea outlined label ="All tags" v-model="form.tags" rows="2" no-resize readonly></v-textarea>
+                            <v-btn color="grey lighten-3" allign-right :disabled="!form.isFormValid" @click="submit">Publish Post</v-btn>
+                        </v-form>
+                    </v-col>
+                    <v-col>
+                        <img :src="imageUrl" height="500" width="400"/>
+                    </v-col>
+                    </v-row>
+                    </v-flex>
+                </v-container>
+                <v-bottom-navigation height="35" width="800px" background-color="grey">
+
+                    <v-btn value="home" @click="$router.push('/')">
+                        <v-icon>mdi-home</v-icon>
+                    </v-btn>
+
+                    <v-btn value="search" @click="$router.push('/search')">
+                        <v-icon>mdi-magnify</v-icon>
+                    </v-btn>
+
+                    <v-btn value="add">
+                        <v-icon>mdi-plus-box</v-icon>
+                    </v-btn>
+
+                    <v-btn value="notification">
+                        <v-icon>mdi-bell-ring</v-icon>
+                    </v-btn>
+                    
+                    <v-btn value="profile" @click="$router.push('/account')">
+                        <v-icon>mdi-account</v-icon>
+                    </v-btn>
+              
+                </v-bottom-navigation>
+                </v-col>
+            </v-row>
+        </v-container>
+    </v-app>
 </template>
 
 <script>
@@ -116,7 +169,7 @@ export default {
                 location: this.form.location,
                 username: getUsername(),
                 }
-                axios.post('http://localhost:8081/api/media-content/create-new-post/',
+                axios.post('http://localhost:8081/api/media-content/new-post',
                     postUploadDTO
                 ).then(response => {
                     console.log(response)
