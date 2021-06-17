@@ -27,28 +27,31 @@
             </v-btn>
 
             <v-btn @click="searchTags">
-              <v-icon>mdi-tag</v-icon>
+              <v-icon>mdi-pound-box</v-icon>
               <span>Tag</span>
             </v-btn>
 
             <v-btn @click="searchLocations">
-              <v-icon>mdi-map</v-icon>
+              <v-icon>mdi-map-marker</v-icon>
               <span>Location</span>
             </v-btn>
           </v-bottom-navigation>
           <v-container height="30px">
             <v-row height="30px">
               <v-text-field
+                prepend-icon="mdi-account"
                 v-model="searchInput"
                 placeholder="Search users"
                 v-show="showUser"
               ></v-text-field>
-              <v-text-field
+              <v-text-field 
+                prepend-icon="mdi-pound-box"
                 v-model="searchInput"
                 placeholder="Search tags"
-                v-show="showTag"
-              ></v-text-field>
+                v-show="showTag">
+              </v-text-field>
               <v-text-field
+                prepend-icon="mdi-map-marker"
                 v-model="searchInput"
                 placeholder="Search locations"
                 v-show="showLocation"
