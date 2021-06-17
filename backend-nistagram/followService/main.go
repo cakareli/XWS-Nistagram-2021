@@ -10,7 +10,6 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
-	"os"
 )
 
 func initFollowRepository(databaseSession *neo4j.Session) *repository.FollowRepository {
@@ -38,13 +37,12 @@ func handleFunc(handler *handler.FollowHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/hello", handler.Hello).Methods("GET")
+	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
 
 	c := SetupCors()
 
-	fmt.Println("Server is running...")
-
 	http.Handle("/", c.Handler(router))
-	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
+	err := http.ListenAndServe(fmt.Sprintf(":8081"), c.Handler(router))
 	if err != nil {
 		log.Println(err)
 	}
@@ -78,7 +76,6 @@ func initDatabase() (neo4j.Session, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return session, nil
 }
 
@@ -88,19 +85,16 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	println("kurac")
-	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		userId := "1234567"
-		result, err := session.Run("merge (u:User{Id:$userId}) return u;", map[string]interface{}{"userId":userId,})
-		if err != nil {
-			return nil, err
-		}
-		if result.Next() {
-			return result.Record().Values[0], err
-		}
-		println(result)
-		return nil, result.Err()
-	})
+
+	/*result, err := session.Run("merge (:User{Id:1234567891})-[r:follow]-> (:User{Id:123456789111});", map[string]interface{}{})
+	if err != nil {
+		return
+	}
+	if result.Next() {
+		return
+	}
+	println(result)
+	return*/
 
 	authenticationRepository := initFollowRepository(&session)
 	authenticationService := initFollowService(authenticationRepository)
