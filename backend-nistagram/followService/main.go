@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/rs/cors"
-	//"gopkg.in/jmcvetta/neoism.v1"
 	"log"
 	"net/http"
 	"os"
@@ -57,7 +56,7 @@ func initDatabase() (neo4j.Session, error) {
 		session neo4j.Session
 		err     error
 	)
-	if driver, err = neo4j.NewDriver("neo4j://neo4j:7687", neo4j.BasicAuth("neo4j", "12345", "")); err != nil {
+	if driver, err = neo4j.NewDriver("neo4j://localhost:7687", neo4j.BasicAuth("neo4j", "12345", "")); err != nil {
 		return nil, err
 	}
 
@@ -89,6 +88,19 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	println("kurac")
+	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		userId := "1234567"
+		result, err := session.Run("merge (u:User{Id:$userId}) return u;", map[string]interface{}{"userId":userId,})
+		if err != nil {
+			return nil, err
+		}
+		if result.Next() {
+			return result.Record().Values[0], err
+		}
+		println(result)
+		return nil, result.Err()
+	})
 
 	authenticationRepository := initFollowRepository(&session)
 	authenticationService := initFollowService(authenticationRepository)
