@@ -1,7 +1,7 @@
 <template>
   <v-app class="grey lighten-4">
-    <v-app-bar app height="45">
-      <v-toolbar fixed height="45" color="grey lighten-1">
+    <v-app-bar app height="45" color="grey lighten-1">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-row>
           <v-col>
             <v-toolbar-title>
@@ -16,6 +16,7 @@
             </v-btn>
           </v-col>
         </v-row>
+    </v-app-bar>
         <v-navigation-drawer
           v-model="drawer"
           absolute
@@ -69,8 +70,7 @@
             </v-list-item-group>
           </v-list>
         </v-navigation-drawer>
-      </v-toolbar>
-    </v-app-bar>
+      
 
 
     <v-container>
@@ -158,7 +158,7 @@
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search">
+            <v-btn value="search" @click="$router.push('/search')">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
