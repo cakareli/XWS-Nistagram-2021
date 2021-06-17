@@ -14,8 +14,8 @@ type PostRepository struct {
 }
 
 func (repository *PostRepository) Create(post *model.Post) error {
-	regularUserCollection := repository.Database.Collection("posts")
-	_, err := regularUserCollection.InsertOne(context.TODO(), &post)
+	postsCollection := repository.Database.Collection("posts")
+	_, err := postsCollection.InsertOne(context.TODO(), &post)
 	if err != nil {
 		return fmt.Errorf("post is NOT created")
 	}

@@ -27,12 +27,26 @@ func initPostHandler(service *service.PostService) *handler.PostHandler {
 	return &handler.PostHandler{PostService: service}
 }
 
-func handleFunc(handler *handler.PostHandler) {
+func initStoryRepository(database *mongo.Database) *repository.StoryRepository {
+	return &repository.StoryRepository{Database: database}
+}
+
+func initStoryService(repository *repository.StoryRepository) *service.StoryService {
+	return &service.StoryService{StoryRepository: repository}
+}
+
+func initStoryHandler(service *service.StoryService) *handler.StoryHandler {
+	return &handler.StoryHandler{StoryService: service}
+}
+
+func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/regular-user-posts/{username}", handler.GetAllRegularUserPosts).Methods("GET")
-	router.HandleFunc("/public-posts", handler.GetAllPublicPosts).Methods("GET")
-	router.HandleFunc("/new-post", handler.CreateNewPost).Methods("POST")
+	router.HandleFunc("/regular-user-posts/{username}", handlerPost.GetAllRegularUserPosts).Methods("GET")
+	router.HandleFunc("/public-posts", handlerPost.GetAllPublicPosts).Methods("GET")
+	router.HandleFunc("/new-post", handlerPost.CreateNewPost).Methods("POST")
+
+	router.HandleFunc("/new-story", handlerStory.CreateNewStory).Methods("POST")
 
 	c := SetupCors()
 
@@ -71,9 +85,14 @@ func initDatabase() *mongo.Database{
 
 func main() {
 	mediaContentDatabase := initDatabase()
+
 	postRepository := initPostRepository(mediaContentDatabase)
 	postService := initPostService(postRepository)
 	postHandler := initPostHandler(postService)
 
-	handleFunc(postHandler)
+	storyRepository := initStoryRepository(mediaContentDatabase)
+	storyService := initStoryService(storyRepository)
+	storyHandler := initStoryHandler(storyService)
+
+	handleFunc(postHandler, storyHandler)
 }
