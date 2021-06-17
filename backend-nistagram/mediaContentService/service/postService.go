@@ -22,6 +22,27 @@ func (service *PostService) GetAllRegularUserPosts(username string) []model.Post
 	return regularUserPosts
 }
 
+func (service *PostService) GetLocationSearchResults(searchInput string) []model.Post {
+	searchPostDocuments := service.PostRepository.GetLocationSearchResults(searchInput)
+
+	searchPosts := CreatePostsFromDocuments(searchPostDocuments)
+	return searchPosts
+}
+
+func (service *PostService) GetUserSearchResults(searchInput string) []model.Post {
+	searchPostDocuments := service.PostRepository.GetUserSearchResults(searchInput)
+
+	searchPosts := CreatePostsFromDocuments(searchPostDocuments)
+	return searchPosts
+}
+
+func (service *PostService) GetTagSearchResults(searchInput string) []model.Post {
+	searchPostDocuments := service.PostRepository.GetTagSearchResults(searchInput)
+
+	searchPosts := CreatePostsFromDocuments(searchPostDocuments)
+	return searchPosts
+}
+
 func (service *PostService) GetAllPublicPosts() []model.Post {
 	publicPostsDocuments := service.PostRepository.GetAllPublic()
 

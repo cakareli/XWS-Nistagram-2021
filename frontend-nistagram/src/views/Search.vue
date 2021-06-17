@@ -213,8 +213,7 @@ export default {
       }
     },
     loadAllPublicPosts() {
-      axios
-        .get("http://localhost:8081/api/media-content/public-posts", {
+      axios.get("http://localhost:8081/api/media-content/public-posts", {
           headers: {
             Authorization: "Bearer " + getToken(),
           },
@@ -259,7 +258,54 @@ export default {
         (this.showLocation = true);
       this.searchInput = "";
     },
-    search() {},
+    search() {
+      if (this.showUser === true){
+        axios.get("http://localhost:8081/api/media-content/search-user/"+this.searchInput, {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+        .then((response) => {
+          this.allPublicPosts = response.data;
+        })
+        .catch((error) => {
+          if (error.response.status === 500) {
+            console.lof("Internal server error");
+          }
+        });
+        
+      }
+      else if(this.showTag === true){
+        axios.get("http://localhost:8081/api/media-content/search-tag/"+this.searchInput, {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+        .then((response) => {
+          this.allPublicPosts = response.data;
+        })
+        .catch((error) => {
+          if (error.response.status === 500) {
+            console.lof("Internal server error");
+          }
+        });
+        
+      }else if(this.showLocation === true){
+        axios.get("http://localhost:8081/api/media-content/search-location/"+this.searchInput, {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+        .then((response) => {
+          this.allPublicPosts = response.data;
+        }).catch((error) => {
+          if (error.response.status === 500) {
+            console.lof("Internal server error");
+          }
+        });
+        
+      }
+    },
   },
   mounted() {
     this.checkLoggedUser();

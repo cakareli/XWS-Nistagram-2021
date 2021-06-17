@@ -49,3 +49,46 @@ func (repository *PostRepository) GetAllPublic() []bson.D{
 	}
 	return postsFiltered
 }
+
+func (repository *PostRepository) GetLocationSearchResults(searchInput string) []bson.D{
+	postsCollection := repository.Database.Collection("posts")
+	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"location": searchInput, "regularUser.privacyType": 0})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}
+
+func (repository *PostRepository) GetUserSearchResults(searchInput string) []bson.D{
+	postsCollection := repository.Database.Collection("posts")
+	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"regularUser.username": searchInput, "regularUser.privacyType": 0})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}
+
+func (repository *PostRepository) GetTagSearchResults(searchInput string) []bson.D{
+
+	postsCollection := repository.Database.Collection("posts")
+	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"tags": searchInput, "regularUser.privacyType": 0})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}
