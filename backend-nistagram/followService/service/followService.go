@@ -29,3 +29,9 @@ func (service *FollowService) AcceptFollowRequest(loggedUserId string, followerI
 	return userIsAccepted
 }
 
+func (service *FollowService) RemoveFollower(loggedUserId string, followerId string) bool {
+	fmt.Println("removing follower...")
+
+	userIsRemoved := service.FollowRepository.RemoveFollowing(loggedUserId, followerId)
+	return userIsRemoved
+}

@@ -47,3 +47,15 @@ func (handler *FollowHandler) AcceptFollowRequest(w http.ResponseWriter, r *http
 	}
 }
 
+func (handler *FollowHandler) RemoveFollower(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followerId := params["followerId"]
+	userIsRemoved := handler.FollowService.RemoveFollower(loggedUserId, followerId)
+	if !userIsRemoved {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}

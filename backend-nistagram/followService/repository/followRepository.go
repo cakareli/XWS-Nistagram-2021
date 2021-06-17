@@ -44,3 +44,17 @@ func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, f
 	return false
 }
 
+func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followerId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run(" match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {request: TRUE}]->(u2:User{Id: $followerId}) detach delete f return u1,u2",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followerId":followerId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}

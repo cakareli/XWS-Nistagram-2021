@@ -39,7 +39,7 @@ func handleFunc(handler *handler.FollowHandler) {
 	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
 	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
-	
+	router.HandleFunc("/remove-follower/{loggedUserId}/{followerId}", handler.RemoveFollower).Methods("POST")
 
 	c := SetupCors()
 
