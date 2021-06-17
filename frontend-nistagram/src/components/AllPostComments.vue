@@ -6,8 +6,8 @@
                 <v-card-title>
                         <h4>All comments:</h4>
                 </v-card-title>
-                    <v-col v-for= "comment in allComments" :key = "comment.id">
-                        <span>@{{comment.username}}</span>
+                    <v-col v-for= "comment in allPostComments" :key = "comment.id">
+                        <span>@{{comment.regularUser}}</span>
                         <v-textarea outlined v-model="comment.text" prepend-icon="mdi-comment" rows="2" no-resize readonly></v-textarea>
                     </v-col>
                 <v-card-actions>
@@ -32,15 +32,11 @@ export default {
         allPostCommentsDialog: {
         default: false,
       },
+      allPostComments: {}
     },
     data() {
         return {
-            allComments: [
-                {id: "1", username: "denisfruza", text: "Lep si batoo <3"},
-                {id: "2", username: "dbulaja98", text: "mmmmmmmmm"},
-                {id: "3", username: "jarulja", text: "nice"},
-                {id: "4", username: "cakinjoo", text: "hvala svima ljubim vas!!"},
-            ]
+
         }
     },
     mounted() {

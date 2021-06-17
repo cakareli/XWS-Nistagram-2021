@@ -1,7 +1,8 @@
 <template>
-  <v-app class="grey lighten-4">
-    <v-app-bar app height="45" color="grey lighten-1">
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+  <v-app class="grey lighten-4" width="800px">
+
+    <v-app-bar app height="45" color="grey lighten-3">
+      <v-app-bar-nav-icon @click.stop = "drawer=!drawer" class="ml-5"/>
         <v-row>
           <v-col>
             <v-toolbar-title>
@@ -17,12 +18,12 @@
           </v-col>
         </v-row>
     </v-app-bar>
+    
         <v-navigation-drawer
           v-model="drawer"
           absolute
-          temporary
-          height="570"
           class="grey lighten-4"
+          fixed     
         >
           <v-list>
             <v-list-item-group active-class="deep-purple--text text--accent-4">
@@ -70,7 +71,7 @@
             </v-list-item-group>
           </v-list>
         </v-navigation-drawer>
-      
+
 
 
     <v-container>
@@ -79,10 +80,11 @@
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allUserPosts" :key="post.Username">
-                <v-card height="635" width="500" class="ma-3">
+                <v-card height="665" width="500" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                   </v-card-title>
+                  <v-icon class="ml-11">mdi-map-marker</v-icon> {{post.Location}}
                   <v-row class="justify-center my-1">
                     <v-img
                       v-bind:src="post.MediaPaths[0]"
@@ -125,7 +127,7 @@
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="viewAllTags(post.Id)"
+                      @click="viewAllTags(post.Tags)"
                       >Tags</v-btn
                     >
                     <v-btn
@@ -134,7 +136,7 @@
                       @click="commentPost(post.Id)"
                       >Comment</v-btn
                     >
-                    <v-btn x-small @click="viewAllPostComments(post.Id)"
+                    <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
                   </v-row>
@@ -150,44 +152,42 @@
     
    
 
-    <v-footer app height="45px">
-      <v-bottom-navigation height="45px" background-color="grey lighten-1">
+    <v-footer app height="45px" class="grey lighten-3 justify-center">
         <v-container>
           <v-row justify="center">
-            <v-btn value="home" @click="$router.push('/')">
+            <v-btn class= "mx-2" @click="$router.push('/').catch(()=>{})">
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search" @click="$router.push('/search')">
+            <v-btn class= "mx-2" @click="$router.push('/search').catch(()=>{})">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
             <v-btn
-              value="add"
-              @click="$router.push('/new-post')"
+              class= "mx-2"
+              @click="$router.push('/new-post').catch(()=>{})"
             >
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn value="notification">
+            <v-btn class= "mx-2">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
             <v-btn
-              value="profile"
+              class= "mx-2"
             >
               <v-icon>mdi-account</v-icon>
             </v-btn>
           </v-row>
         </v-container>
-      </v-bottom-navigation>
     </v-footer>
-    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" />
+    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" :allPostComments="allPostComments"/>
     <AddPostComment
       :addPostCommentDialog.sync="addPostCommentDialog"
       :postId="postId"
     />
-    <AllTags :allTagsDialog.sync="allTagsDialog" :postId="postId" />
+    <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
   </v-app>
 </template>
 
@@ -217,6 +217,8 @@ export default {
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
+      allPostComments: [],
+      allPostTags: [],
       allTagsDialog: false,
       postId: 0
     };
@@ -284,12 +286,12 @@ export default {
       this.postId = postId;
       this.addPostCommentDialog = true;
     },
-    viewAllPostComments(postId) {
-      console.log(postId);
+    viewAllPostComments(allPostComments) {
+      this.allPostComments = allPostComments;
       this.allPostCommentsDialog = true;
     },
-    viewAllTags(postId) {
-      console.log(postId);
+    viewAllTags(allPostTags) {
+      this.allPostTags = allPostTags;
       this.allTagsDialog = true;
     },
   },

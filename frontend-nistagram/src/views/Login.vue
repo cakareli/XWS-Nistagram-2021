@@ -8,7 +8,7 @@
         <v-col width="300px"></v-col>
         <v-col width="600px">
           <v-toolbar flat height="45" width="800px">
-            <v-app-bar app height="45" color="grey">
+            <v-app-bar app height="45" color="grey lighten-3">
               <v-app-bar-nav-icon @click="$router.push('/')">
                 <v-icon>mdi-arrow-left</v-icon>
               </v-app-bar-nav-icon>

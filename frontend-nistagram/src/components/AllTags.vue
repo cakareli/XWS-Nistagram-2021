@@ -6,10 +6,7 @@
                 <v-card-title>
                         <h4>All tags:</h4>
                 </v-card-title>
-                    <v-col v-for= "tag in allTags" :key = "tag.text">
-                        <span>@{{tag.text}}</span>
-                        <!-- <v-textarea outlined v-model="comment.text" prepend-icon="mdi-comment" rows="2" no-resize readonly></v-textarea> -->
-                    </v-col>
+                    <span v-for="(tag, index) in allPostTags" :key ="index" class="ma-2">#{{tag}} </span>
                 <v-card-actions>
                     <v-btn color="grey lighten-3" @click.native="close">Close</v-btn>
                 </v-card-actions>
@@ -32,15 +29,11 @@ export default {
         allTagsDialog: {
         default: false,
       },
+      allPostTags: {}
     },
     data() {
         return {
-            allTags: [
-                {text: "idegas"},
-                {text: "idegas"},
-                {text: "idegas"},
-                {text: "idegas"},
-            ]
+
         }
     },
     mounted() {
