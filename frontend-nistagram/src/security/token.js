@@ -13,6 +13,11 @@ function getRole(){
     return decoded.role
 }
 
+function getUsername(){
+    var decoded = VueJwtDecode.decode(getToken())
+    return decoded.username
+}
+
 function getId() {
     var decoded = VueJwtDecode.decode(getToken())
     return decoded.userId
@@ -27,5 +32,6 @@ export{
     getToken,
     getRole,
     getId,
+    getUsername,
     removeToken,
 }

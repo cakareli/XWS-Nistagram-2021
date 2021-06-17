@@ -1,6 +1,6 @@
 <template>
-  <v-app class="grey lighten-2" width="800px">
-    <v-app-bar app height="45" class="grey lighten-3">
+  <v-app class="grey lighten-2">
+    <v-app-bar app height="45" class="grey lighten-3 justify-center">
         <v-row>
           <v-col>
             <v-toolbar-title>
@@ -20,11 +20,44 @@
     <v-container>
       <v-row justify="center">
         <v-card width="800px" class="pa-12">
-          <v-bottom-navigation background-color="grey lighten-3" height="45px" v-show="!loggedUser" >
-            <v-btn @click="$router.push('/registration')" class="grey lighten-2">Register</v-btn>
-            <v-spacer></v-spacer>
-              <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
+          <v-bottom-navigation background-color="grey lighten-3" height="45px">
+            <v-btn @click="searchUsers">
+              <v-icon>mdi-account</v-icon>
+              <span>User</span>
+            </v-btn>
+
+            <v-btn @click="searchTags">
+              <v-icon>mdi-tag</v-icon>
+              <span>Tag</span>
+            </v-btn>
+
+            <v-btn @click="searchLocations">
+              <v-icon>mdi-map</v-icon>
+              <span>Location</span>
+            </v-btn>
           </v-bottom-navigation>
+          <v-container height="30px">
+            <v-row height="30px">
+              <v-text-field
+                v-model="searchInput"
+                placeholder="Search users"
+                v-show="showUser"
+              ></v-text-field>
+              <v-text-field
+                v-model="searchInput"
+                placeholder="Search tags"
+                v-show="showTag"
+              ></v-text-field>
+              <v-text-field
+                v-model="searchInput"
+                placeholder="Search locations"
+                v-show="showLocation"
+              ></v-text-field>
+              <v-btn height="30" class="ma-5" @click="search">
+                <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </v-row>
+          </v-container>
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allPublicPosts" :key="post.Username">
@@ -100,9 +133,8 @@
           </v-row>
         </v-card>
       </v-row>
-    
     </v-container>
-    
+
     <v-footer app height="45px" class="grey lighten-3 justify-center">
         <v-container>
           <v-row justify="center">
@@ -110,7 +142,7 @@
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search" @click="$router.push('/search').catch(()=>{})">
+            <v-btn class= "mx-2">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
@@ -142,43 +174,44 @@
       :postId="postId"
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
-    <v-main>
-      <router-view />
-    </v-main>
   </v-app>
 </template>
 
 <script>
-
-import axios from "axios";
-import { getId, getToken} from "../security/token.js";
+import { getId, getToken } from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
+import axios from "axios";
 
 export default {
-  name: "Home",
-  components: {
-    AllPostComments,
-    AddPostComment,
-    AllTags
-  },
+  name: "Search",
+  components: { AllPostComments, AddPostComment, AllTags },
+
   data() {
     return {
       loggedUser: false,
       allPublicPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
-      allTagsDialog: false,
       allPostComments: [],
       allPostTags: [],
-      postId: 0
-    }
+      allTagsDialog: false,
+      showUser: true,
+      showTag: false,
+      postId: 0,
+      showLocation: false,
+      searchInput: "",
+    };
   },
 
   methods: {
-
-    loadAllPublicPostsForGuest() {
+    checkLoggedUser() {
+      if (getId().length != 0) {
+        this.loggedUser = true;
+      }
+    },
+    loadAllPublicPosts() {
       axios
         .get("http://localhost:8081/api/media-content/public-posts", {
           headers: {
@@ -189,13 +222,6 @@ export default {
           this.allPublicPosts = response.data;
         });
     },
-    
-    checkLoggedUser() {
-      if (getId().length != 0) {
-        this.loggedUser = true;
-      }
-    },
-    loadAllPublicPosts() {},
     likePost(postId) {
       console.log(postId);
     },
@@ -214,10 +240,32 @@ export default {
       this.allPostTags = allPostTags;
       this.allTagsDialog = true;
     },
+    searchUsers() {
+      (this.showUser = true),
+        (this.showTag = false),
+        (this.showLocation = false);
+      this.searchInput = "";
+    },
+    searchTags() {
+      (this.showUser = false),
+        (this.showTag = true),
+        (this.showLocation = false);
+      this.searchInput = "";
+    },
+    searchLocations() {
+      (this.showUser = false),
+        (this.showTag = false),
+        (this.showLocation = true);
+      this.searchInput = "";
+    },
+    search() {},
   },
   mounted() {
     this.checkLoggedUser();
-    this.loadAllPublicPostsForGuest();
+    this.loadAllPublicPosts();
   },
 };
 </script>
+
+<style>
+</style>
