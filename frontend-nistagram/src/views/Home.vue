@@ -25,7 +25,7 @@
     <v-container>
       <v-row justify="center">
         <v-card width="800px">
-          <v-bottom-navigation background-color="grey lighten-3" height="45px">
+          <v-bottom-navigation background-color="grey lighten-3" height="45px" v-show="!loggedUser" >
             <v-btn @click="$router.push('/registration')" class="grey lighten-2">Register</v-btn>
             <v-spacer></v-spacer>
               <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
@@ -33,7 +33,7 @@
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allPublicPosts" :key="post.Username">
-                <v-card height="635" width="500" class="ma-3">
+                <v-card height="655" width="500" class="ma-3">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                   </v-card-title>
@@ -81,7 +81,7 @@
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="viewAllTags(post.Id)"
+                      @click="viewAllTags(post.Tags)"
                       v-show="loggedUser"
                       >Tags</v-btn
                     >
@@ -92,7 +92,7 @@
                       v-show="loggedUser"
                       >Comment</v-btn
                     >
-                    <v-btn x-small @click="viewAllPostComments(post.Id)"
+                    <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
                   </v-row>
@@ -142,19 +142,19 @@
         </v-container>
       </v-bottom-navigation>
     </v-footer>
-    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" />
+    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" :allPostComments="allPostComments"/>
     <AddPostComment
       :addPostCommentDialog.sync="addPostCommentDialog"
       :postId="postId"
     />
-    <AllTags :allTagsDialog.sync="allTagsDialog" :postId="postId" />
+    <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags" />
   </v-app>
 </template>
 
 <script>
 
 import axios from "axios";
-import { getId, getToken } from "../security/token.js";
+import { getId, getToken} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
@@ -173,6 +173,8 @@ export default {
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
       allTagsDialog: false,
+      allPostComments: [],
+      allPostTags: [],
       postId: 0
     }
   },
@@ -188,6 +190,7 @@ export default {
         })
         .then((response) => {
           this.allPublicPosts = response.data;
+          console.log(JSON.stringify(response.data))
         });
     },
     
@@ -207,12 +210,12 @@ export default {
       this.postId = postId;
       this.addPostCommentDialog = true;
     },
-    viewAllPostComments(postId) {
-      console.log(postId);
+    viewAllPostComments(allPostComments) {
+      this.allPostComments = allPostComments;
       this.allPostCommentsDialog = true;
     },
-    viewAllTags(postId) {
-      console.log(postId);
+    viewAllTags(allPostTags) {
+      this.allPostTags = allPostTags;
       this.allTagsDialog = true;
     },
   },
