@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
+	"strings"
 )
 
 type PostRepository struct {
@@ -50,45 +51,34 @@ func (repository *PostRepository) GetAllPublic() []bson.D{
 	return postsFiltered
 }
 
-func (repository *PostRepository) GetLocationSearchResults(searchInput string) []bson.D{
-	postsCollection := repository.Database.Collection("posts")
-	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"location": searchInput, "regularUser.privacyType": 0})
-	if err != nil {
-		log.Fatal(err)
+func (repository *PostRepository) GetLocationSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
+	var searchResult []model.Post
+	for i:=0; i < len(allPublicPosts); i++ {
+		if (strings.Contains(strings.ToLower(allPublicPosts[i].Location), strings.ToLower(searchInput))){
+			searchResult = append(searchResult, allPublicPosts[i])
+		}
 	}
-
-	var postsFiltered []bson.D
-	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
-		log.Fatal(err)
-	}
-	return postsFiltered
+	return searchResult
 }
 
-func (repository *PostRepository) GetUserSearchResults(searchInput string) []bson.D{
-	postsCollection := repository.Database.Collection("posts")
-	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"regularUser.username": searchInput, "regularUser.privacyType": 0})
-	if err != nil {
-		log.Fatal(err)
+func (repository *PostRepository) GetUserSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
+	var searchResult []model.Post
+	for i:=0; i < len(allPublicPosts); i++ {
+		if (strings.Contains(strings.ToLower(allPublicPosts[i].RegularUser.Username), strings.ToLower(searchInput))){
+			searchResult = append(searchResult, allPublicPosts[i])
+		}
 	}
-
-	var postsFiltered []bson.D
-	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
-		log.Fatal(err)
-	}
-	return postsFiltered
+	return searchResult
 }
 
-func (repository *PostRepository) GetTagSearchResults(searchInput string) []bson.D{
-
-	postsCollection := repository.Database.Collection("posts")
-	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"tags": searchInput, "regularUser.privacyType": 0})
-	if err != nil {
-		log.Fatal(err)
+func (repository *PostRepository) GetTagSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
+	var searchResult []model.Post
+	for i:=0; i < len(allPublicPosts); i++ {
+		for j:=0; j < len(allPublicPosts[i].Tags); j++ {
+			if (strings.Contains(strings.ToLower(allPublicPosts[i].Tags[j]), strings.ToLower(searchInput))){
+				searchResult = append(searchResult, allPublicPosts[i])
+			}
+		}
 	}
-
-	var postsFiltered []bson.D
-	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
-		log.Fatal(err)
-	}
-	return postsFiltered
+	return searchResult
 }
