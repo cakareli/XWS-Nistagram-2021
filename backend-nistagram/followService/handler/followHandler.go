@@ -5,6 +5,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/followService/service"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -32,3 +33,17 @@ func (handler *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusOK)
 	}
 }
+
+func (handler *FollowHandler) AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followerId := params["followerId"]
+	userIsAccepted := handler.FollowService.AcceptFollowRequest(loggedUserId, followerId)
+	if !userIsAccepted {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+

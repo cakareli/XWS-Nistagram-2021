@@ -18,6 +18,14 @@ func (service *FollowService) Hello () {
 func (service *FollowService) FollowUser(newFollow dto.NewFollowDTO) bool {
 	fmt.Println("following user...")
 
-	userIsFollowed := service.FollowRepository.FollowUser(newFollow)
+	userIsFollowed := service.FollowRepository.CreateFollowing(newFollow)
 	return userIsFollowed
 }
+
+func (service *FollowService) AcceptFollowRequest(loggedUserId string, followerId string) bool {
+	fmt.Println("accepting follow request...")
+
+	userIsAccepted := service.FollowRepository.SetFollowRequestFalse(loggedUserId, followerId)
+	return userIsAccepted
+}
+

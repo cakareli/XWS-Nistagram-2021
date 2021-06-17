@@ -38,6 +38,8 @@ func handleFunc(handler *handler.FollowHandler) {
 
 	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
+	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
+	
 
 	c := SetupCors()
 
@@ -85,16 +87,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
-	/*result, err := session.Run("merge (:User{Id:1234567891})-[r:follow]-> (:User{Id:123456789111});", map[string]interface{}{})
-	if err != nil {
-		return
-	}
-	if result.Next() {
-		return
-	}
-	println(result)
-	return*/
 
 	authenticationRepository := initFollowRepository(&session)
 	authenticationService := initFollowService(authenticationRepository)

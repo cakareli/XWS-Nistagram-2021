@@ -14,11 +14,11 @@ func (repository *FollowRepository) Hello (){
 	fmt.Printf("Hello from Repository")
 }
 
-func (repository *FollowRepository) FollowUser(newFollow dto.NewFollowDTO) bool{
+func (repository *FollowRepository) CreateFollowing(newFollow dto.NewFollowDTO) bool{
 	session := *repository.DatabaseSession
-	result, err := session.Run("merge (u1:User{Id:$follower})" +
-		"-[:follow{close:false,muted:false,request:$isPrivate}]-> (u2:User{Id:$followed}) return u1, u2;",
-		map[string]interface{}{"follower":newFollow.FollowerId, "followed":newFollow.FollowedId, "isPrivate":newFollow.IsPrivate })
+	result, err := session.Run("merge (u1:User{Id:$followerId})" +
+		"-[:follow{close: FALSE,muted: FALSE,request: $isPrivate}]-> (u2:User{Id:$followedId}) return u1, u2;",
+		map[string]interface{}{"followerId":newFollow.FollowerId, "followedId":newFollow.FollowedId, "isPrivate":newFollow.IsPrivate })
 	if err != nil {
 		return false
 	}
@@ -28,3 +28,19 @@ func (repository *FollowRepository) FollowUser(newFollow dto.NewFollowDTO) bool{
 	}
 	return false
 }
+
+func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, followerId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run(" match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {request: TRUE, close: FALSE, muted: FALSE}]->(u2:User{Id: $followerId}) set f.request = false return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followerId":followerId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}
+
