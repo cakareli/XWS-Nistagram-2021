@@ -1,35 +1,26 @@
 <template>
-    <v-app class="grey lighten-4">
-        <v-container center>
-            <v-row>
-                <v-col width="300px"></v-col>
-                <v-col width="600px">
-                <v-toolbar height="45" width="800px" >
-                    <v-app-bar  app height="45" color="grey">
-                    <v-app-bar-nav-icon @click="$router.push('/account')">
-                        <v-icon>mdi-arrow-left</v-icon>
-                    </v-app-bar-nav-icon>
-                    <v-row >
-                        <v-col>
-                        <v-toolbar-title>
-                            <span outlined class="font-weight-light">NISTA</span>
-                            <span>GRAM</span>
-                        </v-toolbar-title>
-                        </v-col>
-                        <v-spacer></v-spacer>
-                        <v-col>
-                        <v-btn outlined class="mx-5 white" small>
-                            <v-icon>mdi-send</v-icon>
-                        </v-btn>
-                        </v-col>
-                    </v-row>
-                    </v-app-bar>
-                </v-toolbar>
-                <v-container class="grey lighten-2">
+    <v-app class="grey lighten-3" width="1000px">
+        <v-app-bar app height="45" class="grey lighten-3">
+        <v-row>
+          <v-col>
+            <v-toolbar-title>
+              <span outlined class="font-weight-light">NISTA</span>
+              <span>GRAM</span>
+            </v-toolbar-title>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col>
+            <v-btn outlined class="mx-5 white" v-show="loggedUser">
+              <v-icon>mdi-send</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+        </v-app-bar>
+                <v-container class="justify-center">
                     <v-snackbar v-model="snackbar" top timeout="3500">
                         <span>{{snackbarText}}</span>
                     </v-snackbar>
-                    <v-flex>
+                    <v-container class="pa-12 justify-center" width="1000px" height="1000">
                     <v-row>
                     <v-col>
                         <v-form v-model="form.isFormValid">
@@ -49,34 +40,40 @@
                         <img :src="imageUrl" height="500" width="400"/>
                     </v-col>
                     </v-row>
-                    </v-flex>
+                    </v-container>
                 </v-container>
-                <v-bottom-navigation height="35" width="800px" background-color="grey">
 
-                    <v-btn value="home" @click="$router.push('/')">
-                        <v-icon>mdi-home</v-icon>
-                    </v-btn>
+    <v-footer app height="45px" class="grey lighten-3 justify-center">
+        <v-container>
+          <v-row justify="center">
+            <v-btn class= "mx-2" @click="$router.push('/').catch(()=>{})">
+              <v-icon>mdi-home</v-icon>
+            </v-btn>
 
-                    <v-btn value="search" @click="$router.push('/search')">
-                        <v-icon>mdi-magnify</v-icon>
-                    </v-btn>
+            <v-btn value="search" @click="$router.push('/search').catch(()=>{})">
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
 
-                    <v-btn value="add">
-                        <v-icon>mdi-plus-box</v-icon>
-                    </v-btn>
+            <v-btn
+              class= "mx-2"
+              @click="$router.push('/new-post').catch(()=>{})"
+            >
+              <v-icon>mdi-plus-box</v-icon>
+            </v-btn>
 
-                    <v-btn value="notification">
-                        <v-icon>mdi-bell-ring</v-icon>
-                    </v-btn>
-                    
-                    <v-btn value="profile" @click="$router.push('/account')">
-                        <v-icon>mdi-account</v-icon>
-                    </v-btn>
-              
-                </v-bottom-navigation>
-                </v-col>
-            </v-row>
+            <v-btn class= "mx-2" v-show="loggedUser">
+              <v-icon>mdi-bell-ring</v-icon>
+            </v-btn>
+
+            <v-btn
+              class= "mx-2"
+              @click="$router.push('/account').catch(()=>{})"
+            >
+              <v-icon>mdi-account</v-icon>
+            </v-btn>
+          </v-row>
         </v-container>
+    </v-footer>
     </v-app>
 </template>
 
@@ -173,6 +170,7 @@ export default {
                     postUploadDTO
                 ).then(response => {
                     console.log(response)
+                    this.$router.push('/account').catch(()=>{})
                 }).catch(error => {
                     if(error.response.status === 500){
                         this.snackbarText = "Internal server error occurred!";

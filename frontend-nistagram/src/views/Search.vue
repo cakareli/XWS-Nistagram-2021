@@ -1,7 +1,6 @@
 <template>
   <v-app class="grey lighten-2">
-    <v-app-bar app height="45">
-      <v-toolbar fixed height="45" color="grey lighten-1">
+    <v-app-bar app height="45" class="grey lighten-3 justify-center">
         <v-row>
           <v-col>
             <v-toolbar-title>
@@ -16,7 +15,6 @@
             </v-btn>
           </v-col>
         </v-row>
-      </v-toolbar>
     </v-app-bar>
 
     <v-container>
@@ -55,7 +53,7 @@
                 placeholder="Search locations"
                 v-show="showLocation"
               ></v-text-field>
-              <v-btn height="30" class="mt-5" @click="search">
+              <v-btn height="30" class="ma-5" @click="search">
                 <v-icon>mdi-magnify</v-icon>
               </v-btn>
             </v-row>
@@ -63,10 +61,11 @@
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allPublicPosts" :key="post.Username">
-                <v-card height="635" width="500" class="ma-3">
+                <v-card height="665" width="500" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                   </v-card-title>
+                  <v-icon class="ml-11">mdi-map-marker</v-icon> {{post.Location}}
                   <v-row class="justify-center my-1">
                     <v-img
                       v-bind:src="post.MediaPaths[0]"
@@ -136,40 +135,38 @@
       </v-row>
     </v-container>
 
-    <v-footer app height="45px">
-      <v-bottom-navigation height="45px" background-color="grey lighten-1">
+    <v-footer app height="45px" class="grey lighten-3 justify-center">
         <v-container>
           <v-row justify="center">
-            <v-btn value="home" @click="$router.push('/')">
+            <v-btn class= "mx-2" @click="$router.push('/').catch(()=>{})">
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search">
+            <v-btn class= "mx-2">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
             <v-btn
-              value="add"
-              @click="$router.push('/new-post')"
+              class= "mx-2"
+              @click="$router.push('/new-post').catch(()=>{})"
               v-show="loggedUser"
             >
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn value="notification" v-show="loggedUser">
+            <v-btn class= "mx-2" v-show="loggedUser">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
             <v-btn
               v-show="loggedUser"
-              value="profile"
-              @click="$router.push('/account')"
+              class= "mx-2"
+              @click="$router.push('/account').catch(()=>{})"
             >
               <v-icon>mdi-account</v-icon>
             </v-btn>
           </v-row>
         </v-container>
-      </v-bottom-navigation>
     </v-footer>
     <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" :allPostComments="allPostComments"/>
     <AddPostComment
