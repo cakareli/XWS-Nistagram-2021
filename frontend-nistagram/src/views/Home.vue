@@ -1,84 +1,116 @@
 <template>
   <v-app class="grey lighten-2">
-    <v-container center>
-      <v-row>
-        <v-col width="300px"></v-col>
-        <v-col width="600px">
-          <v-toolbar height="45"  width="800px" >
-            <v-app-bar app height="45" color="grey">
-              <v-row>
-                <v-col>
-                  <v-toolbar-title>
-                    <span outlined class="font-weight-light">NISTA</span>
-                    <span>GRAM</span>
-                  </v-toolbar-title>
-                </v-col>
-                <v-spacer></v-spacer>
-                <v-col>
-                  <v-btn outlined class="mx-5 white" v-show="loggedUser">
-                    <v-icon>mdi-send</v-icon>
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-app-bar>
-          </v-toolbar>
-          <v-card height="60" v-show="!loggedUser">
-            <v-toolbar id="guestToolbar" ref="guestToolbar" height="35" class="grey lighten-4" width="800px">
-              <v-app-bar app>
-                <v-row align="center" justify="space-around">
-                  <v-col>
-                    <v-btn 
-                      width="250px"
-                      height="35px"
-                      @click="$router.push('/registration')"
-                      class="grey lighten-2"
-                      >Register</v-btn
-                    >
-                  </v-col>
-                  <v-spacer></v-spacer>
-                  <v-col>
+    <v-main>
+      <router-view />
+    </v-main>
+    <v-app-bar app height="45">
+      <v-toolbar fixed height="45" color="grey lighten-1">
+        <v-row>
+          <v-col>
+            <v-toolbar-title>
+              <span outlined class="font-weight-light">NISTA</span>
+              <span>GRAM</span>
+            </v-toolbar-title>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col>
+            <v-btn outlined class="mx-5 white" v-show="loggedUser">
+              <v-icon>mdi-send</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-toolbar>
+    </v-app-bar>
+
+    <v-container>
+      <v-row justify="center">
+        <v-card width="800px">
+          <v-bottom-navigation background-color="grey lighten-3" height="45px">
+            <v-btn @click="$router.push('/registration')" class="grey lighten-2">Register</v-btn>
+            <v-spacer></v-spacer>
+              <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
+          </v-bottom-navigation>
+          <v-row justify="center">
+            <v-list>
+              <v-list-item v-for="post in allPublicPosts" :key="post.Username">
+                <v-card height="635" width="500" class="ma-3">
+                  <v-card-title class="grey lighten-3" height="10">
+                    <h4>@{{ post.RegularUser.Username }}</h4>
+                  </v-card-title>
+                  <v-row class="justify-center my-1">
+                    <v-img
+                      v-bind:src="post.MediaPaths[0]"
+                      max-width="400"
+                      max-height="400"
+                      width="400"
+                      height="400"
+                      class="ma-2"
+                    ></v-img>
+                  </v-row>
+                  <v-row class="justify-center mx-2">
+                    <v-textarea
+                      label="Description"
+                      v-model="post.Description"
+                      auto-grow
+                      outlined
+                      rows="1"
+                      width="170"
+                      readonly
+                    ></v-textarea>
+                  </v-row>
+                  <v-row class="ma-2" height="5">
+                    <span> Likes: {{ post.Likes }}</span>
+                    <v-spacer />
+                    <span> Dislikes: {{ post.Dislikes }}</span>
+                  </v-row>
+                  <v-row class="ma-2">
                     <v-btn
-                      width="250px"
-                      height="35px"
-                      @click="$router.push('/login')"
-                      class="grey lighten-2"
-                      >Login</v-btn
+                      x-small
+                      class="mr-3"
+                      @click="likePost(post.Id)"
+                      v-show="loggedUser"
+                      >Like</v-btn
                     >
-                  </v-col>
-                </v-row>
-              </v-app-bar>
-            </v-toolbar>
-          </v-card>
-          <v-card class="grey lighten-2">
-            <v-virtual-scroll height="530" item-height="500" item-width="500" :items="allPublicPosts">
-              <template v-slot:default="{ item }" >              
-                    <v-card class="grey lighten-2">
-                      <v-card-title>
-                        <h4>{{item.username}}</h4>
-                      </v-card-title>
-                      <v-row class="ma-2" justify="center">
-                          <v-img src="//placehold.it/600x500" max-width="400" max-height="400"></v-img>
-                      </v-row>
-                      <v-row class="ma-2">
-                        <span> Likes: {{item.likes}}</span>
-                        <v-spacer/>
-                        <span> Dislikes: {{item.dislikes}}</span>
-                      </v-row>
-                      <v-row class="ma-2">
-                        <v-btn class="mr-3" @click="likePost(item.id)" v-show="loggedUser">Like</v-btn>
-                        <v-btn @click="dislikePost(item.id)" v-show="loggedUser">Dislike</v-btn>
-                        <v-spacer/>
-                        <v-btn class="mr-3" @click="commentPost(item.id)" v-show="loggedUser">Comment</v-btn>
-                        <v-btn @click="viewAllPostComments(item.id)">View all comments</v-btn>
-                      </v-row>
-                    </v-card>               
-                <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog"/>
-                <AddPostComment :addPostCommentDialog.sync="addPostCommentDialog" :postId = "postId"/> 
+                    <v-btn
+                      x-small
+                      @click="dislikePost(post.Id)"
+                      v-show="loggedUser"
+                      >Dislike</v-btn
+                    >
+                    <v-spacer />
+                    <v-btn
+                      x-small
+                      class="mr-3"
+                      @click="viewAllTags(post.Id)"
+                      v-show="loggedUser"
+                      >Tags</v-btn
+                    >
+                    <v-btn
+                      x-small
+                      class="mr-3"
+                      @click="commentPost(post.Id)"
+                      v-show="loggedUser"
+                      >Comment</v-btn
+                    >
+                    <v-btn x-small @click="viewAllPostComments(post.Id)"
+                      >View all comments</v-btn
+                    >
+                  </v-row>
+                </v-card>
+
                 <v-divider></v-divider>
-              </template>             
-            </v-virtual-scroll>
-          </v-card>
-          <v-bottom-navigation height="35" width="800px" background-color="grey">
+              </v-list-item>
+            </v-list>
+          </v-row>
+        </v-card>
+      </v-row>
+    </v-container>
+
+  
+    <v-footer app height="45px">
+      <v-bottom-navigation height="45px" background-color="grey lighten-1">
+        <v-container>
+          <v-row justify="center">
             <v-btn value="home">
               <v-icon>mdi-home</v-icon>
             </v-btn>
@@ -87,7 +119,11 @@
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
-            <v-btn value="add" @click="$router.push('/new-post')" v-show="loggedUser">
+            <v-btn
+              value="add"
+              @click="$router.push('/new-post')"
+              v-show="loggedUser"
+            >
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
@@ -95,7 +131,6 @@
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
-            
             <v-btn
               v-show="loggedUser"
               value="profile"
@@ -103,84 +138,87 @@
             >
               <v-icon>mdi-account</v-icon>
             </v-btn>
-              
-          </v-bottom-navigation>
-        </v-col>
-        <v-col width="300px"></v-col>
-      </v-row>
-    </v-container>
-    <v-main>
-      <router-view />
-    </v-main>
+          </v-row>
+        </v-container>
+      </v-bottom-navigation>
+    </v-footer>
+    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" />
+    <AddPostComment
+      :addPostCommentDialog.sync="addPostCommentDialog"
+      :postId="postId"
+    />
+    <AllTags :allTagsDialog.sync="allTagsDialog" :postId="postId" />
   </v-app>
 </template>
 
 <script>
 
-import {getId} from '../security/token.js'
-import AllPostComments from '../components/AllPostComments.vue'
-import AddPostComment from '../components/AddPostComment.vue'
+import axios from "axios";
+import { getId, getToken } from "../security/token.js";
+import AllPostComments from "../components/AllPostComments.vue";
+import AddPostComment from "../components/AddPostComment.vue";
+import AllTags from "../components/AllTags.vue";
 
 export default {
   name: "Home",
   components: {
     AllPostComments,
     AddPostComment,
+    AllTags
   },
   data() {
     return {
       loggedUser: false,
-      allPublicPosts : [
-        {id: "1", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
-        {id: "2", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
-        {id: "3", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
-        {id: "4", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
-        {id: "5", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
-        {id: "6", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
-        {id: "7", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
-        {id: "8", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
-        {id: "9", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
-        {id: "10", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
-        {id: "11", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
-        {id: "12", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
-        {id: "13", username: "denisfruza", likes: 21, dislikes: 11, imagepath:"aaaaaaaaaaaaaa"},
-        {id: "14", username: "dbulaja98", likes: 22, dislikes: 12, imagepath:"bbbbbbbbbbbbbbbbbb"},
-        {id: "15", username: "cakinjoo", likes: 23, dislikes: 13, imagepath:"cccccccccccccccccccc"},
-        {id: "16", username: "jarulja", likes: 24, dislikes: 14, imagepath:"cccccccccccccccccccc"},
-      ],
+      allPublicPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
-      postId: "",
+      allTagsDialog: false,
+      postId: 0
     }
   },
 
   methods: {
-    checkLoggedUser(){
-      if(getId().length != 0){
-        this.loggedUser = true
-      }      
-    },
-    loadAllPublicPosts() {
 
+    loadAllPublicPostsForGuest() {
+      axios
+        .get("http://localhost:8081/api/media-content/public-posts", {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+        .then((response) => {
+          this.allPublicPosts = response.data;
+        });
     },
+    
+    checkLoggedUser() {
+      if (getId().length != 0) {
+        this.loggedUser = true;
+      }
+    },
+    loadAllPublicPosts() {},
     likePost(postId) {
-      console.log(postId)
+      console.log(postId);
     },
-    dislikePost(postId){
-      console.log(postId)
+    dislikePost(postId) {
+      console.log(postId);
     },
     commentPost(postId) {
-      this.postId = postId
+      this.postId = postId;
       this.addPostCommentDialog = true;
     },
-    viewAllPostComments(postId){
-      console.log(postId)
+    viewAllPostComments(postId) {
+      console.log(postId);
       this.allPostCommentsDialog = true;
+    },
+    viewAllTags(postId) {
+      console.log(postId);
+      this.allTagsDialog = true;
     },
   },
   mounted() {
     this.checkLoggedUser();
+    this.loadAllPublicPostsForGuest();
   },
 };
-
 </script>
