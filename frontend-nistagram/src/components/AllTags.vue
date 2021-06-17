@@ -6,9 +6,7 @@
                 <v-card-title>
                         <h4>All tags:</h4>
                 </v-card-title>
-                    <v-li v-for= "tag in allPostTags" :key = "tag" class="ma-2">
-                        <span>#{{tag}} </span>
-                    </v-li>
+                    <span v-for="(tag, index) in allPostTags" :key ="index" class="ma-2">#{{tag}} </span>
                 <v-card-actions>
                     <v-btn color="grey lighten-3" @click.native="close">Close</v-btn>
                 </v-card-actions>

@@ -147,7 +147,7 @@
       :addPostCommentDialog.sync="addPostCommentDialog"
       :postId="postId"
     />
-    <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags" />
+    <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
   </v-app>
 </template>
 
@@ -190,7 +190,6 @@ export default {
         })
         .then((response) => {
           this.allPublicPosts = response.data;
-          console.log(JSON.stringify(response.data))
         });
     },
     

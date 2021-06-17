@@ -125,7 +125,7 @@
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="viewAllTags(post.Id)"
+                      @click="viewAllTags(post.Tags)"
                       >Tags</v-btn
                     >
                     <v-btn
@@ -134,7 +134,7 @@
                       @click="commentPost(post.Id)"
                       >Comment</v-btn
                     >
-                    <v-btn x-small @click="viewAllPostComments(post.Id)"
+                    <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
                   </v-row>
@@ -182,12 +182,12 @@
         </v-container>
       </v-bottom-navigation>
     </v-footer>
-    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" />
+    <AllPostComments :allPostCommentsDialog.sync="allPostCommentsDialog" :allPostComments="allPostComments"/>
     <AddPostComment
       :addPostCommentDialog.sync="addPostCommentDialog"
       :postId="postId"
     />
-    <AllTags :allTagsDialog.sync="allTagsDialog" :postId="postId" />
+    <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
   </v-app>
 </template>
 
@@ -217,6 +217,8 @@ export default {
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
+      allPostComments: [],
+      allPostTags: [],
       allTagsDialog: false,
       postId: 0
     };
@@ -284,12 +286,12 @@ export default {
       this.postId = postId;
       this.addPostCommentDialog = true;
     },
-    viewAllPostComments(postId) {
-      console.log(postId);
+    viewAllPostComments(allPostComments) {
+      this.allPostComments = allPostComments;
       this.allPostCommentsDialog = true;
     },
-    viewAllTags(postId) {
-      console.log(postId);
+    viewAllTags(allPostTags) {
+      this.allPostTags = allPostTags;
       this.allTagsDialog = true;
     },
   },
