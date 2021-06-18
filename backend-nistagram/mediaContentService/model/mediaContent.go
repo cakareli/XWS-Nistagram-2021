@@ -5,7 +5,7 @@ import (
 )
 
 type MediaContent struct {
-	Id int `bson:"id,omitempty"`
+	Id primitive.ObjectID `bson:"_id,omitempty"`
 	Tags []string `bson:"tags,omitempty"`
 	Description string `bson:"description,omitempty"`
 	MediaPaths []string `bson:"mediaPaths,omitempty"`

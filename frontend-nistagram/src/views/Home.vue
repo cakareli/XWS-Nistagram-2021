@@ -106,11 +106,11 @@
     <v-footer app height="45px" class="grey lighten-3 justify-center">
         <v-container>
           <v-row justify="center">
-            <v-btn class= "mx-2" @click="$router.push('/').catch(()=>{})">
+            <v-btn class= "mx-2" @click="$router.go()">
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search" @click="$router.push('/search').catch(()=>{})">
+            <v-btn value="search" class= "mx-2" @click="$router.push('/search').catch(()=>{})">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
@@ -172,7 +172,7 @@ export default {
       allTagsDialog: false,
       allPostComments: [],
       allPostTags: [],
-      postId: 0
+      postId: ""
     }
   },
 

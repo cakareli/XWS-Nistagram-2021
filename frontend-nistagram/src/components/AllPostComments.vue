@@ -6,8 +6,8 @@
                 <v-card-title>
                         <h4>All comments:</h4>
                 </v-card-title>
-                    <v-col v-for= "comment in allPostComments" :key = "comment.id">
-                        <span>@{{comment.regularUser}}</span>
+                    <v-col v-for= "(comment, index) in allPostComments" :key = "index">
+                        <span>@{{comment.regularUser.Username}}</span>
                         <v-textarea outlined v-model="comment.text" prepend-icon="mdi-comment" rows="2" no-resize readonly></v-textarea>
                     </v-col>
                 <v-card-actions>

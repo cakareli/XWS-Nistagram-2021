@@ -56,3 +56,22 @@ func (handler *PostHandler) GetAllPublicPosts(w http.ResponseWriter, r *http.Req
 		_, _ = w.Write(publicPostsJson)
 	}
 }
+
+func (handler *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var commentDTO dto.CommentDTO
+	err := json.NewDecoder(r.Body).Decode(&commentDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.CommentPost(commentDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}

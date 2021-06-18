@@ -175,7 +175,7 @@
             </v-btn>
 
             <v-btn
-              class= "mx-2"
+              class= "mx-2" @click="$router.go()"
             >
               <v-icon>mdi-account</v-icon>
             </v-btn>

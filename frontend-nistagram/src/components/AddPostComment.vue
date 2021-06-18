@@ -23,6 +23,9 @@
     
 <script>
 
+import axios from 'axios'
+import { getToken, getUsername } from '../security/token.js'
+
 export default {
     name: 'AddPostComment',
     components: {
@@ -54,7 +57,22 @@ export default {
             this.$emit('update:addPostCommentDialog', false)
         },
         submit() {
-            console.log('hello' + this.postId)
+            let commentPostDTO = {
+                username: getUsername(),
+                postId: this.postId,
+                text: this.form.text
+            }
+        axios.put("http://localhost:8081/api/media-content/comment-post",
+            commentPostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
         }
     }
 }
