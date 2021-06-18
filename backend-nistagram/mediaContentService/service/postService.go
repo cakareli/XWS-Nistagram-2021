@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"os"
 )
@@ -81,6 +82,28 @@ func CreatePostsFromDocuments(PostsDocuments []bson.D) []model.Post {
 	return publicPosts
 }
 
+func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
+	fmt.Println("Commenting post...")
+
+	comment, err := createCommentFromCommentDTO(&commentDTO)
+	if err != nil {
+		return err
+	}
+	postId, _ := primitive.ObjectIDFromHex(commentDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+
+	appendedComments := append(post.Comment, *comment)
+	post.Comment = appendedComments
+	err = service.PostRepository.Update(post)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
@@ -104,6 +127,19 @@ func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post,
 	return &post, nil
 }
 
+func createCommentFromCommentDTO(commentDTO *dto.CommentDTO) (*model.Comment, error){
+	regularUser, err := getRegularUserFromUsername(commentDTO.Username)
+	if err != nil {
+		return nil, err
+	}
+	var comment model.Comment
+	comment.RegularUser = *regularUser
+	comment.RegularUser.Username = commentDTO.Username
+	comment.Text = commentDTO.Text
+
+	return &comment, nil
+}
+
 func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 	requestUrl := fmt.Sprintf("http://%s:%s/by-username/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
 	resp, err := http.Get(requestUrl)
@@ -117,4 +153,3 @@ func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 
 	return &regularUser, nil
 }
-

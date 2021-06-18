@@ -10,7 +10,7 @@
           </v-col>
           <v-spacer></v-spacer>
           <v-col>
-            <v-btn outlined class="mx-5 white" v-show="loggedUser">
+            <v-btn outlined class="mx-5 white">
               <v-icon>mdi-send</v-icon>
             </v-btn>
           </v-col>
@@ -50,18 +50,18 @@
               <v-icon>mdi-home</v-icon>
             </v-btn>
 
-            <v-btn value="search" @click="$router.push('/search').catch(()=>{})">
+            <v-btn class= "mx-2" @click="$router.push('/search').catch(()=>{})">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
 
             <v-btn
               class= "mx-2"
-              @click="$router.push('/new-post').catch(()=>{})"
+              @click="$router.go()"
             >
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2" v-show="loggedUser">
+            <v-btn class= "mx-2">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
