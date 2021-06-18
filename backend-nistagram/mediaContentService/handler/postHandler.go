@@ -45,6 +45,48 @@ func (handler *PostHandler) GetAllRegularUserPosts(w http.ResponseWriter, r *htt
 	}
 }
 
+func (handler *PostHandler) GetLocationSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchPosts := handler.PostService.GetLocationSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
+}
+
+func (handler *PostHandler) GetUserSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchPosts := handler.PostService.GetUserSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
+}
+
+func (handler *PostHandler) GetTagSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchPosts := handler.PostService.GetTagSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
+}
+
 func (handler *PostHandler) GetAllPublicPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	publicPosts := handler.PostService.GetAllPublicPosts()

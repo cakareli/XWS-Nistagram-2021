@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
+	"strings"
 )
 
 type PostRepository struct {
@@ -48,4 +49,36 @@ func (repository *PostRepository) GetAllPublic() []bson.D{
 		log.Fatal(err)
 	}
 	return postsFiltered
+}
+
+func (repository *PostRepository) GetLocationSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
+	var searchResult []model.Post
+	for i:=0; i < len(allPublicPosts); i++ {
+		if (strings.Contains(strings.ToLower(allPublicPosts[i].Location), strings.ToLower(searchInput))){
+			searchResult = append(searchResult, allPublicPosts[i])
+		}
+	}
+	return searchResult
+}
+
+func (repository *PostRepository) GetUserSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
+	var searchResult []model.Post
+	for i:=0; i < len(allPublicPosts); i++ {
+		if (strings.Contains(strings.ToLower(allPublicPosts[i].RegularUser.Username), strings.ToLower(searchInput))){
+			searchResult = append(searchResult, allPublicPosts[i])
+		}
+	}
+	return searchResult
+}
+
+func (repository *PostRepository) GetTagSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
+	var searchResult []model.Post
+	for i:=0; i < len(allPublicPosts); i++ {
+		for j:=0; j < len(allPublicPosts[i].Tags); j++ {
+			if (strings.Contains(strings.ToLower(allPublicPosts[i].Tags[j]), strings.ToLower(searchInput))){
+				searchResult = append(searchResult, allPublicPosts[i])
+			}
+		}
+	}
+	return searchResult
 }
