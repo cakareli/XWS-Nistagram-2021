@@ -31,6 +31,10 @@
                 <v-card height="665" width="500" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
+                    <v-spacer/>
+                    <v-btn small  @click="savePost(post.Id)">
+                      <v-icon>mdi-bookmark</v-icon>
+                    </v-btn>
                   </v-card-title>
                   <v-icon class="ml-11">mdi-map-marker</v-icon> {{post.Location}}
                   <v-row class="justify-center my-1">
@@ -214,6 +218,9 @@ export default {
       this.allPostTags = allPostTags;
       this.allTagsDialog = true;
     },
+    savePost(postId){
+      console.log(postId);
+    }
   },
   mounted() {
     this.checkLoggedUser();
