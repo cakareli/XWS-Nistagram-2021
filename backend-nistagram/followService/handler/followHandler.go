@@ -59,3 +59,4 @@ func (handler *FollowHandler) RemoveFollower(w http.ResponseWriter, r *http.Requ
 		w.WriteHeader(http.StatusOK)
 	}
 }
+

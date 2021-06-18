@@ -18,6 +18,10 @@ func (service *FollowService) Hello () {
 func (service *FollowService) FollowUser(newFollow dto.NewFollowDTO) bool {
 	fmt.Println("following user...")
 
+	err := service.FollowRepository.UserAlreadyFollowed(newFollow.FollowerId, newFollow.FollowedId)
+	if err != nil {
+		return false
+	}
 	userIsFollowed := service.FollowRepository.CreateFollowing(newFollow)
 	return userIsFollowed
 }
@@ -35,3 +39,4 @@ func (service *FollowService) RemoveFollower(loggedUserId string, followerId str
 	userIsRemoved := service.FollowRepository.RemoveFollowing(loggedUserId, followerId)
 	return userIsRemoved
 }
+

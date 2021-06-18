@@ -16,17 +16,31 @@ func (repository *FollowRepository) Hello (){
 
 func (repository *FollowRepository) CreateFollowing(newFollow dto.NewFollowDTO) bool{
 	session := *repository.DatabaseSession
-	result, err := session.Run("merge (u1:User{Id:$followerId})" +
-		"-[:follow{close: FALSE,muted: FALSE,request: $isPrivate}]-> (u2:User{Id:$followedId}) return u1, u2;",
+
+	err1 := repository.addUser(session, newFollow.FollowerId)
+	err2 := repository.addUser(session, newFollow.FollowedId)
+	if err1 != nil || err2 != nil {
+		return false
+	}
+	result, err3 := session.Run("match (u1:User), (u2:User) where u1.Id = $followerId and " +
+		"u2.Id = $followedId merge (u1)-[f:follow{close: FALSE,muted: FALSE,request: $isPrivate}]->(u2) return f",
 		map[string]interface{}{"followerId":newFollow.FollowerId, "followedId":newFollow.FollowedId, "isPrivate":newFollow.IsPrivate })
-	if err != nil {
+	if err3 != nil {
 		return false
 	}
 	if result.Next() {
-		println(result)
+		println(&result)
 		return true
 	}
 	return false
+}
+
+func (repository *FollowRepository) addUser(session neo4j.Session, userId string) error {
+	_, err := session.Run("merge (u:User{Id:$followerId}) return u", map[string]interface{}{"followerId":userId,})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, followerId string) bool{
@@ -57,4 +71,20 @@ func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followe
 		return true
 	}
 	return false
+}
+
+
+
+func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$followerId})-[f:follow]->(u2:User{Id:$followedId}) return f;",
+		map[string]interface{}{"followerId":followerId, "followedId":followedId,})
+	if err != nil {
+		return nil
+	}
+	if result.Next() {
+		println(result)
+ 		return fmt.Errorf("user is already followed")
+	}
+	return nil
 }
