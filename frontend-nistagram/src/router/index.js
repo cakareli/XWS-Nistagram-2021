@@ -7,6 +7,7 @@ import Update from '../views/Update.vue'
 import Account from '../views/Account.vue'
 import NewPost from '../views/NewPost.vue'
 import Search from '../views/Search.vue'
+import UserProfile from '../views/UserProfile.vue'
 
 Vue.use(VueRouter)
 
@@ -46,6 +47,11 @@ const routes = [
     name: 'Search',
     component: Search
   },
+  {
+    path: '/user-profile/:username',
+    name: 'UserProfile',
+    component: UserProfile
+  }
 ]
 
 const router = new VueRouter({
