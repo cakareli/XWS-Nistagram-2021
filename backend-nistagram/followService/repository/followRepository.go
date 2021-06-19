@@ -73,6 +73,21 @@ func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, foll
 	return false
 }
 
+func (repository *FollowRepository) BlockUser(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User), (u2:User) where u1.Id = $loggedUserId and " +
+		"u2.Id = $followingId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : TRUE, request: FALSE}]->(u2) return f",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}
+
 func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followingId string) bool{
 	session := *repository.DatabaseSession
 	result, err := session.Run(" match (u1:User{Id:$loggedUserId})" +

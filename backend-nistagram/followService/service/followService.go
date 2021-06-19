@@ -44,6 +44,21 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) BlockUser(loggedUserId string, userId string) bool {
+	fmt.Println("blocking user...")
+
+	err1 := service.FollowRepository.UserAlreadyFollowed(loggedUserId, userId)
+	if err1 != nil {
+		service.RemoveFollowing(loggedUserId, userId)
+	}
+	err2 := service.FollowRepository.UserAlreadyFollowed(userId, loggedUserId)
+	if err2 != nil {
+		service.RemoveFollowing(userId, loggedUserId)
+	}
+	userIsBlocked := service.FollowRepository.BlockUser(loggedUserId, userId)
+	return userIsBlocked
+}
+
 func (service *FollowService) RemoveFollowing(loggedUserId string, followingId string) bool {
 	fmt.Println("removing following...")
 
