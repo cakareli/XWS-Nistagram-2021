@@ -97,6 +97,21 @@ func (service *RegularUserService) FindUserByUsername(username string) (*dto.Reg
 	return regularUserPostDto, nil
 }
 
+func (service *RegularUserService) FindUsersByIds(usersIds []string) (*[]dto.UserFollowDTO, error){
+	var users []model.RegularUser
+	for i:=0; i < len(usersIds); i++ {
+		id, _ := primitive.ObjectIDFromHex(usersIds[i])
+		regularUser, err := service.RegularUserRepository.FindUserById(id)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, *regularUser)
+	}
+
+	userFollowDTOs := createUserFollowDTOsFromRegularUsers(users)
+	return userFollowDTOs, nil
+}
+
 func createRegularUserPostDTOFromRegularUser(regularUser *model.RegularUser) *dto.RegularUserPostDTO {
 	var regularUserPostDto dto.RegularUserPostDTO
 	regularUserPostDto.Id = regularUser.Id.Hex()
@@ -145,4 +160,16 @@ func createRegularUserFromRegularUserUpdateDTO(userUpdateDto *dto.RegularUserUpd
 	regularUser.WebSite = userUpdateDto.WebSite
 
 	return &regularUser
+}
+
+func createUserFollowDTOsFromRegularUsers(regularUsers []model.RegularUser) *[]dto.UserFollowDTO {
+	var userFollowDTOs []dto.UserFollowDTO
+	for i := 0; i < len(regularUsers); i++ {
+		var userFollowDto dto.UserFollowDTO
+		userFollowDto.Username = regularUsers[i].Username
+		userFollowDto.UserId = regularUsers[i].Id.Hex()
+		userFollowDTOs = append(userFollowDTOs, userFollowDto)
+	}
+
+	return &userFollowDTOs
 }

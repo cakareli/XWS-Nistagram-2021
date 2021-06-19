@@ -149,7 +149,7 @@ func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 	}
 	var regularUser model.RegularUser
 	decoder := json.NewDecoder(resp.Body)
-	decoder.Decode(&regularUser)
+	_ = decoder.Decode(&regularUser)
 
 	return &regularUser, nil
 }
