@@ -106,7 +106,7 @@ func (handler *RegularUserHandler) GetAllPublicRegularUsers(w http.ResponseWrite
 	}
 }
 
-func (handler *RegularUserHandler) GetUserSearchResults(w http.ResponseWriter, r *http.Request){
+func (handler *RegularUserHandler) GetUserSearchResults(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
 	searchInput := param["searchInput"]
@@ -118,4 +118,20 @@ func (handler *RegularUserHandler) GetUserSearchResults(w http.ResponseWriter, r
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(searchPostsJson)
 	}
+}
+func (handler *RegularUserHandler) FindUsersByIds(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	var usersIds []string
+	err := json.NewDecoder(r.Body).Decode(&usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userFollowDtos, err := handler.RegularUserService.FindUsersByIds(usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(userFollowDtos)
 }
