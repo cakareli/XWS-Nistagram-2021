@@ -54,17 +54,32 @@ func (handler *RegularUserHandler) Update(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 }
 
-func (handler *RegularUserHandler) FindUserByUsername(w http.ResponseWriter, r *http.Request){
+func (handler *RegularUserHandler) CreateRegularUserPostDTOByUsername(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "application/json")
 	param := mux.Vars(r)
 	username := param["username"]
-	regularUserPostDto, err := handler.RegularUserService.FindUserByUsername(username)
+	regularUserPostDto, err := handler.RegularUserService.CreateRegularUserPostDTOByUsername(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	json.NewEncoder(w).Encode(regularUserPostDto)
 }
+
+func (handler *RegularUserHandler) FindRegularUserByUsername(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	regularUserPostDto, err := handler.RegularUserService.FindRegularUserByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(regularUserPostDto)
+}
+
+
 
 func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "application/json")
@@ -77,4 +92,30 @@ func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.R
 		return
 	}
 	json.NewEncoder(w).Encode(regularUser)
+}
+
+func (handler *RegularUserHandler) GetAllPublicRegularUsers(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	allRegularUsersDto, err := handler.RegularUserService.GetAllPublicRegularUsers()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(allRegularUsersDto)
+	}
+}
+
+func (handler *RegularUserHandler) GetUserSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchUsers, err := handler.RegularUserService.GetUserSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchUsers)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
 }
