@@ -41,7 +41,7 @@ func (repository *RegularUserRepository) ExistByUsername(username string) bool{
 	return false
 }
 
-func (repository *RegularUserRepository) Update(user *model.RegularUser) error{
+func (repository *RegularUserRepository) UpdatePersonalInformations(user *model.RegularUser) error{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 
 	updatedRegularUser, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},

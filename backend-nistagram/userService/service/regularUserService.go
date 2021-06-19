@@ -48,7 +48,7 @@ func (service *RegularUserService) Register(regularUserRegistrationDto dto.Regul
 	return nil
 }
 
-func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
+func (service *RegularUserService) UpdatePersonalInformations(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
 	fmt.Println("Updating regular user")
 
 	if service.RegularUserRepository.ExistByUsername(regularUserUpdateDto.Username) {
@@ -59,7 +59,7 @@ func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUp
 	}
 
 	var regularUser = createRegularUserFromRegularUserUpdateDTO(&regularUserUpdateDto)
-	err := service.RegularUserRepository.Update(regularUser)
+	err := service.RegularUserRepository.UpdatePersonalInformations(regularUser)
 	if err != nil {
 		return err
 	}

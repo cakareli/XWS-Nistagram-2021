@@ -33,7 +33,7 @@ func (handler *RegularUserHandler) Register(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (handler *RegularUserHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (handler *RegularUserHandler) UpdatePersonalInformations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var userUpdateDto dto.RegularUserUpdateDTO
 	err := json.NewDecoder(r.Body).Decode(&userUpdateDto)
@@ -41,7 +41,7 @@ func (handler *RegularUserHandler) Update(w http.ResponseWriter, r *http.Request
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.RegularUserService.Update(userUpdateDto)
+	err = handler.RegularUserService.UpdatePersonalInformations(userUpdateDto)
 	if err != nil {
 		if err.Error() == "username is already taken" {
 			w.WriteHeader(http.StatusConflict)
