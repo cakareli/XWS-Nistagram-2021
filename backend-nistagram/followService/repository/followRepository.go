@@ -58,11 +58,11 @@ func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, f
 	return false
 }
 
-func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followerId string) bool{
+func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followingId string) bool{
 	session := *repository.DatabaseSession
 	result, err := session.Run(" match (u1:User{Id:$loggedUserId})" +
-		"-[f:follow {request: TRUE}]->(u2:User{Id: $followerId}) detach delete f return u1,u2",
-		map[string]interface{}{"loggedUserId":loggedUserId, "followerId":followerId,})
+		"-[f:follow]->(u2:User{Id: $followingId}) detach delete f return u1,u2",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
 	if err != nil {
 		return false
 	}
@@ -73,7 +73,24 @@ func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followe
 	return false
 }
 
-
+func (repository *FollowRepository) FindAllFollowersIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var followersIds []string
+	result, err := session.Run("match (u)" +
+		"-[f:follow]->(u1:User{Id:$userId}) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		followersIds = append(followersIds, id)
+	}
+	if len(followersIds) == 0 {
+		return nil, fmt.Errorf("no followers found")
+	}
+	return followersIds, nil
+}
 
 func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {
 	session := *repository.DatabaseSession

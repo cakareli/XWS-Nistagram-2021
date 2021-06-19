@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
-	"os"
 )
 
 func initUserRepository(database *mongo.Database) *repository.RegularUserRepository {
@@ -34,11 +33,12 @@ func handleFunc(handler *handler.RegularUserHandler) {
 	router.HandleFunc("/update-regular-user", handler.Update).Methods("PUT")
 	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
 	router.HandleFunc("/by-username/{username}", handler.FindUserByUsername).Methods("GET")
+	router.HandleFunc("/by-users-ids", handler.FindUsersByIds).Methods("POST")
 
 	c := SetupCors()
 
 	http.Handle("/", c.Handler(router))
-	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
+	err := http.ListenAndServe(fmt.Sprintf(":8082"), c.Handler(router))
 	if err != nil {
 		log.Println(err)
 	}
@@ -54,7 +54,7 @@ func SetupCors() *cors.Cors {
 }
 
 func initDatabase() *mongo.Database{
-	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

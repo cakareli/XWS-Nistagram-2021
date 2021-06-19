@@ -47,12 +47,12 @@ func (handler *FollowHandler) AcceptFollowRequest(w http.ResponseWriter, r *http
 	}
 }
 
-func (handler *FollowHandler) RemoveFollower(w http.ResponseWriter, r *http.Request) {
+func (handler *FollowHandler) RemoveFollowing(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	loggedUserId := params["loggedUserId"]
-	followerId := params["followerId"]
-	userIsRemoved := handler.FollowService.RemoveFollower(loggedUserId, followerId)
+	followingId := params["followingId"]
+	userIsRemoved := handler.FollowService.RemoveFollowing(loggedUserId, followingId)
 	if !userIsRemoved {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
@@ -60,3 +60,20 @@ func (handler *FollowHandler) RemoveFollower(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+func (handler *FollowHandler) FindAllFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followers, err := handler.FollowService.FindAllFollowers(loggedUserId)
+	if err != nil {
+		if err.Error() == "no followers found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(followers)
+}

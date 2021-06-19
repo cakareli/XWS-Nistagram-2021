@@ -78,3 +78,20 @@ func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.R
 	}
 	json.NewEncoder(w).Encode(regularUser)
 }
+
+func (handler *RegularUserHandler) FindUsersByIds(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	var usersIds []string
+	err := json.NewDecoder(r.Body).Decode(&usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userFollowDtos, err := handler.RegularUserService.FindUsersByIds(usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(userFollowDtos)
+}

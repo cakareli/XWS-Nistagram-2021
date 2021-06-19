@@ -3,7 +3,11 @@ package service
 import (
 	"XWS-Nistagram-2021/backend-nistagram/followService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/followService/repository"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	//"os"
 )
 
 type FollowService struct {
@@ -33,10 +37,38 @@ func (service *FollowService) AcceptFollowRequest(loggedUserId string, followerI
 	return userIsAccepted
 }
 
-func (service *FollowService) RemoveFollower(loggedUserId string, followerId string) bool {
+func (service *FollowService) RemoveFollowing(loggedUserId string, followingId string) bool {
 	fmt.Println("removing follower...")
 
-	userIsRemoved := service.FollowRepository.RemoveFollowing(loggedUserId, followerId)
+	userIsRemoved := service.FollowRepository.RemoveFollowing(loggedUserId, followingId)
 	return userIsRemoved
 }
 
+func (service *FollowService) FindAllFollowers(loggedUserId string) ([]dto.UserDTO, error) {
+	fmt.Println("getting all followers...")
+
+	followersIds, err := service.FollowRepository.FindAllFollowersIds(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(followersIds)
+	if err2 != nil {
+		return nil, err2
+	}
+	return userDTOs, nil
+}
+
+func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {
+	var userDTOs []dto.UserDTO
+	postBody, _ := json.Marshal(userIds)
+	requestUrl := fmt.Sprintf("http://localhost:8082/by-users-ids")
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	fmt.Println(resp.StatusCode)
+	decoder := json.NewDecoder(resp.Body)
+	decoder.Decode(&userDTOs)
+	return userDTOs, nil
+}
