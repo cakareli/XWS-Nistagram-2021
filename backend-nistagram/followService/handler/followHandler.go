@@ -73,6 +73,19 @@ func (handler *FollowHandler) BlockUser(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (handler *FollowHandler) UnblockUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	userId := params["userId"]
+	userIsUnblocked := handler.FollowService.UnblockUser(loggedUserId, userId)
+	if !userIsUnblocked {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *FollowHandler) RemoveFollowing(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)

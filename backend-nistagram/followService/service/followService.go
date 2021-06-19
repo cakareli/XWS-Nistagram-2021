@@ -59,6 +59,13 @@ func (service *FollowService) BlockUser(loggedUserId string, userId string) bool
 	return userIsBlocked
 }
 
+func (service *FollowService) UnblockUser(loggedUserId string, userId string) bool {
+	fmt.Println("unblocking user...")
+
+	userIsUnblocked := service.FollowRepository.RemoveFollowing(loggedUserId, userId)
+	return userIsUnblocked
+}
+
 func (service *FollowService) RemoveFollowing(loggedUserId string, followingId string) bool {
 	fmt.Println("removing following...")
 
