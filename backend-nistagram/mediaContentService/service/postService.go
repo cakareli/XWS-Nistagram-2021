@@ -104,6 +104,22 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 	return nil
 }
 
+func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
+	fmt.Println("Commenting post...")
+
+	postId, _ := primitive.ObjectIDFromHex(postLikeDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+	post.Likes = post.Likes + 1
+	err = service.PostRepository.Update(post)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
