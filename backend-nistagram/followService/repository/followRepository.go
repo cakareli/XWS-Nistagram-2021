@@ -45,8 +45,8 @@ func (repository *FollowRepository) addUser(session neo4j.Session, userId string
 
 func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, followerId string) bool{
 	session := *repository.DatabaseSession
-	result, err := session.Run(" match (u1:User{Id:$loggedUserId})" +
-		"-[f:follow {request: TRUE, close: FALSE, muted: FALSE}]->(u2:User{Id: $followerId}) set f.request = false return f;",
+	result, err := session.Run(" match (u1:User{Id:$followerId})" +
+		"-[f:follow {request: TRUE, close: FALSE, muted: FALSE}]->(u2:User{Id:$loggedUserId}) set f.request = false return f;",
 		map[string]interface{}{"loggedUserId":loggedUserId, "followerId":followerId,})
 	if err != nil {
 		return false
@@ -63,6 +63,21 @@ func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followi
 	result, err := session.Run(" match (u1:User{Id:$loggedUserId})" +
 		"-[f:follow]->(u2:User{Id: $followingId}) detach delete f return u1,u2",
 		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) RemoveFollower(loggedUserId string, followerId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run(" match (u1:User{Id:$followerId})" +
+		"-[f:follow]->(u2:User{Id:$loggedUserId}) detach delete f return u1,u2",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followerId":followerId,})
 	if err != nil {
 		return false
 	}

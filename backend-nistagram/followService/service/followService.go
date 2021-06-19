@@ -38,10 +38,17 @@ func (service *FollowService) AcceptFollowRequest(loggedUserId string, followerI
 }
 
 func (service *FollowService) RemoveFollowing(loggedUserId string, followingId string) bool {
+	fmt.Println("removing following...")
+
+	FollowIsRemoved := service.FollowRepository.RemoveFollowing(loggedUserId, followingId)
+	return FollowIsRemoved
+}
+
+func (service *FollowService) RemoveFollower(loggedUserId string, followerId string) bool {
 	fmt.Println("removing follower...")
 
-	userIsRemoved := service.FollowRepository.RemoveFollowing(loggedUserId, followingId)
-	return userIsRemoved
+	FollowIsRemoved := service.FollowRepository.RemoveFollower(loggedUserId, followerId)
+	return FollowIsRemoved
 }
 
 func (service *FollowService) FindAllFollowers(loggedUserId string) ([]dto.UserDTO, error) {
