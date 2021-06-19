@@ -14,11 +14,12 @@ const secret = "nistagram_secret"
 type TokenClaims struct {
 	UserId string `json:"userId"`
 	Role model.UserRole `json:"role"`
+	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
-func CreateJWT(userId string, role *model.UserRole) (string, error) {
-	tokenClaims := TokenClaims{UserId: userId, Role: *role, StandardClaims: jwt.StandardClaims{
+func CreateJWT(userId string, role *model.UserRole, username string) (string, error) {
+	tokenClaims := TokenClaims{UserId: userId, Role: *role, Username: username, StandardClaims: jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(time.Minute * 50).Unix(),
 		IssuedAt: time.Now().Unix(),
 	}}

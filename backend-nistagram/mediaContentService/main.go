@@ -33,6 +33,10 @@ func handleFunc(handler *handler.PostHandler) {
 	router.HandleFunc("/regular-user-posts/{username}", handler.GetAllRegularUserPosts).Methods("GET")
 	router.HandleFunc("/public-posts", handler.GetAllPublicPosts).Methods("GET")
 	router.HandleFunc("/new-post", handler.CreateNewPost).Methods("POST")
+	router.HandleFunc("/comment-post", handler.CommentPost).Methods("PUT")
+	router.HandleFunc("/search-location/{searchInput}",handler.GetLocationSearchResults).Methods("GET")
+	router.HandleFunc("/search-user/{searchInput}",handler.GetUserSearchResults).Methods("GET")
+	router.HandleFunc("/search-tag/{searchInput}",handler.GetTagSearchResults).Methods("GET")
 
 	c := SetupCors()
 
