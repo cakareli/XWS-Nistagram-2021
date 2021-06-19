@@ -23,7 +23,7 @@ func (repository *FollowRepository) CreateFollowing(newFollow dto.NewFollowDTO) 
 		return false
 	}
 	result, err3 := session.Run("match (u1:User), (u2:User) where u1.Id = $followerId and " +
-		"u2.Id = $followedId merge (u1)-[f:follow{close: FALSE,muted: FALSE,request: $isPrivate}]->(u2) return f",
+		"u2.Id = $followedId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : FALSE, request: $isPrivate}]->(u2) return f",
 		map[string]interface{}{"followerId":newFollow.FollowerId, "followedId":newFollow.FollowedId, "isPrivate":newFollow.IsPrivate })
 	if err3 != nil {
 		return false
@@ -45,9 +45,24 @@ func (repository *FollowRepository) addUser(session neo4j.Session, userId string
 
 func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, followerId string) bool{
 	session := *repository.DatabaseSession
-	result, err := session.Run(" match (u1:User{Id:$followerId})" +
-		"-[f:follow {request: TRUE, close: FALSE, muted: FALSE}]->(u2:User{Id:$loggedUserId}) set f.request = false return f;",
+	result, err := session.Run("match (u1:User{Id:$followerId})" +
+		"-[f:follow {request: TRUE}]->(u2:User{Id:$loggedUserId}) set f.request = false return f;",
 		map[string]interface{}{"loggedUserId":loggedUserId, "followerId":followerId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {muted: FALSE}]->(u2:User{Id:$followingId}) set f.muted = true return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
 	if err != nil {
 		return false
 	}

@@ -37,6 +37,13 @@ func (service *FollowService) AcceptFollowRequest(loggedUserId string, followerI
 	return userIsAccepted
 }
 
+func (service *FollowService) MuteFollowing(loggedUserId string, followingId string) bool {
+	fmt.Println("muting user...")
+
+	userIsMuted := service.FollowRepository.SetFollowMutedTrue(loggedUserId, followingId)
+	return userIsMuted
+}
+
 func (service *FollowService) RemoveFollowing(loggedUserId string, followingId string) bool {
 	fmt.Println("removing following...")
 

@@ -47,6 +47,19 @@ func (handler *FollowHandler) AcceptFollowRequest(w http.ResponseWriter, r *http
 	}
 }
 
+func (handler *FollowHandler) MuteFollowing(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userIsMuted := handler.FollowService.AcceptFollowRequest(loggedUserId, followingId)
+	if !userIsMuted {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *FollowHandler) RemoveFollowing(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
