@@ -71,10 +71,8 @@ services:
       - backend
     environment:
       PORT: ${FOLLOW_SERVICE_PORT}
-      NEO4J_USER: ${NEO4J_USER}
-      NEO4J_PASS: ${NEO4J_PASS}
-      NEO4J_DBNAME: ${NEO4J_DBNAME}
-      NEO4J_PORT: ${NEO4J_PORT}
+      USER_SERVICE_DOMAIN: ${USER_SERVICE_DOMAIN}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
 
   notification-service:
     image: notification-service:compose_build

@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	//"os"
+	"os"
 )
 
 type FollowService struct {
@@ -139,7 +139,7 @@ func (service *FollowService) FindAllMutedUsers(loggedUserId string) ([]dto.User
 func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {
 	var userDTOs []dto.UserDTO
 	postBody, _ := json.Marshal(userIds)
-	requestUrl := fmt.Sprintf("http://localhost:8082/by-users-ids")
+	requestUrl := fmt.Sprintf("http://%s:%s/by-users-ids", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
 	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
@@ -147,6 +147,6 @@ func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.Us
 	}
 	fmt.Println(resp.StatusCode)
 	decoder := json.NewDecoder(resp.Body)
-	decoder.Decode(&userDTOs)
+	_ = decoder.Decode(&userDTOs)
 	return userDTOs, nil
 }
