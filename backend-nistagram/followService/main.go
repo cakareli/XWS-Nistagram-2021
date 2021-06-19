@@ -37,7 +37,6 @@ func SetupCors() *cors.Cors {
 func handleFunc(handler *handler.FollowHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/hello", handler.Hello).Methods("GET")
 	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
 	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
 	router.HandleFunc("/mute-following/{loggedUserId}/{followingId}", handler.MuteFollowing).Methods("PUT")

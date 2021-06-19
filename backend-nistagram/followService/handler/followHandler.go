@@ -4,18 +4,12 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/followService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/followService/service"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 type FollowHandler struct {
 	FollowService *service.FollowService
-}
-
-func(handler *FollowHandler) Hello(res http.ResponseWriter, req *http.Request){
-	fmt.Fprint(res, "Hello from controller!")
-	handler.FollowService.Hello()
 }
 
 func (handler *FollowHandler) FollowUser(w http.ResponseWriter, r *http.Request) {

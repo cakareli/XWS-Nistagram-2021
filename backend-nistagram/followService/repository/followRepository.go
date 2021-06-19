@@ -10,10 +10,6 @@ type FollowRepository struct {
 	DatabaseSession *neo4j.Session
 }
 
-func (repository *FollowRepository) Hello (){
-	fmt.Printf("Hello from Repository")
-}
-
 func (repository *FollowRepository) AddFollowing(newFollow dto.NewFollowDTO) bool{
 	session := *repository.DatabaseSession
 
