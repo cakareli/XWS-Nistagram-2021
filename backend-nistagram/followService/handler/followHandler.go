@@ -165,3 +165,21 @@ func (handler *FollowHandler) FindAllBlockedUsers(w http.ResponseWriter, r *http
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(blockedUsers)
 }
+
+func (handler *FollowHandler) FindAllMutedUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	mutedUsers, err := handler.FollowService.FindAllMutedUsers(loggedUserId)
+	if err != nil {
+		if err.Error() == "no muted users found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(mutedUsers)
+}

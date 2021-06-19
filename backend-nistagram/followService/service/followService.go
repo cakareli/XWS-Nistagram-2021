@@ -26,7 +26,7 @@ func (service *FollowService) FollowUser(newFollow dto.NewFollowDTO) bool {
 	if err != nil {
 		return false
 	}
-	userIsFollowed := service.FollowRepository.CreateFollowing(newFollow)
+	userIsFollowed := service.FollowRepository.AddFollowing(newFollow)
 	return userIsFollowed
 }
 
@@ -83,7 +83,7 @@ func (service *FollowService) RemoveFollower(loggedUserId string, followerId str
 func (service *FollowService) FindAllFollowers(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all followers...")
 
-	followersIds, err := service.FollowRepository.FindAllFollowersIds(loggedUserId)
+	followersIds, err := service.FollowRepository.FindAllUserFollowersIds(loggedUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (service *FollowService) FindAllFollowers(loggedUserId string) ([]dto.UserD
 func (service *FollowService) FindAllFollowings(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all followings...")
 
-	followingsIds, err := service.FollowRepository.FindAllFollowingsIds(loggedUserId)
+	followingsIds, err := service.FollowRepository.FindAllUserFollowingsIds(loggedUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -111,11 +111,25 @@ func (service *FollowService) FindAllFollowings(loggedUserId string) ([]dto.User
 func (service *FollowService) FindAllBlockedUsers(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all blocked users...")
 
-	blockedUsersIds, err := service.FollowRepository.FindAllBlockedUsersIds(loggedUserId)
+	blockedUsersIds, err := service.FollowRepository.FindAllUserBlockedUsersIds(loggedUserId)
 	if err != nil {
 		return nil, err
 	}
 	userDTOs, err2 := service.getUserDTOsFromUserIds(blockedUsersIds)
+	if err2 != nil {
+		return nil, err2
+	}
+	return userDTOs, nil
+}
+
+func (service *FollowService) FindAllMutedUsers(loggedUserId string) ([]dto.UserDTO, error) {
+	fmt.Println("getting all muted users...")
+
+	mutedUsersIds, err := service.FollowRepository.FindAllUserMutedUsersIds(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(mutedUsersIds)
 	if err2 != nil {
 		return nil, err2
 	}

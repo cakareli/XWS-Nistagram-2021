@@ -14,7 +14,7 @@ func (repository *FollowRepository) Hello (){
 	fmt.Printf("Hello from Repository")
 }
 
-func (repository *FollowRepository) CreateFollowing(newFollow dto.NewFollowDTO) bool{
+func (repository *FollowRepository) AddFollowing(newFollow dto.NewFollowDTO) bool{
 	session := *repository.DatabaseSession
 
 	err1 := repository.addUser(session, newFollow.FollowerId)
@@ -102,7 +102,6 @@ func (repository *FollowRepository) RemoveFollowing(loggedUserId string, followi
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -117,13 +116,12 @@ func (repository *FollowRepository) RemoveFollower(loggedUserId string, follower
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
 }
 
-func (repository *FollowRepository) FindAllFollowersIds(userId string) ([]string, error){
+func (repository *FollowRepository) FindAllUserFollowersIds(userId string) ([]string, error){
 	session := *repository.DatabaseSession
 	var followersIds []string
 	result, err := session.Run("match (u)" +
@@ -142,7 +140,7 @@ func (repository *FollowRepository) FindAllFollowersIds(userId string) ([]string
 	return followersIds, nil
 }
 
-func (repository *FollowRepository) FindAllFollowingsIds(userId string) ([]string, error){
+func (repository *FollowRepository) FindAllUserFollowingsIds(userId string) ([]string, error){
 	session := *repository.DatabaseSession
 	var followingsIds []string
 	result, err := session.Run("match (u1:User{Id:$userId})" +
@@ -161,7 +159,7 @@ func (repository *FollowRepository) FindAllFollowingsIds(userId string) ([]strin
 	return followingsIds, nil
 }
 
-func (repository *FollowRepository) FindAllBlockedUsersIds(userId string) ([]string, error){
+func (repository *FollowRepository) FindAllUserBlockedUsersIds(userId string) ([]string, error){
 	session := *repository.DatabaseSession
 	var blockedUsersIds []string
 	result, err := session.Run("match (u1:User{Id:$userId})" +
@@ -178,6 +176,25 @@ func (repository *FollowRepository) FindAllBlockedUsersIds(userId string) ([]str
 		return nil, fmt.Errorf("no blocked users found")
 	}
 	return blockedUsersIds, nil
+}
+
+func (repository *FollowRepository) FindAllUserMutedUsersIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var mutedUsersIds []string
+	result, err := session.Run("match (u1:User{Id:$userId})" +
+		"-[f:follow{muted:TRUE}]->(u:User) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		mutedUsersIds = append(mutedUsersIds, id)
+	}
+	if len(mutedUsersIds) == 0 {
+		return nil, fmt.Errorf("no muted users found")
+	}
+	return mutedUsersIds, nil
 }
 
 func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {
