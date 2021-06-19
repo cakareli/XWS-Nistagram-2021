@@ -45,6 +45,48 @@ func (handler *PostHandler) GetAllRegularUserPosts(w http.ResponseWriter, r *htt
 	}
 }
 
+func (handler *PostHandler) GetLocationSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchPosts := handler.PostService.GetLocationSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
+}
+
+func (handler *PostHandler) GetUserSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchPosts := handler.PostService.GetUserSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
+}
+
+func (handler *PostHandler) GetTagSearchResults(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	searchInput := param["searchInput"]
+	searchPosts := handler.PostService.GetTagSearchResults(searchInput)
+	searchPostsJson, err := json.Marshal(searchPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(searchPostsJson)
+	}
+}
+
 func (handler *PostHandler) GetAllPublicPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	publicPosts := handler.PostService.GetAllPublicPosts()
@@ -54,5 +96,24 @@ func (handler *PostHandler) GetAllPublicPosts(w http.ResponseWriter, r *http.Req
 	} else {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(publicPostsJson)
+	}
+}
+
+func (handler *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var commentDTO dto.CommentDTO
+	err := json.NewDecoder(r.Body).Decode(&commentDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.CommentPost(commentDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
 	}
 }

@@ -10,6 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"os"
+	"go.mongodb.org/mongo-driver/bson"
+
 )
 
 type RegularUserService struct {
@@ -88,13 +90,70 @@ func (service *RegularUserService) FindUserById(userId primitive.ObjectID) (*mod
 	return regularUser, err
 }
 
-func (service *RegularUserService) FindUserByUsername(username string) (*dto.RegularUserPostDTO, error){
+func (service *RegularUserService) CreateRegularUserPostDTOByUsername(username string) (*dto.RegularUserPostDTO, error){
 	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
 	if err != nil {
 		return nil, err
 	}
 	regularUserPostDto := createRegularUserPostDTOFromRegularUser(regularUser)
 	return regularUserPostDto, nil
+}
+
+func (service *RegularUserService) FindRegularUserByUsername(username string) (*dto.RegularUserProfileDataDTO, error){
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	regularUserPostDto := createRegularUserProfileDataDto(regularUser)
+	return regularUserPostDto, nil
+}
+
+func (service *RegularUserService) GetUserSearchResults(searchInput string) ([]model.RegularUser, error){
+	searchPublicRegularUser,err := service.RegularUserRepository.GetAllPublicRegularUsers()
+	if err != nil {
+		return nil, err
+	}
+	searchPublicRegularUserModel := CreateUserFromDocuments(searchPublicRegularUser)
+	searchPublicRegularUserResults := service.RegularUserRepository.GetUserSearchResults(searchInput, searchPublicRegularUserModel)
+
+	return searchPublicRegularUserResults, nil
+}
+
+func (service *RegularUserService) GetAllPublicRegularUsers() ([]dto.RegularUserDTO, error){
+	allRegularUsers,err := service.RegularUserRepository.GetAllPublicRegularUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	allRegularUsersModel := CreateUserFromDocuments(allRegularUsers)
+
+	allRegularUsersDto := createRegularUserDtoFromRegularUser(allRegularUsersModel)
+	return allRegularUsersDto,nil
+}
+
+func CreateUserFromDocuments(UserDocuments []bson.D) []model.RegularUser {
+	var users []model.RegularUser
+	for i := 0; i < len(UserDocuments); i++ {
+		var user model.RegularUser
+		bsonBytes, _ := bson.Marshal(UserDocuments[i])
+		_ = bson.Unmarshal(bsonBytes, &user)
+		users = append(users, user)
+	}
+	return users
+}
+func (service *RegularUserService) FindUsersByIds(usersIds []string) (*[]dto.UserFollowDTO, error){
+	var users []model.RegularUser
+	for i:=0; i < len(usersIds); i++ {
+		id, _ := primitive.ObjectIDFromHex(usersIds[i])
+		regularUser, err := service.RegularUserRepository.FindUserById(id)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, *regularUser)
+	}
+
+	userFollowDTOs := createUserFollowDTOsFromRegularUsers(users)
+	return userFollowDTOs, nil
 }
 
 func createRegularUserPostDTOFromRegularUser(regularUser *model.RegularUser) *dto.RegularUserPostDTO {
@@ -145,4 +204,41 @@ func createRegularUserFromRegularUserUpdateDTO(userUpdateDto *dto.RegularUserUpd
 	regularUser.WebSite = userUpdateDto.WebSite
 
 	return &regularUser
+}
+
+func createRegularUserDtoFromRegularUser(allRegularUsers []model.RegularUser) []dto.RegularUserDTO{
+
+	var regularUser []dto.RegularUserDTO
+	for i := 0; i < len(allRegularUsers); i++{
+		var regularUserIteration dto.RegularUserDTO
+		regularUserIteration.Id = allRegularUsers[i].Id
+		regularUserIteration.Username = allRegularUsers[i].Username
+		regularUserIteration.Name = allRegularUsers[i].Name
+		regularUserIteration.Surname = allRegularUsers[i].Surname
+		regularUser = append(regularUser, regularUserIteration)
+	}
+	return regularUser
+}
+
+func createRegularUserProfileDataDto(regularUser *model.RegularUser) *dto.RegularUserProfileDataDTO{
+	var regularUserProfileDataDto dto.RegularUserProfileDataDTO
+
+	regularUserProfileDataDto.Name  = regularUser.Name
+	regularUserProfileDataDto.Surname = regularUser.Surname
+	regularUserProfileDataDto.Username = regularUser.Username
+	regularUserProfileDataDto.Biography = regularUser.Biography
+	regularUserProfileDataDto.WebSite = regularUser.WebSite
+
+	return &regularUserProfileDataDto
+}
+func createUserFollowDTOsFromRegularUsers(regularUsers []model.RegularUser) *[]dto.UserFollowDTO {
+	var userFollowDTOs []dto.UserFollowDTO
+	for i := 0; i < len(regularUsers); i++ {
+		var userFollowDto dto.UserFollowDTO
+		userFollowDto.Username = regularUsers[i].Username
+		userFollowDto.UserId = regularUsers[i].Id.Hex()
+		userFollowDTOs = append(userFollowDTOs, userFollowDto)
+	}
+
+	return &userFollowDTOs
 }

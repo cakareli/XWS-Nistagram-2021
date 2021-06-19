@@ -33,7 +33,11 @@ func handleFunc(handler *handler.RegularUserHandler) {
 	router.HandleFunc("/register-regular-user", handler.Register).Methods("POST")
 	router.HandleFunc("/update-regular-user", handler.Update).Methods("PUT")
 	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
-	router.HandleFunc("/by-username/{username}", handler.FindUserByUsername).Methods("GET")
+	router.HandleFunc("/by-username/{username}", handler.CreateRegularUserPostDTOByUsername).Methods("GET")
+	router.HandleFunc("/regular-user-by-username/{username}", handler.FindRegularUserByUsername).Methods("GET")
+	router.HandleFunc("/public-regular-users", handler.GetAllPublicRegularUsers).Methods("GET")
+	router.HandleFunc("/search-public-regular-users/{searchInput}", handler.GetUserSearchResults).Methods("GET")
+	router.HandleFunc("/by-users-ids", handler.FindUsersByIds).Methods("POST")
 
 	c := SetupCors()
 
@@ -55,7 +59,6 @@ func SetupCors() *cors.Cors {
 
 func initDatabase() *mongo.Database{
 	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
-
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

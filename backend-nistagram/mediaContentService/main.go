@@ -45,8 +45,12 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/regular-user-posts/{username}", handlerPost.GetAllRegularUserPosts).Methods("GET")
 	router.HandleFunc("/public-posts", handlerPost.GetAllPublicPosts).Methods("GET")
 	router.HandleFunc("/new-post", handlerPost.CreateNewPost).Methods("POST")
-
 	router.HandleFunc("/new-story", handlerStory.CreateNewStory).Methods("POST")
+	router.HandleFunc("/regular-user-stories/{username}", handlerStory.GetAllRegularUserStories).Methods("GET")
+	router.HandleFunc("/comment-post", handler.CommentPost).Methods("PUT")
+	router.HandleFunc("/search-location/{searchInput}",handler.GetLocationSearchResults).Methods("GET")
+	router.HandleFunc("/search-user/{searchInput}",handler.GetUserSearchResults).Methods("GET")
+	router.HandleFunc("/search-tag/{searchInput}",handler.GetTagSearchResults).Methods("GET")
 
 	c := SetupCors()
 

@@ -8,14 +8,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/rs/cors"
-	"gopkg.in/jmcvetta/neoism.v1"
 	"log"
 	"net/http"
 	"os"
 )
 
-func initFollowRepository(databaseDriver *neoism.Database) *repository.FollowRepository {
-	return &repository.FollowRepository{DatabaseDriver: databaseDriver}
+func initFollowRepository(databaseSession *neo4j.Session) *repository.FollowRepository {
+	return &repository.FollowRepository{DatabaseSession: databaseSession}
 }
 
 func initFollowService(repository *repository.FollowRepository) *service.FollowService {
@@ -38,11 +37,19 @@ func SetupCors() *cors.Cors {
 func handleFunc(handler *handler.FollowHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/hello", handler.Hello).Methods("GET")
+	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
+	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
+	router.HandleFunc("/mute-following/{loggedUserId}/{followingId}", handler.MuteFollowing).Methods("PUT")
+	router.HandleFunc("/block-user/{loggedUserId}/{userId}", handler.BlockUser).Methods("POST")
+	router.HandleFunc("/unblock-user/{loggedUserId}/{userId}", handler.UnblockUser).Methods("POST")
+	router.HandleFunc("/remove-following/{loggedUserId}/{followingId}", handler.RemoveFollowing).Methods("POST")
+	router.HandleFunc("/remove-follower/{loggedUserId}/{followerId}", handler.RemoveFollower).Methods("POST")
+	router.HandleFunc("/followers/{loggedUserId}", handler.FindAllFollowers).Methods("GET")
+	router.HandleFunc("/followings/{loggedUserId}", handler.FindAllFollowings).Methods("GET")
+	router.HandleFunc("/blocked-users/{loggedUserId}", handler.FindAllBlockedUsers).Methods("GET")
+	router.HandleFunc("/muted-users/{loggedUserId}", handler.FindAllMutedUsers).Methods("GET")
 
 	c := SetupCors()
-
-	fmt.Println("Server is running...")
 
 	http.Handle("/", c.Handler(router))
 	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
@@ -51,33 +58,45 @@ func handleFunc(handler *handler.FollowHandler) {
 	}
 }
 
-func initDatabase() *neo4j.Driver {
+func initDatabase() (neo4j.Session, error) {
 	var (
-		driver neo4j.Driver
-		err    error
+		driver  neo4j.Driver
+		session neo4j.Session
+		err     error
 	)
-	for {
-		driver, err = neo4j.NewDriver("bolt://"+os.Getenv("NEO4J_DBNAME")+":"+os.Getenv("NEO4J_PORT")+"/neo4j", neo4j.BasicAuth(os.Getenv("NEO4J_USER"), os.Getenv("NEO4J_PASS"), "Neo4j"))
-
-		if err != nil {
-			fmt.Println("Cannot connect to database!")
-		} else {
-			fmt.Println(" Successfully connected to the database!")
-			break
-		}
+	if driver, err = neo4j.NewDriver("neo4j://neo4j:7687", neo4j.BasicAuth("neo4j", "12345", "")); err != nil {
+		return nil, err
 	}
 
-	return &driver
+	if session = driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite}); err != nil {
+		return nil, err
+	}
+
+	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		result, err := tx.Run("match (u) return u;", map[string]interface{}{})
+		if err != nil {
+			return nil, err
+		}
+		if result.Next() {
+			return result.Record().Values[0], err
+		}
+		return nil, result.Err()
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return session, nil
 }
 
 func main() {
-	//_ = initDatabase()
-	db, err := neoism.Connect("http://neo4j:7474/db/data")
+	session, err := initDatabase()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
-	fmt.Println("kurcinela")
-	authenticationRepository := initFollowRepository(db)
+
+	authenticationRepository := initFollowRepository(&session)
 	authenticationService := initFollowService(authenticationRepository)
 	authenticationHandler := initFollowHandler(authenticationService)
 

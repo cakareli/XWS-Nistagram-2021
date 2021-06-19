@@ -236,7 +236,7 @@ export default {
                 this.form.biography = this.regularUser.Biography;
                 this.form.website = this.regularUser.WebSite;
             }).catch(error => {
-            if(error.response.status === 500){
+            if(error.response.status === 404){
                 this.snackbarText = "Internal server error occurred!";
                 this.snackbar = true;
             }

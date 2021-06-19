@@ -71,6 +71,8 @@ services:
       - backend
     environment:
       PORT: ${FOLLOW_SERVICE_PORT}
+      USER_SERVICE_DOMAIN: ${USER_SERVICE_DOMAIN}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
 
   notification-service:
     image: notification-service:compose_build
@@ -97,13 +99,9 @@ services:
     image: neo4j:latest
     container_name: 'neo4j-db'
     volumes:
-      - '$HOME/neo4j/data:/data'
-      - '$HOME/neo4j/conf/:/conf/'
+      - ./neo4j/plugins:/plugins
     environment:
-      NEO4J_USER: ${NEO4J_USER}
-      NEO4J_PASS: ${NEO4J_PASS}
-      NEO4J_DBNAME: ${NEO4J_DBNAME}
-      NEO4J_PORT: ${NEO4J_PORT}
+      NEO4J_AUTH: ${NEO4J_AUTH}
     ports:
       - 7474:7474
       - 7687:7687
