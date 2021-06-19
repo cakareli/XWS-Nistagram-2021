@@ -73,11 +73,16 @@ func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, foll
 	return false
 }
 
-func (repository *FollowRepository) BlockUser(loggedUserId string, followingId string) bool{
+func (repository *FollowRepository) BlockUser(loggedUserId string, userId string) bool{
 	session := *repository.DatabaseSession
+	err1 := repository.addUser(session, loggedUserId)
+	err2 := repository.addUser(session, userId)
+	if err1 != nil || err2 != nil {
+		return false
+	}
 	result, err := session.Run("match (u1:User), (u2:User) where u1.Id = $loggedUserId and " +
-		"u2.Id = $followingId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : TRUE, request: FALSE}]->(u2) return f",
-		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+		"u2.Id = $userId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : TRUE, request: FALSE}]->(u2) return f",
+		map[string]interface{}{"loggedUserId":loggedUserId, "userId":userId,})
 	if err != nil {
 		return false
 	}
@@ -154,6 +159,25 @@ func (repository *FollowRepository) FindAllFollowingsIds(userId string) ([]strin
 		return nil, fmt.Errorf("no followings found")
 	}
 	return followingsIds, nil
+}
+
+func (repository *FollowRepository) FindAllBlockedUsersIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var blockedUsersIds []string
+	result, err := session.Run("match (u1:User{Id:$userId})" +
+		"-[f:follow{blocked:TRUE}]->(u:User) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		blockedUsersIds = append(blockedUsersIds, id)
+	}
+	if len(blockedUsersIds) == 0 {
+		return nil, fmt.Errorf("no blocked users found")
+	}
+	return blockedUsersIds, nil
 }
 
 func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {

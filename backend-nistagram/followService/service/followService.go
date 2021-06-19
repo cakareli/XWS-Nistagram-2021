@@ -108,6 +108,20 @@ func (service *FollowService) FindAllFollowings(loggedUserId string) ([]dto.User
 	return userDTOs, nil
 }
 
+func (service *FollowService) FindAllBlockedUsers(loggedUserId string) ([]dto.UserDTO, error) {
+	fmt.Println("getting all blocked users...")
+
+	blockedUsersIds, err := service.FollowRepository.FindAllBlockedUsersIds(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(blockedUsersIds)
+	if err2 != nil {
+		return nil, err2
+	}
+	return userDTOs, nil
+}
+
 func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {
 	var userDTOs []dto.UserDTO
 	postBody, _ := json.Marshal(userIds)
