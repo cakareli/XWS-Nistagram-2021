@@ -77,3 +77,21 @@ func (handler *FollowHandler) FindAllFollowers(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(followers)
 }
+
+func (handler *FollowHandler) FindAllFollowings(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followings, err := handler.FollowService.FindAllFollowings(loggedUserId)
+	if err != nil {
+		if err.Error() == "no followings found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(followings)
+}

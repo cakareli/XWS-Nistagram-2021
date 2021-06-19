@@ -92,6 +92,25 @@ func (repository *FollowRepository) FindAllFollowersIds(userId string) ([]string
 	return followersIds, nil
 }
 
+func (repository *FollowRepository) FindAllFollowingsIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var followingsIds []string
+	result, err := session.Run("match (u1:User{Id:$userId})" +
+		"-[f:follow]->(u) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		followingsIds = append(followingsIds, id)
+	}
+	if len(followingsIds) == 0 {
+		return nil, fmt.Errorf("no followings found")
+	}
+	return followingsIds, nil
+}
+
 func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {
 	session := *repository.DatabaseSession
 	result, err := session.Run("match (u1:User{Id:$followerId})-[f:follow]->(u2:User{Id:$followedId}) return f;",
