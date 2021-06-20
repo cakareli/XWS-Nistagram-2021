@@ -211,7 +211,7 @@ export default {
         {
           headers: {
             Authorization: "Bearer " + getToken(),
-          },
+        },
         })
         .then((response) => {
             console.log(response)
@@ -220,6 +220,21 @@ export default {
     },
     dislikePost(postId) {
       console.log(postId);
+      let dislikePostDTO = {
+        username: getUsername(),
+        postId: this.postId,
+      }
+        axios.put("http://localhost:8081/api/media-content/dislike-post",
+            dislikePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     },
     commentPost(postId) {
       this.postId = postId;
