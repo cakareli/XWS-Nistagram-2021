@@ -168,6 +168,15 @@ func (service *RegularUserService) FindRegularUserByUsername(username string) (*
 	return regularUserPostDto, nil
 }
 
+func (service *RegularUserService) FindRegularUserLikedAndDislikedPosts(username string) (*dto.UserLikedAndDislikedDTO, error){
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	userLikedAndDislikedDTO := createRegularUserLikedAndDislikedDTO(regularUser)
+	return userLikedAndDislikedDTO, nil
+}
+
 func (service *RegularUserService) GetUserSearchResults(searchInput string) ([]model.RegularUser, error){
 	searchPublicRegularUser,err := service.RegularUserRepository.GetAllPublicRegularUsers()
 	if err != nil {
@@ -314,4 +323,64 @@ func createUserFollowDTOsFromRegularUsers(regularUsers []model.RegularUser) *[]d
 	return &userFollowDTOs
 }
 
+func createRegularUserLikedAndDislikedDTO(regularUser *model.RegularUser) *dto.UserLikedAndDislikedDTO{
+	var userLikedAndDislikedDTO dto.UserLikedAndDislikedDTO
 
+	userLikedAndDislikedDTO.LikedPostsIds = regularUser.LikedPosts
+	userLikedAndDislikedDTO.DislikedPostsIds = regularUser.DislikedPosts
+
+	return &userLikedAndDislikedDTO
+}
+
+func (service *RegularUserService) UpdateLikedPosts(postLikeDTO dto.UpdatePostLikeAndDislikeDTO) error {
+	fmt.Println("Updating regular user liked posts...")
+
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+	if(postLikeDTO.IsAdd == "yes"){
+		appendedLikes := append(regularUser.LikedPosts, postLikeDTO.PostId)
+		regularUser.LikedPosts = appendedLikes
+	}else{
+		removedLikes := removeFromSlice(regularUser.LikedPosts, postLikeDTO.PostId)
+		regularUser.LikedPosts = removedLikes
+	}
+	err = service.RegularUserRepository.UpdatePersonalInformations(regularUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *RegularUserService) UpdateDislikedPosts(postLikeDTO dto.UpdatePostLikeAndDislikeDTO) error {
+	fmt.Println("Updating regular user disliked posts...")
+
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+	if(postLikeDTO.IsAdd == "yes"){
+		appendedDislikes := append(regularUser.DislikedPosts, postLikeDTO.PostId)
+		regularUser.DislikedPosts = appendedDislikes
+	}else{
+		removedDislikes := removeFromSlice(regularUser.DislikedPosts, postLikeDTO.PostId)
+		regularUser.DislikedPosts = removedDislikes
+	}
+	err = service.RegularUserRepository.UpdatePersonalInformations(regularUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func removeFromSlice(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}

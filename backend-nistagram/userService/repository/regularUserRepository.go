@@ -55,6 +55,8 @@ func (repository *RegularUserRepository) UpdatePersonalInformations(user *model.
 			{"$set", bson.D{{"birthDate", user.BirthDate}}},
 			{"$set", bson.D{{"biography", user.Biography}}},
 			{"$set", bson.D{{"webSite", user.WebSite}}},
+			{"$set", bson.D{{"likedPosts", user.LikedPosts}}},
+			{"$set", bson.D{{"dislikedPosts", user.DislikedPosts}}},
 		})
 	if err != nil {
 		log.Fatal(err)
