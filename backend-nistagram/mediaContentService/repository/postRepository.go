@@ -86,6 +86,7 @@ func (repository *PostRepository) Update(post *model.Post) error {
 			{"$set", bson.D{{"dislikes", post.Dislikes}}},
 			{"$set", bson.D{{"comments", post.Comment}}},
 			{"$set", bson.D{{"tags", post.Tags}}},
+			{"$set", bson.D{{"hashtags", post.Hashtags}}},
 			{"$set", bson.D{{"location", post.Location}}},
 			{"$set", bson.D{{"description", post.Description}}},
 		})
@@ -137,8 +138,8 @@ func (repository *PostRepository) GetUserSearchResults(searchInput string, allPu
 func (repository *PostRepository) GetTagSearchResults(searchInput string, allPublicPosts []model.Post) []model.Post{
 	var searchResult []model.Post
 	for i:=0; i < len(allPublicPosts); i++ {
-		for j:=0; j < len(allPublicPosts[i].Tags); j++ {
-			if (strings.Contains(strings.ToLower(allPublicPosts[i].Tags[j]), strings.ToLower(searchInput))){
+		for j:=0; j < len(allPublicPosts[i].Hashtags); j++ {
+			if (strings.Contains(strings.ToLower(allPublicPosts[i].Hashtags[j]), strings.ToLower(searchInput))){
 				searchResult = append(searchResult, allPublicPosts[i])
 			}
 		}

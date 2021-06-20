@@ -62,7 +62,7 @@
             <v-row justify="center" >
             <v-list>
               <v-list-item v-for="post in allUserPosts" :key="post.Username">
-                <v-card height="665" width="500" class="ma-3 grey lighten-5">
+                <v-card height="665" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                     <v-spacer/>
@@ -112,6 +112,11 @@
                       >Dislike</v-btn
                     >
                     <v-spacer />
+                    <v-btn
+                      x-small
+                      class="mr-3"
+                      @click="viewAllHashtags(post.Hashtags)"
+                      >Hashtags</v-btn>
                     <v-btn
                       x-small
                       class="mr-3"
@@ -177,6 +182,7 @@
       :postId="postId"
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
+    <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
 
     </v-app>
 </template>
@@ -188,18 +194,22 @@ import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import axios from "axios";
+import AllHashtags from "../components/AllHashtags.vue";
+
 
 export default {
     name: "UserProfile",
-    components: { AllPostComments, AddPostComment, AllTags },
+    components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
     data() {
     return {
       loggedUser: false,
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
+      allHashtagsDialog: false,
       allPostComments: [],
       allPostTags: [],
+      allPostHashtags: [],
       allTagsDialog: false,
       postId: 0,
       searchInput: "",
@@ -271,6 +281,10 @@ export default {
     viewAllTags(allPostTags) {
       this.allPostTags = allPostTags;
       this.allTagsDialog = true;
+    },
+    viewAllHashtags(allPostHashtags) {
+      this.allPostHashtags = allPostHashtags;
+      this.allHashtagsDialog = true;
     },
   },
   mounted() {

@@ -1,12 +1,12 @@
 <template>
-    <v-dialog v-model="allTagsDialog" width = "500" persistent>
+    <v-dialog v-model="allHashtagsDialog" width = "500" persistent>
         <v-layout justify-center>
              <v-flex>
             <v-card class="pa-3">
                 <v-card-title>
-                        <h4>All tags:</h4>
+                        <h4>All hashtags:</h4>
                 </v-card-title>
-                    <span v-for="(tag, index) in allPostTags" :key ="index" class="ma-2">@{{tag.Username}} </span>
+                    <span v-for="(hashtag, index) in allPostHashtags" :key ="index" class="ma-2">#{{hashtag}} </span>
                 <v-card-actions>
                     <v-btn color="grey lighten-3" @click.native="close">Close</v-btn>
                 </v-card-actions>
@@ -21,15 +21,15 @@
 <script>
 
 export default {
-    name: 'AllTags',
+    name: 'AllHashtags',
     components: {
 
     },
     props: {
-        allTagsDialog: {
+        allHashtagsDialog: {
         default: false,
       },
-      allPostTags: {}
+      allPostHashtags: {}
     },
     data() {
         return {
@@ -41,7 +41,7 @@ export default {
     },
     methods: {
         close() {
-            this.$emit('update:allTagsDialog', false)
+            this.$emit('update:allHashtagsDialog', false)
         },
     }
 }

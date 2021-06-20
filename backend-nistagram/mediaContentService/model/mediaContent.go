@@ -6,7 +6,8 @@ import (
 
 type MediaContent struct {
 	Id primitive.ObjectID `bson:"_id,omitempty"`
-	Tags []string `bson:"tags,omitempty"`
+	Hashtags []string `bson:"hashtags,omitempty"`
+	Tags []RegularUser `bson:"tags,omitempty"`
 	Description string `bson:"description,omitempty"`
 	MediaPaths []string `bson:"mediaPaths,omitempty"`
 	UploadDate *primitive.DateTime `bson:"uploadDate,omitempty"`

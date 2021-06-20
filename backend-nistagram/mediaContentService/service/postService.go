@@ -130,7 +130,16 @@ func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post,
 		return nil, err
 	}
 	var post model.Post
-	post.Tags = postUploadDto.Tags
+	post.Hashtags = postUploadDto.Hashtags
+	var tags []model.RegularUser
+	for i := 0; i < len(postUploadDto.Tags); i++{
+		var regUser *model.RegularUser
+		regUser, err = getRegularUserFromUsername(postUploadDto.Tags[i])
+		regUser.Username = postUploadDto.Tags[i]
+		tags = append(tags,*regUser)
+
+	}
+	post.Tags = tags
 	post.Description = postUploadDto.Description
 	post.MediaPaths = postUploadDto.MediaPaths
 	post.UploadDate = postUploadDto.UploadDate

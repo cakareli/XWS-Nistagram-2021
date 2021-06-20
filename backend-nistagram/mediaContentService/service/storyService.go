@@ -70,7 +70,15 @@ func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.S
 		return nil, err
 	}
 	var story model.Story
-	story.Tags = storyUploadDTO.Tags
+	story.Hashtags = storyUploadDTO.Hashtags
+	var tags []model.RegularUser
+	for i := 0; i < len(storyUploadDTO.Tags); i++{
+		var regUser *model.RegularUser
+		regUser, err = getRegularUserFromUsername(storyUploadDTO.Tags[i])
+		regUser.Username = storyUploadDTO.Tags[i]
+		tags = append(tags,*regUser)
+
+	}
 	story.Description = storyUploadDTO.Description
 	story.MediaPaths = storyUploadDTO.MediaPaths
 	story.UploadDate = storyUploadDTO.UploadDate
