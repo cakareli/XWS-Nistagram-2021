@@ -40,6 +40,7 @@ func handleFunc(handler *handler.RegularUserHandler) {
 	router.HandleFunc("/by-users-ids", handler.FindUsersByIds).Methods("POST")
 	router.HandleFunc("/liked-and-disliked/{username}", handler.FindRegularUserLikedAndDislikedPosts).Methods("GET")
 	router.HandleFunc("/update-liked-posts", handler.UpdateLikedPosts).Methods("POST")
+	router.HandleFunc("/update-disliked-posts", handler.UpdateDislikedPosts).Methods("POST")
 
 	c := SetupCors()
 
