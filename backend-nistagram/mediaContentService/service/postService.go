@@ -163,27 +163,27 @@ func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
 		return err
 	}
 
-	if(!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
+	if (!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)) {
 		post.Dislikes = post.Dislikes + 1
 		updateUserDislikedPosts(postLikeDTO, "yes")
 	}
-	if(!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
-		post.Likes = post.Likes -1
+	if (!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)) {
+		post.Likes = post.Likes - 1
 		post.Dislikes = post.Dislikes + 1
 		err := updateUserDislikedPosts(postLikeDTO, "yes")
-		if( err != nil){
+		if (err != nil) {
 			fmt.Println(err)
 		}
 
 		err = updateUserLikedPosts(postLikeDTO, "no")
-		if( err != nil){
+		if (err != nil) {
 			fmt.Println(err)
 		}
 	}
-	if(contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
-		post.Dislikes = post.Dislikes -1
+	if (contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)) {
+		post.Dislikes = post.Dislikes - 1
 		err := updateUserDislikedPosts(postLikeDTO, "no")
-		if( err != nil){
+		if (err != nil) {
 			fmt.Println(err)
 		}
 	}
@@ -195,13 +195,42 @@ func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
 	return nil
 }
 
+func (service *PostService) UpdatePostsPrivacy(privacyUpdateDTO *dto.PrivacyUpdateDTO) error {
+	fmt.Println("updating posts privacy...")
+	userPostsDocuments := service.PostRepository.FindAllPostsByUserId(privacyUpdateDTO.Id)
+	userPosts := CreatePostsFromDocuments(userPostsDocuments)
+
+	var privacyType model.PrivacyType
+	if privacyUpdateDTO.PrivacyType == "0" {
+		privacyType = model.PrivacyType(0)
+	} else {
+		privacyType = model.PrivacyType(1)
+	}
+	for i:=0; i < len(userPosts); i++ {
+		err := service.PostRepository.UpdatePostPrivacy(privacyType, userPosts[i].Id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
 		return nil, err
 	}
 	var post model.Post
-	post.Tags = postUploadDto.Tags
+	post.Hashtags = postUploadDto.Hashtags
+	var tags []model.RegularUser
+	for i := 0; i < len(postUploadDto.Tags); i++{
+		var regUser *model.RegularUser
+		regUser, err = getRegularUserFromUsername(postUploadDto.Tags[i])
+		regUser.Username = postUploadDto.Tags[i]
+		tags = append(tags,*regUser)
+
+	}
+	post.Tags = tags
 	post.Description = postUploadDto.Description
 	post.MediaPaths = postUploadDto.MediaPaths
 	post.UploadDate = postUploadDto.UploadDate

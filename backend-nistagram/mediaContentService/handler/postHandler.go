@@ -118,6 +118,25 @@ func (handler *PostHandler) CommentPost(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (handler *PostHandler) UpdatePostsPrivacy(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var privacyUpdateDTO dto.PrivacyUpdateDTO
+	err := json.NewDecoder(r.Body).Decode(&privacyUpdateDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.UpdatePostsPrivacy(&privacyUpdateDTO)
+	if err != nil {
+		if err.Error() == "Post does not exist!" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var postLikeDTO dto.PostLikeDTO
@@ -155,4 +174,3 @@ func (handler *PostHandler) DislikePost(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusCreated)
 	}
 }
-

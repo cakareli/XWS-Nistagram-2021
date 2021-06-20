@@ -41,7 +41,7 @@ func (repository *RegularUserRepository) ExistByUsername(username string) bool{
 	return false
 }
 
-func (repository *RegularUserRepository) Update(user *model.RegularUser) error{
+func (repository *RegularUserRepository) UpdatePersonalInformations(user *model.RegularUser) error{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 
 	updatedRegularUser, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
@@ -57,6 +57,24 @@ func (repository *RegularUserRepository) Update(user *model.RegularUser) error{
 			{"$set", bson.D{{"webSite", user.WebSite}}},
 			{"$set", bson.D{{"likedPosts", user.LikedPosts}}},
 			{"$set", bson.D{{"dislikedPosts", user.DislikedPosts}}},
+		})
+	if err != nil {
+		log.Fatal(err)
+		return err
+	} else if updatedRegularUser.MatchedCount == 0 {
+		return fmt.Errorf("user does not exist")
+	}
+	return nil
+}
+
+func (repository *RegularUserRepository) UpdateProfilePrivacy(user *model.RegularUser) error{
+	regularUserCollection := repository.Database.Collection("regularUsers")
+
+	updatedRegularUser, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
+		bson.D{
+			{"$set", bson.D{{"profilePrivacy.privacyType", user.ProfilePrivacy.PrivacyType}}},
+			{"$set", bson.D{{"profilePrivacy.allMessageRequests", user.ProfilePrivacy.AllMessageRequests}}},
+			{"$set", bson.D{{"profilePrivacy.tagsAllowed", user.ProfilePrivacy.TagsAllowed}}},
 		})
 	if err != nil {
 		log.Fatal(err)

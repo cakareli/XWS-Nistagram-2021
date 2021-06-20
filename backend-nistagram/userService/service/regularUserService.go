@@ -30,13 +30,21 @@ func (service *RegularUserService) Register(regularUserRegistrationDto dto.Regul
 	if err != nil {
 		return err
 	}
+	err2 := service.registerUserInAuthenticationService(regularUserRegistrationDto, createdUserId)
+	if err2 != nil {
+		return err2
+	}
+	return nil
+}
+
+func (service *RegularUserService) registerUserInAuthenticationService(regularUserRegistrationDto dto.RegularUserRegistrationDTO, createdUserId string) error {
 	postBody, _ := json.Marshal(map[string]string{
-		"userId": createdUserId,
-		"email": regularUserRegistrationDto.Email,
+		"userId":   createdUserId,
+		"email":    regularUserRegistrationDto.Email,
 		"password": regularUserRegistrationDto.Password,
 		"username": regularUserRegistrationDto.Username,
-		"name": regularUserRegistrationDto.Name,
-		"surname": regularUserRegistrationDto.Surname,
+		"name":     regularUserRegistrationDto.Name,
+		"surname":  regularUserRegistrationDto.Surname,
 	})
 	requestUrl := fmt.Sprintf("http://%s:%s/register", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
 	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
@@ -48,7 +56,7 @@ func (service *RegularUserService) Register(regularUserRegistrationDto dto.Regul
 	return nil
 }
 
-func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
+func (service *RegularUserService) UpdatePersonalInformations(regularUserUpdateDto dto.RegularUserUpdateDTO) error {
 	fmt.Println("Updating regular user")
 
 	if service.RegularUserRepository.ExistByUsername(regularUserUpdateDto.Username) {
@@ -57,19 +65,26 @@ func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUp
 			return fmt.Errorf("username is already taken")
 		}
 	}
-
+	id := regularUserUpdateDto.Id
 	var regularUser = createRegularUserFromRegularUserUpdateDTO(&regularUserUpdateDto)
-	err := service.RegularUserRepository.Update(regularUser)
+	err := service.RegularUserRepository.UpdatePersonalInformations(regularUser)
 	if err != nil {
 		return err
 	}
+	err2 := service.updateUserInAuthenticationService(regularUserUpdateDto, id)
+	if err2 != nil {
+		return err2
+	}
+	return nil
+}
 
+func (service *RegularUserService) updateUserInAuthenticationService(regularUserUpdateDto dto.RegularUserUpdateDTO, createdUserId string) error {
 	postBody, _ := json.Marshal(map[string]string{
-		"_id": regularUserUpdateDto.Id,
-		"email": regularUserUpdateDto.Email,
+		"_id": 		createdUserId,
+		"email":    regularUserUpdateDto.Email,
 		"username": regularUserUpdateDto.Username,
-		"name": regularUserUpdateDto.Name,
-		"surname": regularUserUpdateDto.Surname,
+		"name":     regularUserUpdateDto.Name,
+		"surname":  regularUserUpdateDto.Surname,
 	})
 	requestUrl := fmt.Sprintf("http://%s:%s/update", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
 	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
@@ -80,6 +95,51 @@ func (service *RegularUserService) Update(regularUserUpdateDto dto.RegularUserUp
 	fmt.Println(resp.StatusCode)
 	return nil
 }
+
+func (service *RegularUserService) UpdateProfilePrivacy(profilePrivacyDto dto.ProfilePrivacyDTO) error {
+	fmt.Println("Updating regular user")
+
+	var regularUser = createRegularUserFromProfilePrivacyDTO(&profilePrivacyDto)
+	err := service.RegularUserRepository.UpdateProfilePrivacy(regularUser)
+	if err != nil {
+		return err
+	}
+
+	postBody, _ := json.Marshal(map[string]string{
+		"_id": profilePrivacyDto.Id,
+		"privacyType": string(profilePrivacyDto.PrivacyType),
+	})
+	err2 := service.updatePostsPrivacy(postBody)
+	err3 := service.updateStoriesPrivacy(postBody)
+	if err2 != nil || err3 != nil {
+		return err2
+	}
+
+	return nil
+}
+
+func (service *RegularUserService) updatePostsPrivacy(postBody []byte) error {
+	requestUrl := fmt.Sprintf("http://%s:%s/update-posts-privacy", os.Getenv("MEDIA_CONTENT_SERVICE_DOMAIN"), os.Getenv("MEDIA_CONTENT_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
+func (service *RegularUserService) updateStoriesPrivacy(postBody []byte) error {
+	requestUrl := fmt.Sprintf("http://%s:%s/update-stories-privacy", os.Getenv("MEDIA_CONTENT_SERVICE_DOMAIN"), os.Getenv("MEDIA_CONTENT_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
 
 func (service *RegularUserService) FindUserById(userId primitive.ObjectID) (*model.RegularUser, error){
 	fmt.Print("Searching for logged user...")
@@ -215,6 +275,17 @@ func createRegularUserFromRegularUserUpdateDTO(userUpdateDto *dto.RegularUserUpd
 	return &regularUser
 }
 
+func createRegularUserFromProfilePrivacyDTO(profilePrivacyDto *dto.ProfilePrivacyDTO) *model.RegularUser{
+	id, _ := primitive.ObjectIDFromHex(profilePrivacyDto.Id)
+	var regularUser model.RegularUser
+	regularUser.Id = id
+	regularUser.ProfilePrivacy.PrivacyType = profilePrivacyDto.PrivacyType
+	regularUser.ProfilePrivacy.AllMessageRequests = profilePrivacyDto.AllMessagesRequests
+	regularUser.ProfilePrivacy.TagsAllowed = profilePrivacyDto.TagsAllowed
+
+	return &regularUser
+}
+
 func createRegularUserDtoFromRegularUser(allRegularUsers []model.RegularUser) []dto.RegularUserDTO{
 
 	var regularUser []dto.RegularUserDTO
@@ -275,7 +346,7 @@ func (service *RegularUserService) UpdateLikedPosts(postLikeDTO dto.UpdatePostLi
 		removedLikes := removeFromSlice(regularUser.LikedPosts, postLikeDTO.PostId)
 		regularUser.LikedPosts = removedLikes
 	}
-	err = service.RegularUserRepository.Update(regularUser)
+	err = service.RegularUserRepository.UpdatePersonalInformations(regularUser)
 	if err != nil {
 		return err
 	}
@@ -297,7 +368,7 @@ func (service *RegularUserService) UpdateDislikedPosts(postLikeDTO dto.UpdatePos
 		removedDislikes := removeFromSlice(regularUser.DislikedPosts, postLikeDTO.PostId)
 		regularUser.DislikedPosts = removedDislikes
 	}
-	err = service.RegularUserRepository.Update(regularUser)
+	err = service.RegularUserRepository.UpdatePersonalInformations(regularUser)
 	if err != nil {
 		return err
 	}

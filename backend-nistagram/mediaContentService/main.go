@@ -53,6 +53,8 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/search-location/{searchInput}",handlerPost.GetLocationSearchResults).Methods("GET")
 	router.HandleFunc("/search-user/{searchInput}",handlerPost.GetUserSearchResults).Methods("GET")
 	router.HandleFunc("/search-tag/{searchInput}",handlerPost.GetTagSearchResults).Methods("GET")
+	router.HandleFunc("/update-posts-privacy", handlerPost.UpdatePostsPrivacy).Methods("POST")
+	router.HandleFunc("/update-stories-privacy", handlerStory.UpdateStoriesPrivacy).Methods("POST")
 
 	c := SetupCors()
 
