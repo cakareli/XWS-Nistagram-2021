@@ -49,6 +49,7 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/regular-user-stories/{username}", handlerStory.GetAllRegularUserStories).Methods("GET")
 	router.HandleFunc("/comment-post", handlerPost.CommentPost).Methods("PUT")
 	router.HandleFunc("/like-post", handlerPost.LikePost).Methods("PUT")
+	router.HandleFunc("/dislike-post", handlerPost.DislikePost).Methods("PUT")
 	router.HandleFunc("/search-location/{searchInput}",handlerPost.GetLocationSearchResults).Methods("GET")
 	router.HandleFunc("/search-user/{searchInput}",handlerPost.GetUserSearchResults).Methods("GET")
 	router.HandleFunc("/search-tag/{searchInput}",handlerPost.GetTagSearchResults).Methods("GET")

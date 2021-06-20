@@ -150,6 +150,51 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 	return nil
 }
 
+func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
+	fmt.Println("Disliking post...")
+
+	postId, _ := primitive.ObjectIDFromHex(postLikeDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+
+	if(!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
+		post.Dislikes = post.Dislikes + 1
+		updateUserDislikedPosts(postLikeDTO, "yes")
+	}
+	if(!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
+		post.Likes = post.Likes -1
+		post.Dislikes = post.Dislikes + 1
+		err := updateUserDislikedPosts(postLikeDTO, "yes")
+		if( err != nil){
+			fmt.Println(err)
+		}
+
+		err = updateUserLikedPosts(postLikeDTO, "no")
+		if( err != nil){
+			fmt.Println(err)
+		}
+	}
+	if(contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
+		post.Likes = post.Likes -1
+		err := updateUserDislikedPosts(postLikeDTO, "no")
+		if( err != nil){
+			fmt.Println(err)
+		}
+	}
+
+	err = service.PostRepository.Update(post)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
