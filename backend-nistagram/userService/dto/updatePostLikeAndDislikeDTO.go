@@ -1,6 +1,7 @@
 package dto
 
 type UpdatePostLikeAndDislikeDTO struct {
-	username string `json:"username"`
-	postId string `json:"postId"`
+	Username string `json:"username"`
+	PostId string `json:"postId"`
+	IsAdd string `json:"isAdd"`
 }

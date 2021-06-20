@@ -4,6 +4,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/model"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/repository"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -119,14 +120,29 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 
 	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
 		post.Likes = post.Likes + 1
+		updateUserLikedPosts(postLikeDTO, "yes")
 	}
 	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
 		post.Dislikes = post.Dislikes -1
 		post.Likes = post.Likes + 1
+		err := updateUserLikedPosts(postLikeDTO, "yes")
+		if( err != nil){
+			fmt.Println(err)
+		}
+
+		err = updateUserDislikedPosts(postLikeDTO, "no")
+		if( err != nil){
+			fmt.Println(err)
+		}
 	}
 	if(contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
 		post.Likes = post.Likes -1
+		err := updateUserLikedPosts(postLikeDTO, "no")
+		if( err != nil){
+			fmt.Println(err)
+		}
 	}
+
 	err = service.PostRepository.Update(post)
 	if err != nil {
 		return err
@@ -205,4 +221,36 @@ func contains(s []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func updateUserLikedPosts(postLikeDTO dto.PostLikeDTO, isAdd string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"username": postLikeDTO.Username,
+		"postId": postLikeDTO.PostId,
+		"isAdd" : isAdd,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/update-liked-posts", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
+func updateUserDislikedPosts(postLikeDTO dto.PostLikeDTO, isAdd string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"username": postLikeDTO.Username,
+		"postId": postLikeDTO.PostId,
+		"isAdd" : isAdd,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/update-disliked-posts", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
 }

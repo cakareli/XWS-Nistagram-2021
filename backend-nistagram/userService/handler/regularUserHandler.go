@@ -157,13 +157,9 @@ func (handler *RegularUserHandler) UpdateLikedPosts(w http.ResponseWriter, r *ht
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = handler.RegularUserService.Update(userUpdateDto)
+	err = handler.RegularUserService.UpdateLikedPosts(postLikeDTO)
 	if err != nil {
-		if err.Error() == "username is already taken" {
-			w.WriteHeader(http.StatusConflict)
-		} else {
-			w.WriteHeader(http.StatusBadRequest)
-		}
+		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}

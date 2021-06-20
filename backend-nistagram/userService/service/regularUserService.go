@@ -260,3 +260,22 @@ func createRegularUserLikedAndDislikedDTO(regularUser *model.RegularUser) *dto.U
 
 	return &userLikedAndDislikedDTO
 }
+
+func (service *RegularUserService) UpdateLikedPosts(postLikeDTO dto.UpdatePostLikeAndDislikeDTO) error {
+	fmt.Println("Updating regular user liked posts...")
+
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+	if(postLikeDTO.IsAdd == "yes"){
+		appendedLikes := append(regularUser.LikedPosts, postLikeDTO.PostId)
+		regularUser.LikedPosts = appendedLikes
+	}
+	err = service.RegularUserRepository.Update(regularUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
