@@ -313,3 +313,5 @@ func createUserFollowDTOsFromRegularUsers(regularUsers []model.RegularUser) *[]d
 
 	return &userFollowDTOs
 }
+
+
