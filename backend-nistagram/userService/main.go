@@ -32,6 +32,7 @@ func handleFunc(handler *handler.RegularUserHandler) {
 
 	router.HandleFunc("/register-regular-user", handler.Register).Methods("POST")
 	router.HandleFunc("/update-regular-user", handler.UpdatePersonalInformations).Methods("PUT")
+	router.HandleFunc("/update-profile-privacy", handler.UpdateProfilePrivacy).Methods("PUT")
 	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
 	router.HandleFunc("/by-username/{username}", handler.CreateRegularUserPostDTOByUsername).Methods("GET")
 	router.HandleFunc("/regular-user-by-username/{username}", handler.FindRegularUserByUsername).Methods("GET")

@@ -104,6 +104,26 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 	return nil
 }
 
+func (service *PostService) UpdatePostsPrivacy(privacyUpdateDTO *dto.PrivacyUpdateDTO) error {
+	fmt.Println("updating posts privacy...")
+	userPostsDocuments := service.PostRepository.FindAllPostsByUserId(privacyUpdateDTO.Id)
+	userPosts := CreatePostsFromDocuments(userPostsDocuments)
+
+	var privacyType model.PrivacyType
+	if privacyUpdateDTO.PrivacyType == "0" {
+		privacyType = model.PrivacyType(0)
+	} else {
+		privacyType = model.PrivacyType(1)
+	}
+	for i:=0; i < len(userPosts); i++ {
+		err := service.PostRepository.UpdatePostPrivacy(privacyType, userPosts[i].Id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {

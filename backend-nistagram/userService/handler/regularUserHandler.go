@@ -51,7 +51,22 @@ func (handler *RegularUserHandler) UpdatePersonalInformations(w http.ResponseWri
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+func (handler *RegularUserHandler) UpdateProfilePrivacy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var profilePrivacyDto dto.ProfilePrivacyDTO
+	err := json.NewDecoder(r.Body).Decode(&profilePrivacyDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.UpdateProfilePrivacy(profilePrivacyDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func (handler *RegularUserHandler) CreateRegularUserPostDTOByUsername(w http.ResponseWriter, r *http.Request){

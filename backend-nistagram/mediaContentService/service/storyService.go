@@ -20,7 +20,7 @@ func (service *StoryService) GetAllRegularUserStories(username string) []model.S
 }
 
 func (service *StoryService) CreateNewStory(storyUploadDTO dto.StoryUploadDTO) error {
-	fmt.Println("Creating new post")
+	fmt.Println("Creating new story")
 
 	story, err := createStoryFromStoryUploadDTO(&storyUploadDTO)
 	if err != nil {
@@ -29,6 +29,26 @@ func (service *StoryService) CreateNewStory(storyUploadDTO dto.StoryUploadDTO) e
 	err = service.StoryRepository.CreateStory(story)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (service *StoryService) UpdateStoriesPrivacy(privacyUpdateDTO *dto.PrivacyUpdateDTO) error {
+	fmt.Println("updating stories privacy...")
+	userStoriesDocuments := service.StoryRepository.FindAllStoriesByUserId(privacyUpdateDTO.Id)
+	userStories := CreatePostsFromDocuments(userStoriesDocuments)
+
+	var privacyType model.PrivacyType
+	if privacyUpdateDTO.PrivacyType == "0" {
+		privacyType = model.PrivacyType(0)
+	} else {
+		privacyType = model.PrivacyType(1)
+	}
+	for i:=0; i < len(userStories); i++ {
+		err := service.StoryRepository.UpdateStoryPrivacy(privacyType, userStories[i].Id)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
