@@ -38,6 +38,20 @@ func (repository *PostRepository) GetAllByUsername(username string) []bson.D{
 	return postsFiltered
 }
 
+func (repository *PostRepository) FindAllPostsByUserId(id string) []bson.D{
+	postsCollection := repository.Database.Collection("posts")
+	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"regularUser._id": id})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}
+
 func (repository *PostRepository) GetAllPublic() []bson.D{
 	postsCollection := repository.Database.Collection("posts")
 	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"regularUser.privacyType": 0})
@@ -74,6 +88,22 @@ func (repository *PostRepository) Update(post *model.Post) error {
 			{"$set", bson.D{{"tags", post.Tags}}},
 			{"$set", bson.D{{"location", post.Location}}},
 			{"$set", bson.D{{"description", post.Description}}},
+		})
+	if err != nil {
+		log.Fatal(err)
+		return err
+	} else if updatedPost.MatchedCount == 0 {
+		return fmt.Errorf("Post does not exist!")
+	}
+	return nil
+}
+
+func (repository *PostRepository) UpdatePostPrivacy(privacyType model.PrivacyType, postId primitive.ObjectID) error {
+	postCollection := repository.Database.Collection("posts")
+
+	updatedPost, err := postCollection.UpdateOne(context.TODO(), bson.M{"_id": postId},
+		bson.D{
+			{"$set", bson.D{{"regularUser.privacyType", privacyType}}},
 		})
 	if err != nil {
 		log.Fatal(err)

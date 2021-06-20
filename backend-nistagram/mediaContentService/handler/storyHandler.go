@@ -31,6 +31,25 @@ func (handler *StoryHandler) CreateNewStory(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (handler *StoryHandler) UpdateStoriesPrivacy(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var privacyUpdateDTO dto.PrivacyUpdateDTO
+	err := json.NewDecoder(r.Body).Decode(&privacyUpdateDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.StoryService.UpdateStoriesPrivacy(&privacyUpdateDTO)
+	if err != nil {
+		if err.Error() == "Story does not exist!" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *StoryHandler) GetAllRegularUserStories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	param := mux.Vars(r)
