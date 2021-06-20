@@ -54,6 +54,19 @@ func (handler *FollowHandler) MuteFollowing(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (handler *FollowHandler) AddToCloseFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userIsInClose := handler.FollowService.AddToCloseFollowers(loggedUserId, followingId)
+	if !userIsInClose {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *FollowHandler) BlockUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)

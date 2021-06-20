@@ -39,6 +39,13 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) AddToCloseFollowers(loggedUserId string, followingId string) bool {
+	fmt.Println("adding user to close followers...")
+
+	userIsInClose := service.FollowRepository.SetFollowCloseTrue(loggedUserId, followingId)
+	return userIsInClose
+}
+
 func (service *FollowService) BlockUser(loggedUserId string, userId string) bool {
 	fmt.Println("blocking user...")
 

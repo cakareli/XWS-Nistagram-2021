@@ -69,6 +69,21 @@ func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, foll
 	return false
 }
 
+func (repository *FollowRepository) SetFollowCloseTrue(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {close: FALSE}]->(u2:User{Id:$followingId}) set f.close = true return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}
+
 func (repository *FollowRepository) BlockUser(loggedUserId string, userId string) bool{
 	session := *repository.DatabaseSession
 	err1 := repository.addUser(session, loggedUserId)
