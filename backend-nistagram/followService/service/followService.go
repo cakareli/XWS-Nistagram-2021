@@ -39,6 +39,13 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) AddToCloseFollowers(loggedUserId string, followingId string) bool {
+	fmt.Println("adding user to close followers...")
+
+	userIsInClose := service.FollowRepository.SetFollowCloseTrue(loggedUserId, followingId)
+	return userIsInClose
+}
+
 func (service *FollowService) BlockUser(loggedUserId string, userId string) bool {
 	fmt.Println("blocking user...")
 
@@ -75,7 +82,7 @@ func (service *FollowService) RemoveFollower(loggedUserId string, followerId str
 	return FollowIsRemoved
 }
 
-func (service *FollowService) FindAllFollowers(loggedUserId string) ([]dto.UserDTO, error) {
+func (service *FollowService) FindAllUserFollowers(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all followers...")
 
 	followersIds, err := service.FollowRepository.FindAllUserFollowersIds(loggedUserId)
@@ -89,7 +96,7 @@ func (service *FollowService) FindAllFollowers(loggedUserId string) ([]dto.UserD
 	return userDTOs, nil
 }
 
-func (service *FollowService) FindAllFollowings(loggedUserId string) ([]dto.UserDTO, error) {
+func (service *FollowService) FindAllUserFollowings(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all followings...")
 
 	followingsIds, err := service.FollowRepository.FindAllUserFollowingsIds(loggedUserId)
@@ -103,7 +110,7 @@ func (service *FollowService) FindAllFollowings(loggedUserId string) ([]dto.User
 	return userDTOs, nil
 }
 
-func (service *FollowService) FindAllBlockedUsers(loggedUserId string) ([]dto.UserDTO, error) {
+func (service *FollowService) FindAllUserBlockedUsers(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all blocked users...")
 
 	blockedUsersIds, err := service.FollowRepository.FindAllUserBlockedUsersIds(loggedUserId)
@@ -117,7 +124,7 @@ func (service *FollowService) FindAllBlockedUsers(loggedUserId string) ([]dto.Us
 	return userDTOs, nil
 }
 
-func (service *FollowService) FindAllMutedUsers(loggedUserId string) ([]dto.UserDTO, error) {
+func (service *FollowService) FindAllUserMutedUsers(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all muted users...")
 
 	mutedUsersIds, err := service.FollowRepository.FindAllUserMutedUsersIds(loggedUserId)
@@ -125,6 +132,34 @@ func (service *FollowService) FindAllMutedUsers(loggedUserId string) ([]dto.User
 		return nil, err
 	}
 	userDTOs, err2 := service.getUserDTOsFromUserIds(mutedUsersIds)
+	if err2 != nil {
+		return nil, err2
+	}
+	return userDTOs, nil
+}
+
+func (service *FollowService) FindAllUserFollowRequests(loggedUserId string) ([]dto.UserDTO, error) {
+	fmt.Println("getting all follow requests users...")
+
+	followRequestsIds, err := service.FollowRepository.FindAllUserFollowRequestsIds(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(followRequestsIds)
+	if err2 != nil {
+		return nil, err2
+	}
+	return userDTOs, nil
+}
+
+func (service *FollowService) FindAllUserCloseFollowers(loggedUserId string) ([]dto.UserDTO, error) {
+	fmt.Println("getting all close followers...")
+
+	closeFollowers, err := service.FollowRepository.FindAllUserCloseFollowers(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(closeFollowers)
 	if err2 != nil {
 		return nil, err2
 	}
