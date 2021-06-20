@@ -191,6 +191,24 @@ func (handler *FollowHandler) FindAllUserMutedUsers(w http.ResponseWriter, r *ht
 	json.NewEncoder(w).Encode(mutedUsers)
 }
 
+func (handler *FollowHandler) FindAllUserCloseFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	closeFollowers, err := handler.FollowService.FindAllUserCloseFollowers(loggedUserId)
+	if err != nil {
+		if err.Error() == "no close followers found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(closeFollowers)
+}
+
 func (handler *FollowHandler) FindAllUserFollowRequests(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)

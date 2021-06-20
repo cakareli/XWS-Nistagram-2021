@@ -152,6 +152,20 @@ func (service *FollowService) FindAllUserFollowRequests(loggedUserId string) ([]
 	return userDTOs, nil
 }
 
+func (service *FollowService) FindAllUserCloseFollowers(loggedUserId string) ([]dto.UserDTO, error) {
+	fmt.Println("getting all close followers...")
+
+	closeFollowers, err := service.FollowRepository.FindAllUserCloseFollowers(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(closeFollowers)
+	if err2 != nil {
+		return nil, err2
+	}
+	return userDTOs, nil
+}
+
 func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {
 	var userDTOs []dto.UserDTO
 	postBody, _ := json.Marshal(userIds)
