@@ -28,7 +28,7 @@
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allPublicPosts" :key="post.Username">
-                <v-card height="665" width="500" class="ma-3 grey lighten-5">
+                <v-card height="665" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                     <v-spacer/>
@@ -78,6 +78,13 @@
                       >Dislike</v-btn
                     >
                     <v-spacer />
+                    <v-btn
+                      x-small
+                      class="mr-3"
+                      @click="viewAllHashtags(post.Hashtags)"
+                      v-show="loggedUser"
+                      >Hashtags</v-btn
+                    >
                     <v-btn
                       x-small
                       class="mr-3"
@@ -146,6 +153,7 @@
       :postId="postId"
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
+    <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <v-main>
       <router-view />
     </v-main>
@@ -159,13 +167,16 @@ import { getId, getToken} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
+import AllHashtags from "../components/AllHashtags.vue";
+
 
 export default {
   name: "Home",
   components: {
     AllPostComments,
     AddPostComment,
-    AllTags
+    AllTags,
+    AllHashtags
   },
   data() {
     return {
@@ -174,8 +185,10 @@ export default {
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
       allTagsDialog: false,
+      allHashtagsDialog: false,
       allPostComments: [],
       allPostTags: [],
+      allPostHashtags: [],
       postId: ""
     }
   },
@@ -199,7 +212,6 @@ export default {
         this.loggedUser = true;
       }
     },
-    loadAllPublicPosts() {},
     likePost(postId) {
       console.log(postId);
     },
@@ -217,6 +229,10 @@ export default {
     viewAllTags(allPostTags) {
       this.allPostTags = allPostTags;
       this.allTagsDialog = true;
+    },
+    viewAllHashtags(allPostHashtags) {
+      this.allPostHashtags = allPostHashtags;
+      this.allHashtagsDialog = true;
     },
     savePost(postId){
       console.log(postId);

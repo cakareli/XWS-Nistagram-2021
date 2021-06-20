@@ -5,6 +5,7 @@ import (
 )
 
 type PostUploadDTO struct {
+	Hashtags []string `json:"hashtags"`
 	Tags []string `json:"tags"`
 	Description string `json:"description"`
 	MediaPaths []string `json:"mediaPaths"`

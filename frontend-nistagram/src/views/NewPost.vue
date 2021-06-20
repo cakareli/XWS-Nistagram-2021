@@ -29,9 +29,16 @@
                             <v-text-field label ="Description" v-model="form.description" :rules="rules.description"></v-text-field>
                             <v-text-field label ="Location" v-model="form.location" :rules="rules.location"></v-text-field>
                             <v-row>
-                                <v-text-field label ="Tags" v-model="tag" @click="addTag"></v-text-field>
-                                <v-btn class="grey lighten-3 ma-3" @click="addTag">Add Tag</v-btn>
+                                <v-text-field label ="Hashtags" v-model="hashtag"></v-text-field>
+                                <v-btn class="grey lighten-3 ma-3" @click="addHashtag">Add Hashtag</v-btn>
                             </v-row>
+                            <br>
+                            <v-textarea outlined label ="All hashtags" v-model="form.hashtags" rows="2" no-resize readonly></v-textarea>
+                            <v-row>
+                                <v-text-field label ="Tags" v-model="tag"></v-text-field>
+                                <v-btn class="grey lighten-3 ma-3" @click="addTag">Tag user</v-btn>
+                            </v-row>
+                            <br>
                             <v-textarea outlined label ="All tags" v-model="form.tags" rows="2" no-resize readonly></v-textarea>
                             <v-btn color="grey lighten-3" allign-right :disabled="!form.isFormValid" @click="submit">Publish Post</v-btn>
                         </v-form>
@@ -96,9 +103,11 @@ export default {
             uploadValue: 0,
             firebaseURL: [],
             tag : "",
+            hashtag: "",
             form:{
                 name: "",
                 tags: [],
+                hashtags: [],
                 location: "",
                 isFormValid: false,
             },
@@ -154,13 +163,19 @@ export default {
                 this.form.tags.push(this.tag);
             this.tag = "";
         },
+        addHashtag(){
+            if(this.hashtag != "" && !this.form.hashtags.includes(this.hashtag))
+                this.form.hashtags.push(this.hashtag);
+            this.hashtag = "";
+        },
         submit() {
             if(this.firebaseURL == ""){
                 alert("Image is still not uploaded!")
             }else {
                 let postUploadDTO = {
-                description : this.form.description,
+                hashtags : this.form.hashtags,
                 tags : this.form.tags,
+                description : this.form.description,
                 mediaPaths : this.firebaseURL,
                 uploadDate: new Date(),
                 location: this.form.location,
