@@ -105,14 +105,28 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 }
 
 func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
-	fmt.Println("Commenting post...")
+	fmt.Println("Liking post...")
 
 	postId, _ := primitive.ObjectIDFromHex(postLikeDTO.PostId)
 	post, err := service.PostRepository.FindPostById(postId)
 	if err != nil {
 		return err
 	}
-	post.Likes = post.Likes + 1
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+
+	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
+		post.Likes = post.Likes + 1
+	}
+	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
+		post.Dislikes = post.Dislikes -1
+		post.Likes = post.Likes + 1
+	}
+	if(contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
+		post.Likes = post.Likes -1
+	}
 	err = service.PostRepository.Update(post)
 	if err != nil {
 		return err
@@ -168,4 +182,27 @@ func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 	_ = decoder.Decode(&regularUser)
 
 	return &regularUser, nil
+}
+
+func getRegularUserLikedAndDislikedPostsByUsername(username string) (*dto.UserLikedAndDislikedDTO, error) {
+	requestUrl := fmt.Sprintf("http://%s:%s/liked-and-disliked/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var userLikesAndDislikes dto.UserLikedAndDislikedDTO
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&userLikesAndDislikes)
+
+	return &userLikesAndDislikes, nil
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

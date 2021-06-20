@@ -38,6 +38,7 @@ func handleFunc(handler *handler.RegularUserHandler) {
 	router.HandleFunc("/public-regular-users", handler.GetAllPublicRegularUsers).Methods("GET")
 	router.HandleFunc("/search-public-regular-users/{searchInput}", handler.GetUserSearchResults).Methods("GET")
 	router.HandleFunc("/by-users-ids", handler.FindUsersByIds).Methods("POST")
+	router.HandleFunc("/liked-and-disliked/{username}", handler.FindRegularUserLikedAndDislikedPosts).Methods("GET")
 
 	c := SetupCors()
 

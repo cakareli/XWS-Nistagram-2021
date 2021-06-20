@@ -108,6 +108,15 @@ func (service *RegularUserService) FindRegularUserByUsername(username string) (*
 	return regularUserPostDto, nil
 }
 
+func (service *RegularUserService) FindRegularUserLikedAndDislikedPosts(username string) (*dto.UserLikedAndDislikedDTO, error){
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	userLikedAndDislikedDTO := createRegularUserLikedAndDislikedDTO(regularUser)
+	return userLikedAndDislikedDTO, nil
+}
+
 func (service *RegularUserService) GetUserSearchResults(searchInput string) ([]model.RegularUser, error){
 	searchPublicRegularUser,err := service.RegularUserRepository.GetAllPublicRegularUsers()
 	if err != nil {
@@ -241,4 +250,13 @@ func createUserFollowDTOsFromRegularUsers(regularUsers []model.RegularUser) *[]d
 	}
 
 	return &userFollowDTOs
+}
+
+func createRegularUserLikedAndDislikedDTO(regularUser *model.RegularUser) *dto.UserLikedAndDislikedDTO{
+	var userLikedAndDislikedDTO dto.UserLikedAndDislikedDTO
+
+	userLikedAndDislikedDTO.LikedPostsIds = regularUser.LikedPosts
+	userLikedAndDislikedDTO.DislikedPostsIds = regularUser.DislikedPosts
+
+	return &userLikedAndDislikedDTO
 }
