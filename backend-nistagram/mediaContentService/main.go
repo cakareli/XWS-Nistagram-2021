@@ -27,16 +27,32 @@ func initPostHandler(service *service.PostService) *handler.PostHandler {
 	return &handler.PostHandler{PostService: service}
 }
 
-func handleFunc(handler *handler.PostHandler) {
+func initStoryRepository(database *mongo.Database) *repository.StoryRepository {
+	return &repository.StoryRepository{Database: database}
+}
+
+func initStoryService(repository *repository.StoryRepository) *service.StoryService {
+	return &service.StoryService{StoryRepository: repository}
+}
+
+func initStoryHandler(service *service.StoryService) *handler.StoryHandler {
+	return &handler.StoryHandler{StoryService: service}
+}
+
+func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/regular-user-posts/{username}", handler.GetAllRegularUserPosts).Methods("GET")
-	router.HandleFunc("/public-posts", handler.GetAllPublicPosts).Methods("GET")
-	router.HandleFunc("/new-post", handler.CreateNewPost).Methods("POST")
-	router.HandleFunc("/comment-post", handler.CommentPost).Methods("PUT")
-	router.HandleFunc("/search-location/{searchInput}",handler.GetLocationSearchResults).Methods("GET")
-	router.HandleFunc("/search-user/{searchInput}",handler.GetUserSearchResults).Methods("GET")
-	router.HandleFunc("/search-tag/{searchInput}",handler.GetTagSearchResults).Methods("GET")
+	router.HandleFunc("/regular-user-posts/{username}", handlerPost.GetAllRegularUserPosts).Methods("GET")
+	router.HandleFunc("/public-posts", handlerPost.GetAllPublicPosts).Methods("GET")
+	router.HandleFunc("/new-post", handlerPost.CreateNewPost).Methods("POST")
+	router.HandleFunc("/new-story", handlerStory.CreateNewStory).Methods("POST")
+	router.HandleFunc("/regular-user-stories/{username}", handlerStory.GetAllRegularUserStories).Methods("GET")
+	router.HandleFunc("/comment-post", handlerPost.CommentPost).Methods("PUT")
+	router.HandleFunc("/search-location/{searchInput}",handlerPost.GetLocationSearchResults).Methods("GET")
+	router.HandleFunc("/search-user/{searchInput}",handlerPost.GetUserSearchResults).Methods("GET")
+	router.HandleFunc("/search-tag/{searchInput}",handlerPost.GetTagSearchResults).Methods("GET")
+	router.HandleFunc("/update-posts-privacy", handlerPost.UpdatePostsPrivacy).Methods("POST")
+	router.HandleFunc("/update-stories-privacy", handlerStory.UpdateStoriesPrivacy).Methods("POST")
 
 	c := SetupCors()
 
@@ -75,9 +91,14 @@ func initDatabase() *mongo.Database{
 
 func main() {
 	mediaContentDatabase := initDatabase()
+
 	postRepository := initPostRepository(mediaContentDatabase)
 	postService := initPostService(postRepository)
 	postHandler := initPostHandler(postService)
 
-	handleFunc(postHandler)
+	storyRepository := initStoryRepository(mediaContentDatabase)
+	storyService := initStoryService(storyRepository)
+	storyHandler := initStoryHandler(storyService)
+
+	handleFunc(postHandler, storyHandler)
 }

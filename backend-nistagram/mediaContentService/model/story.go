@@ -1,7 +1,7 @@
 package model
 
 type Story struct {
-	MediaContent
-	IsHighlighted bool `json:"isHighlighted"`
-	ForCloseFriends bool `json:"forCloseFriends"`
+	MediaContent `bson:",inline,omitempty"`
+	IsHighlighted bool `bson:"isHighlighted"`
+	ForCloseFriends bool `bson:"forCloseFriends"`
 }
