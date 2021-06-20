@@ -59,20 +59,20 @@ services:
     depends_on:
       - mongo-db
 
-  #follow-service:
-    #image: follow-service:compose_build
-    #restart: on-failure
-    #build:
-      #context: ./followService
-      #dockerfile: Dockerfile
-    #depends_on:
-      #- neo4j
-    #networks:
-      #- backend
-    #environment:
-      #PORT: ${FOLLOW_SERVICE_PORT}
-      #USER_SERVICE_DOMAIN: ${USER_SERVICE_DOMAIN}
-      #USER_SERVICE_PORT: ${USER_SERVICE_PORT}
+  follow-service:
+    image: follow-service:compose_build
+    restart: on-failure
+    build:
+      context: ./followService
+      dockerfile: Dockerfile
+    depends_on:
+      - neo4j
+    networks:
+      - backend
+    environment:
+      PORT: ${FOLLOW_SERVICE_PORT}
+      USER_SERVICE_DOMAIN: ${USER_SERVICE_DOMAIN}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
 
   notification-service:
     image: notification-service:compose_build
@@ -95,20 +95,20 @@ services:
     networks:
       - backend
 
-  #neo4j:
-    #image: neo4j:latest
-    #container_name: 'neo4j-db'
-    #volumes:
-      #- ./neo4j/plugins:/plugins
-    #environment:
-      #NEO4J_AUTH: ${NEO4J_AUTH}
-    #ports:
-      #- 7474:7474
-      #- 7687:7687
-    #restart: on-failure
-    #networks:
-      #- backend
-    #command: neo4j
+  neo4j:
+    image: neo4j:latest
+    container_name: 'neo4j-db'
+    volumes:
+      - ./neo4j/plugins:/plugins
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH}
+    ports:
+      - 7474:7474
+      - 7687:7687
+    restart: on-failure
+    networks:
+      - backend
+    command: neo4j
 
   postgres:
     image: postgres
