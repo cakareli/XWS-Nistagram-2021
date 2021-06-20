@@ -181,7 +181,7 @@ func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
 		}
 	}
 	if(contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
-		post.Likes = post.Likes -1
+		post.Dislikes = post.Dislikes -1
 		err := updateUserDislikedPosts(postLikeDTO, "no")
 		if( err != nil){
 			fmt.Println(err)
