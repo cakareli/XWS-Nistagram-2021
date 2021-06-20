@@ -165,3 +165,20 @@ func (handler *RegularUserHandler) UpdateLikedPosts(w http.ResponseWriter, r *ht
 	}
 	w.Header().Set("Content-Type", "application/json")
 }
+
+func (handler *RegularUserHandler) UpdateDislikedPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postLikeDTO dto.UpdatePostLikeAndDislikeDTO
+	err := json.NewDecoder(r.Body).Decode(&postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.UpdateDislikedPosts(postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Header().Set("Content-Type", "application/json")
+}

@@ -271,6 +271,9 @@ func (service *RegularUserService) UpdateLikedPosts(postLikeDTO dto.UpdatePostLi
 	if(postLikeDTO.IsAdd == "yes"){
 		appendedLikes := append(regularUser.LikedPosts, postLikeDTO.PostId)
 		regularUser.LikedPosts = appendedLikes
+	}else{
+		removedLikes := removeFromSlice(regularUser.LikedPosts, postLikeDTO.PostId)
+		regularUser.LikedPosts = removedLikes
 	}
 	err = service.RegularUserRepository.Update(regularUser)
 	if err != nil {
@@ -278,4 +281,35 @@ func (service *RegularUserService) UpdateLikedPosts(postLikeDTO dto.UpdatePostLi
 	}
 
 	return nil
+}
+
+func (service *RegularUserService) UpdateDislikedPosts(postLikeDTO dto.UpdatePostLikeAndDislikeDTO) error {
+	fmt.Println("Updating regular user disliked posts...")
+
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+	if(postLikeDTO.IsAdd == "yes"){
+		appendedDislikes := append(regularUser.DislikedPosts, postLikeDTO.PostId)
+		regularUser.DislikedPosts = appendedDislikes
+	}else{
+		removedDislikes := removeFromSlice(regularUser.DislikedPosts, postLikeDTO.PostId)
+		regularUser.DislikedPosts = removedDislikes
+	}
+	err = service.RegularUserRepository.Update(regularUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func removeFromSlice(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
 }
