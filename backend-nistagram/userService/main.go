@@ -52,6 +52,9 @@ func handleFunc(userHandler *handler.RegularUserHandler, verificationRequestHand
 	router.HandleFunc("/search-public-regular-users/{searchInput}", userHandler.GetUserSearchResults).Methods("GET")
 	router.HandleFunc("/by-users-ids", userHandler.FindUsersByIds).Methods("POST")
 	router.HandleFunc("/verification-request", verificationRequestHandler.CreateVerificationRequest).Methods("POST")
+	router.HandleFunc("/liked-and-disliked/{username}", userHandler.FindRegularUserLikedAndDislikedPosts).Methods("GET")
+	router.HandleFunc("/update-liked-posts", userHandler.UpdateLikedPosts).Methods("POST")
+	router.HandleFunc("/update-disliked-posts", userHandler.UpdateDislikedPosts).Methods("POST")
 
 	c := SetupCors()
 

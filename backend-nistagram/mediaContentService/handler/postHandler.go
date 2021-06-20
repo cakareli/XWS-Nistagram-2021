@@ -136,3 +136,41 @@ func (handler *PostHandler) UpdatePostsPrivacy(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(http.StatusOK)
 	}
 }
+
+func (handler *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postLikeDTO dto.PostLikeDTO
+	err := json.NewDecoder(r.Body).Decode(&postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.LikePost(postLikeDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}
+
+func (handler *PostHandler) DislikePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postLikeDTO dto.PostLikeDTO
+	err := json.NewDecoder(r.Body).Decode(&postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.DislikePost(postLikeDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}

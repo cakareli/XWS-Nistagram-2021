@@ -94,7 +94,18 @@ func (handler *RegularUserHandler) FindRegularUserByUsername(w http.ResponseWrit
 	json.NewEncoder(w).Encode(regularUserPostDto)
 }
 
-
+func (handler *RegularUserHandler) FindRegularUserLikedAndDislikedPosts(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	regularUserPostDto, err := handler.RegularUserService.FindRegularUserLikedAndDislikedPosts(username)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(regularUserPostDto)
+}
 
 func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "application/json")
@@ -134,6 +145,7 @@ func (handler *RegularUserHandler) GetUserSearchResults(w http.ResponseWriter, r
 		_, _ = w.Write(searchPostsJson)
 	}
 }
+
 func (handler *RegularUserHandler) FindUsersByIds(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "application/json")
 	var usersIds []string
@@ -149,4 +161,38 @@ func (handler *RegularUserHandler) FindUsersByIds(w http.ResponseWriter, r *http
 		return
 	}
 	json.NewEncoder(w).Encode(userFollowDtos)
+}
+
+func (handler *RegularUserHandler) UpdateLikedPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postLikeDTO dto.UpdatePostLikeAndDislikeDTO
+	err := json.NewDecoder(r.Body).Decode(&postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.UpdateLikedPosts(postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func (handler *RegularUserHandler) UpdateDislikedPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postLikeDTO dto.UpdatePostLikeAndDislikeDTO
+	err := json.NewDecoder(r.Body).Decode(&postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.UpdateDislikedPosts(postLikeDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Header().Set("Content-Type", "application/json")
 }

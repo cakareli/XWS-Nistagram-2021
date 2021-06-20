@@ -163,7 +163,7 @@
 <script>
 
 import axios from "axios";
-import { getId, getToken} from "../security/token.js";
+import { getId, getToken , getUsername} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
@@ -214,9 +214,39 @@ export default {
     },
     likePost(postId) {
       console.log(postId);
+      let likePostDTO = {
+        username: getUsername(),
+        postId: this.postId,
+      }
+        axios.put("http://localhost:8081/api/media-content/like-post",
+            likePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     },
     dislikePost(postId) {
       console.log(postId);
+      let dislikePostDTO = {
+        username: getUsername(),
+        postId: this.postId,
+      }
+        axios.put("http://localhost:8081/api/media-content/dislike-post",
+            dislikePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     },
     commentPost(postId) {
       this.postId = postId;

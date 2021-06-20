@@ -90,4 +90,3 @@ func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.S
 	story.MediaContentType = model.MediaContentType(1)
 	return &story, nil
 }
-
