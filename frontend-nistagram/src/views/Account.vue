@@ -80,7 +80,7 @@
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allUserPosts" :key="post.Username">
-                <v-card height="665" width="550" class="ma-3 grey lighten-5">
+                <v-card height="750" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                     <v-spacer/>
@@ -89,7 +89,7 @@
                     </v-btn>
                   </v-card-title>
                   <v-icon class="ml-11">mdi-map-marker</v-icon> {{post.Location}}
-                  <v-row class="justify-center my-1">
+                  <v-row class="justify-center my-1" v-show="post.MediaContentType==0">
                     <v-img
                       v-bind:src="post.MediaPaths[0]"
                       max-width="400"
@@ -98,6 +98,16 @@
                       height="400"
                       class="ma-2"
                     ></v-img>
+                  </v-row>
+                  <v-row class="justify-center my-1" v-show="post.MediaContentType==2">
+                    <v-carousel class="mx-16" >
+                      <v-carousel-item
+                      height="300px"
+                      v-for="image in post.MediaPaths"
+                      :key="image"
+                      :src="image">                     
+                      </v-carousel-item>
+                    </v-carousel>
                   </v-row>
                   <v-row class="justify-center mx-2">
                     <v-textarea
@@ -292,9 +302,39 @@ export default {
     },
     likePost(postId) {
       console.log(postId);
+      let likePostDTO = {
+        username: getUsername(),
+        postId: postId,
+      }
+        axios.put("http://localhost:8081/api/media-content/like-post",
+            likePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     },
     dislikePost(postId) {
       console.log(postId);
+      let dislikePostDTO = {
+        username: getUsername(),
+        postId: postId,
+      }
+        axios.put("http://localhost:8081/api/media-content/dislike-post",
+            dislikePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     },
     commentPost(postId) {
       this.postId = postId;

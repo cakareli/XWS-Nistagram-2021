@@ -69,6 +69,21 @@ func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, foll
 	return false
 }
 
+func (repository *FollowRepository) SetFollowCloseTrue(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {close: FALSE}]->(u2:User{Id:$followingId}) set f.close = true return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		println(result)
+		return true
+	}
+	return false
+}
+
 func (repository *FollowRepository) BlockUser(loggedUserId string, userId string) bool{
 	session := *repository.DatabaseSession
 	err1 := repository.addUser(session, loggedUserId)
@@ -191,6 +206,44 @@ func (repository *FollowRepository) FindAllUserMutedUsersIds(userId string) ([]s
 		return nil, fmt.Errorf("no muted users found")
 	}
 	return mutedUsersIds, nil
+}
+
+func (repository *FollowRepository) FindAllUserFollowRequestsIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var mutedUsersIds []string
+	result, err := session.Run("match (u:User)" +
+		"-[f:follow{request:TRUE}]->(u1:User{Id:$userId}) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		mutedUsersIds = append(mutedUsersIds, id)
+	}
+	if len(mutedUsersIds) == 0 {
+		return nil, fmt.Errorf("no follow requests found")
+	}
+	return mutedUsersIds, nil
+}
+
+func (repository *FollowRepository) FindAllUserCloseFollowers(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var closeFollowers []string
+	result, err := session.Run("match (u1:User{Id:$userId})" +
+		"-[f:follow{close:TRUE}]->(u:User) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		closeFollowers = append(closeFollowers, id)
+	}
+	if len(closeFollowers) == 0 {
+		return nil, fmt.Errorf("no close followers found")
+	}
+	return closeFollowers, nil
 }
 
 func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {

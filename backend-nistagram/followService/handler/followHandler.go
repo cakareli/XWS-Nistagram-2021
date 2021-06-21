@@ -54,6 +54,19 @@ func (handler *FollowHandler) MuteFollowing(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (handler *FollowHandler) AddToCloseFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userIsInClose := handler.FollowService.AddToCloseFollowers(loggedUserId, followingId)
+	if !userIsInClose {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *FollowHandler) BlockUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -106,11 +119,11 @@ func (handler *FollowHandler) RemoveFollower(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (handler *FollowHandler) FindAllFollowers(w http.ResponseWriter, r *http.Request) {
+func (handler *FollowHandler) FindAllUserFollowers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	loggedUserId := params["loggedUserId"]
-	followers, err := handler.FollowService.FindAllFollowers(loggedUserId)
+	followers, err := handler.FollowService.FindAllUserFollowers(loggedUserId)
 	if err != nil {
 		if err.Error() == "no followers found" {
 			w.WriteHeader(http.StatusOK)
@@ -124,11 +137,11 @@ func (handler *FollowHandler) FindAllFollowers(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(followers)
 }
 
-func (handler *FollowHandler) FindAllFollowings(w http.ResponseWriter, r *http.Request) {
+func (handler *FollowHandler) FindAllUserFollowings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	loggedUserId := params["loggedUserId"]
-	followings, err := handler.FollowService.FindAllFollowings(loggedUserId)
+	followings, err := handler.FollowService.FindAllUserFollowings(loggedUserId)
 	if err != nil {
 		if err.Error() == "no followings found" {
 			w.WriteHeader(http.StatusOK)
@@ -142,11 +155,11 @@ func (handler *FollowHandler) FindAllFollowings(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(followings)
 }
 
-func (handler *FollowHandler) FindAllBlockedUsers(w http.ResponseWriter, r *http.Request) {
+func (handler *FollowHandler) FindAllUserBlockedUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	loggedUserId := params["loggedUserId"]
-	blockedUsers, err := handler.FollowService.FindAllBlockedUsers(loggedUserId)
+	blockedUsers, err := handler.FollowService.FindAllUserBlockedUsers(loggedUserId)
 	if err != nil {
 		if err.Error() == "no blocked users found" {
 			w.WriteHeader(http.StatusOK)
@@ -160,11 +173,11 @@ func (handler *FollowHandler) FindAllBlockedUsers(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(blockedUsers)
 }
 
-func (handler *FollowHandler) FindAllMutedUsers(w http.ResponseWriter, r *http.Request) {
+func (handler *FollowHandler) FindAllUserMutedUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	loggedUserId := params["loggedUserId"]
-	mutedUsers, err := handler.FollowService.FindAllMutedUsers(loggedUserId)
+	mutedUsers, err := handler.FollowService.FindAllUserMutedUsers(loggedUserId)
 	if err != nil {
 		if err.Error() == "no muted users found" {
 			w.WriteHeader(http.StatusOK)
@@ -176,4 +189,40 @@ func (handler *FollowHandler) FindAllMutedUsers(w http.ResponseWriter, r *http.R
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(mutedUsers)
+}
+
+func (handler *FollowHandler) FindAllUserCloseFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	closeFollowers, err := handler.FollowService.FindAllUserCloseFollowers(loggedUserId)
+	if err != nil {
+		if err.Error() == "no close followers found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(closeFollowers)
+}
+
+func (handler *FollowHandler) FindAllUserFollowRequests(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followRequests, err := handler.FollowService.FindAllUserFollowRequests(loggedUserId)
+	if err != nil {
+		if err.Error() == "no follow requests found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(followRequests)
 }
