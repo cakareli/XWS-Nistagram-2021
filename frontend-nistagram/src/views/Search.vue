@@ -402,6 +402,22 @@ export default {
     },
     savePost(postId){
       console.log(postId);
+      let savePostDTO = {
+        username: getUsername(),
+        postId: postId,
+        isAdd: "yes",
+      }
+        axios.put("http://localhost:8081/api/user/save-post",
+            savePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     }
   },
   mounted() {

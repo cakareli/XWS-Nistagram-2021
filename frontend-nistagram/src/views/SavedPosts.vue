@@ -22,7 +22,7 @@
         <v-card width="800px" class="pa-12">         
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allLikedPosts" :key="post.Username">
+              <v-list-item v-for="post in allSavedPosts" :key="post.Username">
                 <v-card height="750" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
@@ -167,7 +167,7 @@ import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
 
 export default {
-    name: 'LikedPosts',
+    name: 'SavedPosts',
     components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
     data() {
         return {
@@ -177,7 +177,7 @@ export default {
             username: "",
             biography: "",
             website: "",
-            allLikedPosts: [],
+            allSavedPosts: [],
             allPostCommentsDialog: false,
             addPostCommentDialog: false,
             allHashtagsDialog: false,
@@ -193,7 +193,7 @@ export default {
     },
     methods: {
         loadAllLikedPosts(){
-            axios.get("http://localhost:8081/api/media-content/liked-posts/" + getUsername(),
+            axios.get("http://localhost:8081/api/media-content/saved-posts/" + getUsername(),
                 {
                     headers: {
                         Authorization: "Bearer " + getToken(),
@@ -201,7 +201,7 @@ export default {
                 }
             ).then(response => {
                 console.log(response.data)
-                this.allLikedPosts = response.data
+                this.allSavedPosts = response.data
             }).catch((error) => {
                 if (error.response.status === 500) {
                     console.log("Internal server error");

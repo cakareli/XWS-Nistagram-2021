@@ -10,6 +10,7 @@ import Search from '../views/Search.vue'
 import UserProfile from '../views/UserProfile.vue'
 import LikedPosts from '../views/LikedPosts.vue'
 import DislikedPosts from '../views/DislikedPosts.vue'
+import SavedPosts from '../views/SavedPosts.vue'
 
 Vue.use(VueRouter)
 
@@ -63,6 +64,11 @@ const routes = [
     path: '/disliked-posts/',
     name: 'DislikedPosts',
     component: DislikedPosts
+  },
+  {
+    path: '/saved-posts/',
+    name: 'SavedPosts',
+    component: SavedPosts
   }
 
 ]

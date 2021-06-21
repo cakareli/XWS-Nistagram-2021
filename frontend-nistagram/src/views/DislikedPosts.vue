@@ -193,7 +193,6 @@ export default {
     },
     methods: {
         loadAllLikedPosts(){
-            console.log("hello")
             axios.get("http://localhost:8081/api/media-content/disliked-posts/" + getUsername(),
                 {
                     headers: {
