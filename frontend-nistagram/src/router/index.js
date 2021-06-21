@@ -8,6 +8,7 @@ import Account from '../views/Account.vue'
 import NewPost from '../views/NewPost.vue'
 import Search from '../views/Search.vue'
 import UserProfile from '../views/UserProfile.vue'
+import LikedPosts from '../views/LikedPosts.vue'
 
 Vue.use(VueRouter)
 
@@ -51,6 +52,11 @@ const routes = [
     path: '/user-profile/:username',
     name: 'UserProfile',
     component: UserProfile
+  },
+  {
+    path: '/liked-posts/',
+    name: 'LikedPosts',
+    component: LikedPosts
   }
 ]
 
