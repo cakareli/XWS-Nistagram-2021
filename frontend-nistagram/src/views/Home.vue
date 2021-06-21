@@ -17,6 +17,8 @@
         </v-row>
     </v-app-bar>
 
+
+
     <v-container>
       <v-row justify="center">
         <v-card width="800px" class="pa-12">
@@ -26,9 +28,24 @@
               <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
           </v-bottom-navigation>
           <v-row justify="center">
+            <v-card height="160px" width="550px" class="pa-5 grey lighten-5">
+                <v-row height="160px">
+                  <v-slide-group multiple show-arrows class="mt-9" >
+                    <v-slide-item  v-for="(story, index) in allStories" :key="story.RegularUser.Username">
+                      <v-btn height="80" fab icon class="mx-5" @click="viewStory(index)">
+                        <v-avatar size="70px">
+                          <v-img v-bind:src="story.MediaPaths[0]"></v-img>
+                        </v-avatar>
+                      </v-btn>
+                    </v-slide-item>
+                  </v-slide-group>
+                </v-row>
+            </v-card>
+          </v-row>
+          <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allPublicPosts" :key="post.Username">
-                <v-card height="665" width="550" class="ma-3 grey lighten-5">
+                <v-card height="665" width="550" class="grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
                     <v-spacer/>
@@ -154,6 +171,7 @@
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+    <ViewStory :viewStoryDialog.sync="viewStoryDialog" :storyView="storyView" />
     <v-main>
       <router-view />
     </v-main>
@@ -163,11 +181,12 @@
 <script>
 
 import axios from "axios";
-import { getId, getToken} from "../security/token.js";
+import { getId, getToken, getUsername} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
+import ViewStory from "../components/ViewStory.vue";
 
 
 export default {
@@ -176,24 +195,33 @@ export default {
     AllPostComments,
     AddPostComment,
     AllTags,
-    AllHashtags
+    AllHashtags,
+    ViewStory
   },
   data() {
     return {
       loggedUser: false,
+      allStories: [],
       allPublicPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
       allTagsDialog: false,
       allHashtagsDialog: false,
-      allPostComments: [],
+      viewStoryDialog: false,
       allPostTags: [],
       allPostHashtags: [],
+      allPostComments: [],
+      storyView: {},
       postId: ""
     }
   },
 
   methods: {
+
+    viewStory(story){
+      this.storyView = this.allStories[story]
+      this.viewStoryDialog = true
+    },
 
     loadAllPublicPostsForGuest() {
       axios
@@ -205,6 +233,22 @@ export default {
         .then((response) => {
           this.allPublicPosts = response.data;
         });
+    },
+    loadAllStories(){
+      axios
+        .get("http://localhost:8081/api/media-content/regular-user-stories/"+getUsername(), {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+        .then((response) => {
+          this.allStories = response.data;
+        }).catch(error => {
+            if(error.response.status === 500){
+                this.snackbarText = "Internal server error occurred!";
+                this.snackbar = true;
+            }
+        })
     },
     
     checkLoggedUser() {
@@ -241,6 +285,7 @@ export default {
   mounted() {
     this.checkLoggedUser();
     this.loadAllPublicPostsForGuest();
+    this.loadAllStories();
   },
 };
 </script>

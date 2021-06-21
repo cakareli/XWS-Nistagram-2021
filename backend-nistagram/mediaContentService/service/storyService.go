@@ -79,6 +79,7 @@ func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.S
 		tags = append(tags,*regUser)
 
 	}
+	story.Tags = tags
 	story.Description = storyUploadDTO.Description
 	story.MediaPaths = storyUploadDTO.MediaPaths
 	story.UploadDate = storyUploadDTO.UploadDate

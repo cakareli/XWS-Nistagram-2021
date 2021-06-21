@@ -28,7 +28,7 @@
 
             <v-btn @click="searchTags">
               <v-icon>mdi-pound-box</v-icon>
-              <span>Tag</span>
+              <span>Hashtag</span>
             </v-btn>
 
             <v-btn @click="searchLocations">

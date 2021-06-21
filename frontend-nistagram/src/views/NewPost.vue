@@ -16,39 +16,69 @@
           </v-col>
         </v-row>
         </v-app-bar>
-                <v-container class="justify-center">
-                    <v-snackbar v-model="snackbar" top timeout="3500">
-                        <span>{{snackbarText}}</span>
-                    </v-snackbar>
-                    <v-container class="pa-12 justify-center" width="1000px" height="1000">
+        <v-container>
+            <v-row justify="center">
+                <v-card width="800px" class="pa-12">
+                <v-bottom-navigation background-color="grey lighten-3" height="45px">
+                    <v-btn @click="postFormButton">
+                    <v-icon>mdi-image</v-icon>
+                    <span>Post</span>
+                    </v-btn>
+
+                    <v-btn @click="albumFormButton">
+                    <v-icon>mdi-image-multiple</v-icon>
+                    <span>Album</span>
+                    </v-btn>
+
+                    <v-btn @click="storyFormButton">
+                    <v-icon>mdi-account-supervisor-circle</v-icon>
+                    <span>Story</span>
+                    </v-btn>
+                </v-bottom-navigation>
+            </v-card>
+            </v-row>
+        </v-container>
+        <v-container class="justify-center">
+            <v-snackbar v-model="snackbar" top timeout="3500">
+                <span>{{snackbarText}}</span>
+            </v-snackbar>
+            <v-container class="pa-12 justify-center" width="1000px" height="1000">
+            <v-row>
+            <v-col>
+                <v-form v-model="form.isFormValid">
+                    <v-btn raised class="grey lighten-3" @click="uploadFile">Upload Image</v-btn>
+                    <input type="file" style="display: none" ref="fileInput" accept="image/*" @change="onFilePicked"/>
+                    <v-text-field label ="Description" v-model="form.description" :rules="rules.description"></v-text-field>
+                    <v-text-field label ="Location" v-model="form.location" :rules="rules.location"></v-text-field>
                     <v-row>
-                    <v-col>
-                        <v-form v-model="form.isFormValid">
-                            <v-btn raised class="grey lighten-3" @click="uploadFile">Upload Image</v-btn>
-                            <input type="file" style="display: none" ref="fileInput" accept="image/*" @change="onFilePicked"/>
-                            <v-text-field label ="Description" v-model="form.description" :rules="rules.description"></v-text-field>
-                            <v-text-field label ="Location" v-model="form.location" :rules="rules.location"></v-text-field>
-                            <v-row>
-                                <v-text-field label ="Hashtags" v-model="hashtag"></v-text-field>
-                                <v-btn class="grey lighten-3 ma-3" @click="addHashtag">Add Hashtag</v-btn>
-                            </v-row>
-                            <br>
-                            <v-textarea outlined label ="All hashtags" v-model="form.hashtags" rows="2" no-resize readonly></v-textarea>
-                            <v-row>
-                                <v-text-field label ="Tags" v-model="tag"></v-text-field>
-                                <v-btn class="grey lighten-3 ma-3" @click="addTag">Tag user</v-btn>
-                            </v-row>
-                            <br>
-                            <v-textarea outlined label ="All tags" v-model="form.tags" rows="2" no-resize readonly></v-textarea>
-                            <v-btn color="grey lighten-3" allign-right :disabled="!form.isFormValid" @click="submit">Publish Post</v-btn>
-                        </v-form>
-                    </v-col>
-                    <v-col>
-                        <img :src="imageUrl" height="500" width="400"/>
-                    </v-col>
+                        <v-text-field label ="Hashtags" v-model="hashtag"></v-text-field>
+                        <v-btn class="grey lighten-3 ma-3" @click="addHashtag">Add Hashtag</v-btn>
                     </v-row>
-                    </v-container>
-                </v-container>
+                    <br>
+                    <v-textarea outlined label ="All hashtags" v-model="form.hashtags" rows="2" no-resize readonly></v-textarea>
+                    <v-row>
+                        <v-text-field label ="Tags" v-model="tag"></v-text-field>
+                        <v-btn class="grey lighten-3 ma-3" @click="addTag">Tag user</v-btn>
+                    </v-row>
+                    <br>
+                    <v-textarea outlined label ="All tags" v-model="form.tags" rows="2" no-resize readonly></v-textarea>
+                    <v-btn color="grey lighten-3" allign-right :disabled="!form.isFormValid" @click="submit">{{this.activeForm}}</v-btn>
+                </v-form>
+            </v-col>
+            <v-col>
+                <img :src="imageUrl" height="500" width="400"/>
+                <v-switch
+                    v-show="storyForm"
+                    class="mx-15"
+                    @click="closeFriendsSwitch"
+                    v-model="closeFriends"
+                    inset
+                    :label="`For close friends: ${closeFriendsString.toString()}`"
+                ></v-switch>
+            </v-col>
+            </v-row>
+            </v-container>
+        </v-container>
 
     <v-footer app height="45px" class="grey lighten-3 justify-center">
         <v-container>
@@ -98,6 +128,12 @@ export default {
     },
     data(){
         return {
+            closeFriends: false,
+            closeFriendsString: "No",
+            activeForm: "PUBLISH POST",
+            postForm: true,
+            storyForm: false,
+            albumForm: false,
             imageUrl: "",
             image: null,
             uploadValue: 0,
@@ -129,6 +165,32 @@ export default {
 
     },
     methods: {
+        closeFriendsSwitch(){
+            if(this.closeFriends){
+                this.closeFriendsString = "Yes"
+            }
+            else{
+                this.closeFriendsString = "No"
+            }
+        },
+        postFormButton(){
+            this.postForm = true;
+            this.storyForm = false;
+            this.albumForm = false
+            this.activeForm = "PUBLISH POST";
+        },
+        storyFormButton(){
+            this.postForm = false;
+            this.storyForm = true;
+            this.albumForm = false
+            this.activeForm = "PUBLISH STORY";
+        },
+        albumFormButton(){
+            this.postForm = false;
+            this.storyForm = false;
+            this.albumForm = true
+            this.activeForm = "PUBLISH ALBUM";
+        },
         uploadFile(){
             this.$refs.fileInput.click();
         },
@@ -172,29 +234,63 @@ export default {
             if(this.firebaseURL == ""){
                 alert("Image is still not uploaded!")
             }else {
-                let postUploadDTO = {
-                hashtags : this.form.hashtags,
-                tags : this.form.tags,
-                description : this.form.description,
-                mediaPaths : this.firebaseURL,
-                uploadDate: new Date(),
-                location: this.form.location,
-                username: getUsername(),
-                }
-                axios.post('http://localhost:8081/api/media-content/new-post',
-                    postUploadDTO
-                ).then(response => {
-                    console.log(response)
-                    this.$router.push('/account').catch(()=>{})
-                }).catch(error => {
-                    if(error.response.status === 500){
-                        this.snackbarText = "Internal server error occurred!";
-                        this.snackbar = true;
-                    }else if(error.response.status === 400){
-                        this.snackbarText = "Bad request, try again!";
-                        this.snackbar = true;
+
+                if(this.postForm){
+                    if(this.firebaseURL.length!=1){
+                        alert("UPLOAD ONLY ONE PHOTO")
                     }
-                })
+                    else{
+                        let postUploadDTO = {
+                    hashtags : this.form.hashtags,
+                    tags : this.form.tags,
+                    description : this.form.description,
+                    mediaPaths : this.firebaseURL,
+                    uploadDate: new Date(),
+                    location: this.form.location,
+                    username: getUsername(),
+                    }
+                    axios.post('http://localhost:8081/api/media-content/new-post',
+                        postUploadDTO
+                    ).then(response => {
+                        console.log(response)
+                        this.$router.push('/').catch(()=>{})
+                    }).catch(error => {
+                        if(error.response.status === 500){
+                            this.snackbarText = "Internal server error occurred!";
+                            this.snackbar = true;
+                        }else if(error.response.status === 400){
+                            this.snackbarText = "Bad request, try again!";
+                            this.snackbar = true;
+                        }
+                    })
+                    }
+                }
+                else if(this.storyForm){
+                        let storyUploadDTO = {
+                    hashtags : this.form.hashtags,
+                    tags : this.form.tags,
+                    description : this.form.description,
+                    mediaPaths : this.firebaseURL,
+                    uploadDate: new Date(),
+                    location: this.form.location,
+                    username: getUsername(),
+                    forCloseFriends: this.closeFriends
+                    }
+                    axios.post('http://localhost:8081/api/media-content/new-story',
+                        storyUploadDTO
+                    ).then(response => {
+                        console.log(response)
+                        this.$router.push('/').catch(()=>{})
+                    }).catch(error => {
+                        if(error.response.status === 500){
+                            this.snackbarText = "Internal server error occurred!";
+                            this.snackbar = true;
+                        }else if(error.response.status === 400){
+                            this.snackbarText = "Bad request, try again!";
+                            this.snackbar = true;
+                        }
+                    })
+                }                
             }
         }
     }
