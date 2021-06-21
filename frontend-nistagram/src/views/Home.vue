@@ -216,7 +216,7 @@ export default {
       console.log(postId);
       let likePostDTO = {
         username: getUsername(),
-        postId: this.postId,
+        postId: postId,
       }
         axios.put("http://localhost:8081/api/media-content/like-post",
             likePostDTO,
@@ -234,7 +234,7 @@ export default {
       console.log(postId);
       let dislikePostDTO = {
         username: getUsername(),
-        postId: this.postId,
+        postId: postId,
       }
         axios.put("http://localhost:8081/api/media-content/dislike-post",
             dislikePostDTO,
