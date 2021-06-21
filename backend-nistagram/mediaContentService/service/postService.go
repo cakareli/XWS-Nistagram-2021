@@ -215,6 +215,18 @@ func (service *PostService) UpdatePostsPrivacy(privacyUpdateDTO *dto.PrivacyUpda
 	return nil
 }
 
+func (service *PostService) GetAllLikedPostsByUsername(username string) ([]model.Post,error) {
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	publicPostsDocuments := service.PostRepository.GetAllPostsByIds(userLikedAndDisliked.LikedPostsIds)
+	likedPosts := CreatePostsFromDocuments(publicPostsDocuments)
+
+	return likedPosts, nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
