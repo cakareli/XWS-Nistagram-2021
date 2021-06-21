@@ -55,6 +55,8 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/search-tag/{searchInput}",handlerPost.GetTagSearchResults).Methods("GET")
 	router.HandleFunc("/update-posts-privacy", handlerPost.UpdatePostsPrivacy).Methods("POST")
 	router.HandleFunc("/update-stories-privacy", handlerStory.UpdateStoriesPrivacy).Methods("POST")
+	router.HandleFunc("/liked-posts", handlerPost.GetAllLikedPostsByUsername).Methods("GET")
+	router.HandleFunc("/disliked-posts", handlerPost.GetAllDislikedPostsByUsername).Methods("GET")
 
 	c := SetupCors()
 

@@ -227,6 +227,18 @@ func (service *PostService) GetAllLikedPostsByUsername(username string) ([]model
 	return likedPosts, nil
 }
 
+func (service *PostService) GetAllDislikedPostsByUsername(username string) ([]model.Post,error) {
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	publicPostsDocuments := service.PostRepository.GetAllPostsByIds(userLikedAndDisliked.DislikedPostsIds)
+	dislikedPosts := CreatePostsFromDocuments(publicPostsDocuments)
+
+	return dislikedPosts, nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {

@@ -192,3 +192,21 @@ func (handler *PostHandler) GetAllLikedPostsByUsername(w http.ResponseWriter, r 
 		_, _ = w.Write(likedPostsJson)
 	}
 }
+
+func (handler *PostHandler) GetAllDislikedPostsByUsername(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	dislikedPosts, err := handler.PostService.GetAllDislikedPostsByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	dislikedPostsJson, err := json.Marshal(dislikedPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(dislikedPostsJson)
+	}
+}
