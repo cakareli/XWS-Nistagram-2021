@@ -7,7 +7,7 @@ type RegularUser struct {
 	UserType UserType `bson:"userType,omitempty"`
 	LikedPosts []string `bson:"likedPosts,omitempty"`
 	DislikedPosts []string `bson:"dislikedPosts,omitempty"`
-	ProfilePrivacy ProfilePrivacy `bson:"profilePrivacy,omitempty"`
+	ProfilePrivacy ProfilePrivacy `bson:",inline,omitempty"`
 	Notifications []Notification `bson:"notifications,omitempty"`
 	MediaContents []MediaContent `bson:"mediaContents,omitempty"`
 	Collections []Collection `bson:"collection,omitempty"`
