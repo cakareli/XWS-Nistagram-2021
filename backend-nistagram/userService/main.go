@@ -27,18 +27,34 @@ func initUserHandler(service *service.RegularUserService) *handler.RegularUserHa
 	return &handler.RegularUserHandler{RegularUserService: service}
 }
 
-func handleFunc(handler *handler.RegularUserHandler) {
+func initVerificationRequestRepository(database *mongo.Database) *repository.VerificationRequestRepository {
+	return &repository.VerificationRequestRepository{Database: database}
+}
+
+func initVerificationRequestService(repository1 *repository.VerificationRequestRepository, repository2 *repository.RegularUserRepository ) *service.VerificationRequestService {
+	return &service.VerificationRequestService{VerificationRequestRepository: repository1, RegularUserRepository: repository2}
+}
+
+func initVerificationRequestHandler(service *service.VerificationRequestService) *handler.VerificationRequestHandler {
+	return &handler.VerificationRequestHandler{VerificationRequestService: service}
+}
+
+func handleFunc(userHandler *handler.RegularUserHandler, verificationRequestHandler *handler.VerificationRequestHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/register-regular-user", handler.Register).Methods("POST")
-	router.HandleFunc("/update-regular-user", handler.UpdatePersonalInformations).Methods("PUT")
-	router.HandleFunc("/update-profile-privacy", handler.UpdateProfilePrivacy).Methods("PUT")
-	router.HandleFunc("/logged-user/{id}", handler.FindUserById).Methods("GET")
-	router.HandleFunc("/by-username/{username}", handler.CreateRegularUserPostDTOByUsername).Methods("GET")
-	router.HandleFunc("/regular-user-by-username/{username}", handler.FindRegularUserByUsername).Methods("GET")
-	router.HandleFunc("/public-regular-users", handler.GetAllPublicRegularUsers).Methods("GET")
-	router.HandleFunc("/search-public-regular-users/{searchInput}", handler.GetUserSearchResults).Methods("GET")
-	router.HandleFunc("/by-users-ids", handler.FindUsersByIds).Methods("POST")
+	router.HandleFunc("/register-regular-user", userHandler.Register).Methods("POST")
+	router.HandleFunc("/update-regular-user", userHandler.UpdatePersonalInformations).Methods("PUT")
+	router.HandleFunc("/update-profile-privacy", userHandler.UpdateProfilePrivacy).Methods("PUT")
+	router.HandleFunc("/logged-user/{id}", userHandler.FindUserById).Methods("GET")
+	router.HandleFunc("/by-username/{username}", userHandler.CreateRegularUserPostDTOByUsername).Methods("GET")
+	router.HandleFunc("/regular-user-by-username/{username}", userHandler.FindRegularUserByUsername).Methods("GET")
+	router.HandleFunc("/public-regular-users", userHandler.GetAllPublicRegularUsers).Methods("GET")
+	router.HandleFunc("/search-public-regular-users/{searchInput}", userHandler.GetUserSearchResults).Methods("GET")
+	router.HandleFunc("/by-users-ids", userHandler.FindUsersByIds).Methods("POST")
+	router.HandleFunc("/verification-request", verificationRequestHandler.CreateVerificationRequest).Methods("POST")
+	router.HandleFunc("/liked-and-disliked/{username}", userHandler.FindRegularUserLikedAndDislikedPosts).Methods("GET")
+	router.HandleFunc("/update-liked-posts", userHandler.UpdateLikedPosts).Methods("POST")
+	router.HandleFunc("/update-disliked-posts", userHandler.UpdateDislikedPosts).Methods("POST")
 
 	c := SetupCors()
 
@@ -78,9 +94,14 @@ func initDatabase() *mongo.Database{
 
 func main() {
 	userDatabase := initDatabase()
+
 	userRepository := initUserRepository(userDatabase)
 	userService := initUserService(userRepository)
 	userHandler := initUserHandler(userService)
 
-	handleFunc(userHandler)
+	verificationRequestRepository := initVerificationRequestRepository(userDatabase)
+	verificationRequestService := initVerificationRequestService(verificationRequestRepository, userRepository)
+	verificationRequestHandler := initVerificationRequestHandler(verificationRequestService)
+
+	handleFunc(userHandler, verificationRequestHandler)
 }

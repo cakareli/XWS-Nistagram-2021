@@ -65,8 +65,9 @@
                     <v-btn color="grey lighten-3" allign-right :disabled="!form.isFormValid" @click="submit">{{this.activeForm}}</v-btn>
                 </v-form>
             </v-col>
-            <v-col>
-                <img :src="imageUrl" height="500" width="400"/>
+            <v-col v-show="!albumForm">
+                <img :src="imageUrl" max-height="400" max-width="400" height="400" width="400"/>
+                <v-btn raised class="grey lighten-3" @click="deleteImage">Delete Image</v-btn>
                 <v-switch
                     v-show="storyForm"
                     class="mx-15"
@@ -75,6 +76,30 @@
                     inset
                     :label="`For close friends: ${closeFriendsString.toString()}`"
                 ></v-switch>
+            </v-col>
+            <v-col v-show="albumForm">
+                <v-carousel v-model="model">
+                    <v-carousel-item
+                    v-for="image in firebaseURL"
+                    :key="image"
+                    >
+                    <v-sheet
+                        width="400px"
+                        height="400px"
+                        tile
+                    >
+                        <v-row
+                        class="fill-height"
+                        align="center"
+                        justify="center"
+                        >
+                        <div>
+                            <img :src="image" max-height="400" max-width="400" height="400" width="400"/>
+                        </div>
+                        </v-row>
+                    </v-sheet>
+                    </v-carousel-item>
+                </v-carousel>
             </v-col>
             </v-row>
             </v-container>
@@ -128,6 +153,7 @@ export default {
     },
     data(){
         return {
+            model: 0,
             closeFriends: false,
             closeFriendsString: "No",
             activeForm: "PUBLISH POST",
@@ -191,8 +217,20 @@ export default {
             this.albumForm = true
             this.activeForm = "PUBLISH ALBUM";
         },
+        deleteImage(){
+            if(this.firebaseURL.length >= 0 && (this.postForm==true || this.storyForm == true)){
+                this.firebaseURL[0] = ""
+                this.imageUrl = ""
+            }else{
+                alert("Nema slike")
+            }           
+        },
         uploadFile(){
-            this.$refs.fileInput.click();
+            if(this.firebaseURL.length>=1 && (this.postForm==true || this.storyForm == true)){
+                alert("Obrisi sliku")
+            }else{
+                this.$refs.fileInput.click();
+            }
         },
         onFilePicked(event){    
             const files = event.target.files;
@@ -235,35 +273,31 @@ export default {
                 alert("Image is still not uploaded!")
             }else {
 
-                if(this.postForm){
-                    if(this.firebaseURL.length!=1){
-                        alert("UPLOAD ONLY ONE PHOTO")
+                if(!this.storyForm){
+                   
+                    let postUploadDTO = {
+                hashtags : this.form.hashtags,
+                tags : this.form.tags,
+                description : this.form.description,
+                mediaPaths : this.firebaseURL,
+                uploadDate: new Date(),
+                location: this.form.location,
+                username: getUsername(),
+                }
+                axios.post('http://localhost:8081/api/media-content/new-post',
+                    postUploadDTO
+                ).then(response => {
+                    console.log(response)
+                    this.$router.push('/').catch(()=>{})
+                }).catch(error => {
+                    if(error.response.status === 500){
+                        this.snackbarText = "Internal server error occurred!";
+                        this.snackbar = true;
+                    }else if(error.response.status === 400){
+                        this.snackbarText = "Bad request, try again!";
+                        this.snackbar = true;
                     }
-                    else{
-                        let postUploadDTO = {
-                    hashtags : this.form.hashtags,
-                    tags : this.form.tags,
-                    description : this.form.description,
-                    mediaPaths : this.firebaseURL,
-                    uploadDate: new Date(),
-                    location: this.form.location,
-                    username: getUsername(),
-                    }
-                    axios.post('http://localhost:8081/api/media-content/new-post',
-                        postUploadDTO
-                    ).then(response => {
-                        console.log(response)
-                        this.$router.push('/').catch(()=>{})
-                    }).catch(error => {
-                        if(error.response.status === 500){
-                            this.snackbarText = "Internal server error occurred!";
-                            this.snackbar = true;
-                        }else if(error.response.status === 400){
-                            this.snackbarText = "Bad request, try again!";
-                            this.snackbar = true;
-                        }
-                    })
-                    }
+                })
                 }
                 else if(this.storyForm){
                         let storyUploadDTO = {

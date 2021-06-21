@@ -4,6 +4,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/dto"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/model"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/repository"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -104,6 +105,96 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 	return nil
 }
 
+func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
+	fmt.Println("Liking post...")
+
+	postId, _ := primitive.ObjectIDFromHex(postLikeDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+
+	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
+		post.Likes = post.Likes + 1
+		updateUserLikedPosts(postLikeDTO, "yes")
+	}
+	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
+		post.Dislikes = post.Dislikes -1
+		post.Likes = post.Likes + 1
+		err := updateUserLikedPosts(postLikeDTO, "yes")
+		if( err != nil){
+			fmt.Println(err)
+		}
+
+		err = updateUserDislikedPosts(postLikeDTO, "no")
+		if( err != nil){
+			fmt.Println(err)
+		}
+	}
+	if(contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
+		post.Likes = post.Likes -1
+		err := updateUserLikedPosts(postLikeDTO, "no")
+		if( err != nil){
+			fmt.Println(err)
+		}
+	}
+
+	err = service.PostRepository.Update(post)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
+	fmt.Println("Disliking post...")
+
+	postId, _ := primitive.ObjectIDFromHex(postLikeDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(postLikeDTO.Username)
+	if err != nil {
+		return err
+	}
+
+	if (!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)) {
+		post.Dislikes = post.Dislikes + 1
+		updateUserDislikedPosts(postLikeDTO, "yes")
+	}
+	if (!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)) {
+		post.Likes = post.Likes - 1
+		post.Dislikes = post.Dislikes + 1
+		err := updateUserDislikedPosts(postLikeDTO, "yes")
+		if (err != nil) {
+			fmt.Println(err)
+		}
+
+		err = updateUserLikedPosts(postLikeDTO, "no")
+		if (err != nil) {
+			fmt.Println(err)
+		}
+	}
+	if (contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)) {
+		post.Dislikes = post.Dislikes - 1
+		err := updateUserDislikedPosts(postLikeDTO, "no")
+		if (err != nil) {
+			fmt.Println(err)
+		}
+	}
+
+	err = service.PostRepository.Update(post)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (service *PostService) UpdatePostsPrivacy(privacyUpdateDTO *dto.PrivacyUpdateDTO) error {
 	fmt.Println("updating posts privacy...")
 	userPostsDocuments := service.PostRepository.FindAllPostsByUserId(privacyUpdateDTO.Id)
@@ -181,4 +272,59 @@ func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 	_ = decoder.Decode(&regularUser)
 
 	return &regularUser, nil
+}
+
+func getRegularUserLikedAndDislikedPostsByUsername(username string) (*dto.UserLikedAndDislikedDTO, error) {
+	requestUrl := fmt.Sprintf("http://%s:%s/liked-and-disliked/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var userLikesAndDislikes dto.UserLikedAndDislikedDTO
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&userLikesAndDislikes)
+
+	return &userLikesAndDislikes, nil
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+func updateUserLikedPosts(postLikeDTO dto.PostLikeDTO, isAdd string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"username": postLikeDTO.Username,
+		"postId": postLikeDTO.PostId,
+		"isAdd" : isAdd,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/update-liked-posts", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
+func updateUserDislikedPosts(postLikeDTO dto.PostLikeDTO, isAdd string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"username": postLikeDTO.Username,
+		"postId": postLikeDTO.PostId,
+		"isAdd" : isAdd,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/update-disliked-posts", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
 }

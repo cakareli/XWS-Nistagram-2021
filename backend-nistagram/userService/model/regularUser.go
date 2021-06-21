@@ -5,8 +5,8 @@ type RegularUser struct {
 	IsDisabled bool `bson:"isDisabled,omitempty"`
 	BlockedUsers []int `bson:"regularUser,omitempty"`
 	UserType UserType `bson:"userType,omitempty"`
-	LikedPosts []Post `bson:"likedPosts,omitempty"`
-	DislikedPosts []Post `bson:"dislikedPosts,omitempty"`
+	LikedPosts []string `bson:"likedPosts,omitempty"`
+	DislikedPosts []string `bson:"dislikedPosts,omitempty"`
 	ProfilePrivacy ProfilePrivacy `bson:"profilePrivacy,omitempty"`
 	Notifications []Notification `bson:"notifications,omitempty"`
 	MediaContents []MediaContent `bson:"mediaContents,omitempty"`
