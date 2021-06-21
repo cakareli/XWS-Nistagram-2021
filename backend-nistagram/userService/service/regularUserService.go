@@ -7,11 +7,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"os"
-	"go.mongodb.org/mongo-driver/bson"
-
 )
 
 type RegularUserService struct {

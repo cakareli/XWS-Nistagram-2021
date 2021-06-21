@@ -11,6 +11,8 @@ import UserProfile from '../views/UserProfile.vue'
 import LikedPosts from '../views/LikedPosts.vue'
 import DislikedPosts from '../views/DislikedPosts.vue'
 import SavedPosts from '../views/SavedPosts.vue'
+import VerificationRequest from '../views/VerificationRequest.vue'
+import ProfilePrivacy from '../views/ProfilePrivacy.vue'
 
 Vue.use(VueRouter)
 
@@ -69,6 +71,16 @@ const routes = [
     path: '/saved-posts/',
     name: 'SavedPosts',
     component: SavedPosts
+  },
+  {
+    path: '/verify',
+    name: 'VerificationRequest',
+    component: VerificationRequest
+  },
+  {
+    path: '/updateProfilePrivacy',
+    name: 'ProfilePrivacy',
+    component: ProfilePrivacy
   }
 
 ]

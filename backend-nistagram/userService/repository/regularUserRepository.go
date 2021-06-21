@@ -73,9 +73,9 @@ func (repository *RegularUserRepository) UpdateProfilePrivacy(user *model.Regula
 
 	updatedRegularUser, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
 		bson.D{
-			{"$set", bson.D{{"profilePrivacy.privacyType", user.ProfilePrivacy.PrivacyType}}},
-			{"$set", bson.D{{"profilePrivacy.allMessageRequests", user.ProfilePrivacy.AllMessageRequests}}},
-			{"$set", bson.D{{"profilePrivacy.tagsAllowed", user.ProfilePrivacy.TagsAllowed}}},
+			{"$set", bson.D{{"privacyType", user.ProfilePrivacy.PrivacyType}}},
+			{"$set", bson.D{{"allMessageRequests", user.ProfilePrivacy.AllMessageRequests}}},
+			{"$set", bson.D{{"tagsAllowed", user.ProfilePrivacy.TagsAllowed}}},
 		})
 	if err != nil {
 		log.Fatal(err)
