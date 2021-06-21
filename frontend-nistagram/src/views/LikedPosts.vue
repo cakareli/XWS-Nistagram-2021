@@ -126,7 +126,7 @@
 
             <v-btn
               class= "mx-2"
-              @click="$router.go()"
+              @click="$router.push('/new-post').catch(()=>{})"
             >
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
