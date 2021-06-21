@@ -62,7 +62,7 @@
                 >
               </v-list-item>
 
-              <v-list-item>
+              <v-list-item @click="$router.push('/disliked-posts')">
                 <v-list-item-title>
                   <v-icon small>mdi-thumb-down</v-icon>
                   Disliked Posts</v-list-item-title

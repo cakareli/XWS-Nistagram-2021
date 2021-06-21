@@ -9,6 +9,7 @@ import NewPost from '../views/NewPost.vue'
 import Search from '../views/Search.vue'
 import UserProfile from '../views/UserProfile.vue'
 import LikedPosts from '../views/LikedPosts.vue'
+import DislikedPosts from '../views/DislikedPosts.vue'
 
 Vue.use(VueRouter)
 
@@ -57,7 +58,13 @@ const routes = [
     path: '/liked-posts/',
     name: 'LikedPosts',
     component: LikedPosts
+  },
+  {
+    path: '/disliked-posts/',
+    name: 'DislikedPosts',
+    component: DislikedPosts
   }
+
 ]
 
 const router = new VueRouter({
