@@ -36,9 +36,12 @@
                     v-model="form.surname"
                     :rules="rules.surnameRules"
                   ></v-text-field>
-                  <label>Upload image of your official document (ID, drivers licence, passport)</label>
-                  <br/>
-                  <br/>
+                  <label
+                    >Upload image of your official document (ID, drivers
+                    licence, passport)</label
+                  >
+                  <br />
+                  <br />
                   <v-btn raised class="grey lighten-3" @click="uploadFile"
                     >Upload Image</v-btn
                   >
@@ -52,7 +55,7 @@
                   <br />
                   <br />
                   <v-col>
-                        <img :src="imageUrl" height="500" width="400"/>
+                    <img :src="imageUrl" height="500" width="400" />
                   </v-col>
                   <br />
                   <br />
@@ -80,8 +83,8 @@
 </template>
 
 <script>
-import firebase from 'firebase/app'
-import 'firebase/firebase-storage'
+import firebase from "firebase/app";
+import "firebase/firebase-storage";
 import axios from "axios";
 import { getId, getToken } from "../security/token.js";
 
@@ -110,20 +113,6 @@ export default {
       time: "T15:00:00+01:00",
 
       rules: {
-        emailRules: [
-          (email) => !!email || "Email is required!",
-          (email) =>
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              email
-            ) || "Email must be valid!",
-        ],
-        passwordRules: [(password) => !!password || "Password is required!"],
-        passwordRepeatRules: [
-          (repeatedPassword) => !!repeatedPassword || "Password is required!",
-          (repeatedPassword) =>
-            this.form.password === repeatedPassword ||
-            "Passwords do not match!",
-        ],
         nameRules: [
           (name) => !!name || "Name is required!",
           (name) =>
@@ -134,32 +123,6 @@ export default {
           (surname) =>
             /^[A-Za-z\s]+$/.test(surname) ||
             "Surname must contain only letters!",
-        ],
-        phoneNumberRules: [
-          (phoneNumber) => !!phoneNumber || "Phone number is required!",
-          (phoneNumber) =>
-            (phoneNumber && phoneNumber.length >= 9) ||
-            "Phone number imust have at least 9 digits!",
-          (phoneNumber) =>
-            /^[0-9\s]+$/.test(phoneNumber) ||
-            "Phone number must contain only numbers!",
-        ],
-        usernameRules: [
-          (username) => !!username || "Username is rquired",
-          (username) =>
-            /^[0-9A-Za-z\s]+$/.test(username) ||
-            "Username can only contain numbers and letters!",
-        ],
-        websiteRules: [
-          (website) => !!website || "Website is required",
-          //website => /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/.test(website) || 'Website not valid!'
-        ],
-        dateRules: [
-          (birthday) => !!birthday || "Birthday is required",
-          (birthday) =>
-            /^((?:19|20)[0-9][0-9])-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/.test(
-              birthday
-            ) || "Invalid input",
         ],
       },
     };
@@ -203,37 +166,41 @@ export default {
       );
     },
     sendVerificationRequest() {
-      if (this.$refs.verificationRequestForm.validate()) {
-        axios
-          .post("http://localhost:8081/api/user/verification-request", {
-            _id: getId(),
-            name: this.form.name,
-            surname: this.form.surname,
-            imageUrl: this.firebaseURL[0],
-            verificationType: parseInt(this.form.verificationType, 10),
-          })
-          .then((response) => {
-            console.log(response.status);
-            this.snackbarText =
-              "Your verification request has been successfuly sent!";
-            this.snackbar = true;
-            setTimeout(() => {
-              this.$router.push({ path: "/account" });
-            }, 2000);
-          })
-          .catch((error) => {
-            if (error.response.status === 400) {
-              this.snackbarText = "Bad request!";
-              this.snackbar = true;
-            } else if (error.response.status === 409) {
-              this.snackbarText =
-                "User with same email address already exists!";
-              this.snackbar = true;
-            }
-          });
+      if (this.firebaseURL == "") {
+        alert("Image is still not uploaded!");
       } else {
-        this.snackbarText = "Please fill all fields correctly!";
-        this.snackbar = true;
+        if (this.$refs.verificationRequestForm.validate()) {
+          axios
+            .post("http://localhost:8081/api/user/verification-request", {
+              _id: getId(),
+              name: this.form.name,
+              surname: this.form.surname,
+              imageUrl: this.firebaseURL[0],
+              verificationType: parseInt(this.form.verificationType, 10),
+            })
+            .then((response) => {
+              console.log(response.status);
+              this.snackbarText =
+                "Your verification request has been successfuly sent!";
+              this.snackbar = true;
+              setTimeout(() => {
+                this.$router.push({ path: "/account" });
+              }, 2000);
+            })
+            .catch((error) => {
+              if (error.response.status === 400) {
+                this.snackbarText = "Bad request!";
+                this.snackbar = true;
+              } else if (error.response.status === 409) {
+                this.snackbarText =
+                  "User with same email address already exists!";
+                this.snackbar = true;
+              }
+            });
+        } else {
+          this.snackbarText = "Please fill all fields correctly!";
+          this.snackbar = true;
+        }
       }
     },
 

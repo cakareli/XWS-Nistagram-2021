@@ -41,7 +41,7 @@
                 </v-list-item-title>
               </v-list-item>
 
-              <v-list-item>
+              <v-list-item @click="$router.push('/updateProfilePrivacy')">
                 <v-list-item-title>
                   <v-icon small>mdi-lock</v-icon>
                   Privacy</v-list-item-title

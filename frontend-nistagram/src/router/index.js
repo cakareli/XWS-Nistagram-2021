@@ -9,6 +9,7 @@ import NewPost from '../views/NewPost.vue'
 import Search from '../views/Search.vue'
 import UserProfile from '../views/UserProfile.vue'
 import VerificationRequest from '../views/VerificationRequest.vue'
+import ProfilePrivacy from '../views/ProfilePrivacy.vue'
 
 Vue.use(VueRouter)
 
@@ -57,6 +58,11 @@ const routes = [
     path: '/verify',
     name: 'VerificationRequest',
     component: VerificationRequest
+  },
+  {
+    path: '/updateProfilePrivacy',
+    name: 'ProfilePrivacy',
+    component: ProfilePrivacy
   }
 ]
 
