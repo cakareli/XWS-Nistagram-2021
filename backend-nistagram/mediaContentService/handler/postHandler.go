@@ -210,3 +210,21 @@ func (handler *PostHandler) GetAllDislikedPostsByUsername(w http.ResponseWriter,
 		_, _ = w.Write(dislikedPostsJson)
 	}
 }
+
+func (handler *PostHandler) GetAllSavedPostsByUsername(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	dislikedPosts, err := handler.PostService.GetAllSavedPostsByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	dislikedPostsJson, err := json.Marshal(dislikedPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(dislikedPostsJson)
+	}
+}
