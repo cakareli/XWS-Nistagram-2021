@@ -375,6 +375,36 @@ func (service *RegularUserService) UpdateDislikedPosts(postLikeDTO dto.UpdatePos
 	return nil
 }
 
+func (service *RegularUserService) SavePost(postSaveDTO dto.PostSaveDTO) error {
+	fmt.Println("Updating regular user saved posts...")
+
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(postSaveDTO.Username)
+	if err != nil {
+		return err
+	}
+	if(postSaveDTO.IsAdd == "yes"){
+		var savedPost model.SavedPost
+		savedPost.CollectionName = "allPosts"
+		savedPost.PostId = postSaveDTO.PostId
+		appendedSaved := append(regularUser.SavedPosts, savedPost)
+		regularUser.SavedPosts = appendedSaved
+	}
+	err = service.RegularUserRepository.UpdatePersonalInformations(regularUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *RegularUserService) FindRegularUserSavedPosts(username string) ([] model.SavedPost, error){
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	return regularUser.SavedPosts, nil
+}
+
 func removeFromSlice(s []string, r string) []string {
 	for i, v := range s {
 		if v == r {

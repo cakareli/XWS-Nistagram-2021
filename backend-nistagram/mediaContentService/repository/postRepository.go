@@ -147,3 +147,24 @@ func (repository *PostRepository) GetTagSearchResults(searchInput string, allPub
 	return searchResult
 
 }
+
+func (repository *PostRepository) GetAllPostsByIds(ids []string) []bson.D{
+	oids := make([]primitive.ObjectID, len(ids))
+	for i := range ids {
+		objID, err := primitive.ObjectIDFromHex(ids[i])
+		if err == nil {
+			oids = append(oids, objID)
+		}
+	}
+	postsCollection := repository.Database.Collection("posts")
+	filterCursor, err := postsCollection.Find(context.TODO(), bson.M{"_id": bson.M{"$in": oids}})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}

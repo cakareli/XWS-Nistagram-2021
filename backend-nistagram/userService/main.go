@@ -55,6 +55,8 @@ func handleFunc(userHandler *handler.RegularUserHandler, verificationRequestHand
 	router.HandleFunc("/liked-and-disliked/{username}", userHandler.FindRegularUserLikedAndDislikedPosts).Methods("GET")
 	router.HandleFunc("/update-liked-posts", userHandler.UpdateLikedPosts).Methods("POST")
 	router.HandleFunc("/update-disliked-posts", userHandler.UpdateDislikedPosts).Methods("POST")
+	router.HandleFunc("/save-post", userHandler.SavePost).Methods("PUT")
+	router.HandleFunc("/saved-posts/{username}", userHandler.GetAllSavedPostsByUsername).Methods("GET")
 
 	c := SetupCors()
 

@@ -215,6 +215,45 @@ func (service *PostService) UpdatePostsPrivacy(privacyUpdateDTO *dto.PrivacyUpda
 	return nil
 }
 
+func (service *PostService) GetAllLikedPostsByUsername(username string) ([]model.Post,error) {
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	publicPostsDocuments := service.PostRepository.GetAllPostsByIds(userLikedAndDisliked.LikedPostsIds)
+	likedPosts := CreatePostsFromDocuments(publicPostsDocuments)
+
+	return likedPosts, nil
+}
+
+func (service *PostService) GetAllDislikedPostsByUsername(username string) ([]model.Post,error) {
+	userLikedAndDisliked, err := getRegularUserLikedAndDislikedPostsByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	publicPostsDocuments := service.PostRepository.GetAllPostsByIds(userLikedAndDisliked.DislikedPostsIds)
+	dislikedPosts := CreatePostsFromDocuments(publicPostsDocuments)
+
+	return dislikedPosts, nil
+}
+
+func (service *PostService) GetAllSavedPostsByUsername(username string) ([]model.Post,error) {
+	userSavedPosts, err := getRegularUserSavedPostsByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	var postIds []string
+	for i := 0; i < len(userSavedPosts); i++{
+		postIds = append(postIds, userSavedPosts[i].PostId)
+	}
+	publicPostsDocuments := service.PostRepository.GetAllPostsByIds(postIds)
+	savedPosts := CreatePostsFromDocuments(publicPostsDocuments)
+
+	return savedPosts, nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
@@ -286,6 +325,20 @@ func getRegularUserLikedAndDislikedPostsByUsername(username string) (*dto.UserLi
 	_ = decoder.Decode(&userLikesAndDislikes)
 
 	return &userLikesAndDislikes, nil
+}
+
+func getRegularUserSavedPostsByUsername(username string) ([] model.SavedPost, error) {
+	requestUrl := fmt.Sprintf("http://%s:%s/saved-posts/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var userSavedPosts []model.SavedPost
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&userSavedPosts)
+
+	return userSavedPosts, nil
 }
 
 func contains(s []string, str string) bool {

@@ -174,3 +174,57 @@ func (handler *PostHandler) DislikePost(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusCreated)
 	}
 }
+
+func (handler *PostHandler) GetAllLikedPostsByUsername(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	likedPosts, err := handler.PostService.GetAllLikedPostsByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	likedPostsJson, err := json.Marshal(likedPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(likedPostsJson)
+	}
+}
+
+func (handler *PostHandler) GetAllDislikedPostsByUsername(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	dislikedPosts, err := handler.PostService.GetAllDislikedPostsByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	dislikedPostsJson, err := json.Marshal(dislikedPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(dislikedPostsJson)
+	}
+}
+
+func (handler *PostHandler) GetAllSavedPostsByUsername(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	dislikedPosts, err := handler.PostService.GetAllSavedPostsByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	dislikedPostsJson, err := json.Marshal(dislikedPosts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(dislikedPostsJson)
+	}
+}

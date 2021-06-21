@@ -196,3 +196,33 @@ func (handler *RegularUserHandler) UpdateDislikedPosts(w http.ResponseWriter, r 
 	}
 	w.Header().Set("Content-Type", "application/json")
 }
+
+func (handler *RegularUserHandler) SavePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postSaveDTO dto.PostSaveDTO
+	err := json.NewDecoder(r.Body).Decode(&postSaveDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.SavePost(postSaveDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func (handler *RegularUserHandler) GetAllSavedPostsByUsername(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	username := param["username"]
+	savedPosts, err := handler.RegularUserService.FindRegularUserSavedPosts(username)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(savedPosts)
+}

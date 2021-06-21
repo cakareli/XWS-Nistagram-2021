@@ -48,10 +48,24 @@
                 >
               </v-list-item>
 
-              <v-list-item>
+              <v-list-item @click="$router.push('/saved-posts')">
                 <v-list-item-title>
                   <v-icon small>mdi-bookmark</v-icon>
                   Saved Posts</v-list-item-title
+                >
+              </v-list-item>
+
+              <v-list-item @click="$router.push('/liked-posts')">
+                <v-list-item-title>
+                  <v-icon small>mdi-thumb-up</v-icon>
+                  Liked Posts</v-list-item-title
+                >
+              </v-list-item>
+
+              <v-list-item @click="$router.push('/disliked-posts')">
+                <v-list-item-title>
+                  <v-icon small>mdi-thumb-down</v-icon>
+                  Disliked Posts</v-list-item-title
                 >
               </v-list-item>
 
@@ -354,6 +368,22 @@ export default {
     },
     savePost(postId){
       console.log(postId);
+      let savePostDTO = {
+        username: getUsername(),
+        postId: postId,
+        isAdd: "yes",
+      }
+        axios.put("http://localhost:8081/api/user/save-post",
+            savePostDTO,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+        },
+        })
+        .then((response) => {
+            console.log(response)
+            this.$router.go()
+        });
     }
   },
   mounted() {

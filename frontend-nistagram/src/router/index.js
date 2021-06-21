@@ -8,6 +8,9 @@ import Account from '../views/Account.vue'
 import NewPost from '../views/NewPost.vue'
 import Search from '../views/Search.vue'
 import UserProfile from '../views/UserProfile.vue'
+import LikedPosts from '../views/LikedPosts.vue'
+import DislikedPosts from '../views/DislikedPosts.vue'
+import SavedPosts from '../views/SavedPosts.vue'
 import VerificationRequest from '../views/VerificationRequest.vue'
 import ProfilePrivacy from '../views/ProfilePrivacy.vue'
 
@@ -55,6 +58,21 @@ const routes = [
     component: UserProfile
   },
   {
+    path: '/liked-posts/',
+    name: 'LikedPosts',
+    component: LikedPosts
+  },
+  {
+    path: '/disliked-posts/',
+    name: 'DislikedPosts',
+    component: DislikedPosts
+  },
+  {
+    path: '/saved-posts/',
+    name: 'SavedPosts',
+    component: SavedPosts
+  },
+  {
     path: '/verify',
     name: 'VerificationRequest',
     component: VerificationRequest
@@ -64,6 +82,7 @@ const routes = [
     name: 'ProfilePrivacy',
     component: ProfilePrivacy
   }
+
 ]
 
 const router = new VueRouter({
