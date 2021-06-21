@@ -1,5 +1,8 @@
 <template>
     <v-app class="grey lighten-3" width="1000px">
+        <v-snackbar v-model="snackbar" centered timeout="3500">
+            <span>{{snackbarText}}</span>
+        </v-snackbar>  
         <v-app-bar app height="45" class="grey lighten-3">
         <v-row>
           <v-col>
@@ -153,6 +156,8 @@ export default {
     },
     data(){
         return {
+            snackbar: false,
+            snackbarText : "",
             model: 0,
             closeFriends: false,
             closeFriendsString: "No",
@@ -183,8 +188,6 @@ export default {
                     description => (description && description.length <= 30) || 'Description must contain less than 100 characters!',
                 ],
             },
-            snackbar: false,
-            snackbarText: ""
         }
     },
     mounted() {
@@ -222,12 +225,14 @@ export default {
                 this.firebaseURL[0] = ""
                 this.imageUrl = ""
             }else{
-                alert("Nema slike")
+                this.snackbar = true
+                this.snackbarText = "There is no uploaded image"
             }           
         },
         uploadFile(){
             if(this.firebaseURL.length>=1 && (this.postForm==true || this.storyForm == true)){
-                alert("Obrisi sliku")
+                this.snackbar = true
+                this.snackbarText = "Delete image first"
             }else{
                 this.$refs.fileInput.click();
             }

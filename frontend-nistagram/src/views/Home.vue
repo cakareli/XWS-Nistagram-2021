@@ -29,7 +29,7 @@
             <v-card height="160px" width="550px" class="pa-5 grey lighten-5">
                 <v-row height="160px">
                   <v-slide-group multiple show-arrows class="mt-9" >
-                    <v-slide-item  v-for="(story, index) in allStories" :key="story.RegularUser.Username">
+                    <v-slide-item  v-for="(story, index) in allStories" :key="story.Id">
                       <v-btn height="80" fab icon class="mx-5" @click="viewStory(index)">
                         <v-avatar size="70px">
                           <v-img v-bind:src="story.MediaPaths[0]"></v-img>
@@ -42,7 +42,7 @@
           </v-row>
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allPublicPosts" :key="post.Username">
+              <v-list-item v-for="post in allPublicPosts" :key="post.Id">
                 <v-card height="750" width="550" class="grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <h4>@{{ post.RegularUser.Username }}</h4>
