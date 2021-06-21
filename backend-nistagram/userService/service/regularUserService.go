@@ -398,6 +398,14 @@ func (service *RegularUserService) SavePost(postSaveDTO dto.PostSaveDTO) error {
 	return nil
 }
 
+func (service *RegularUserService) FindRegularUserSavedPosts(username string) ([] model.SavedPost, error){
+	regularUser, err := service.RegularUserRepository.FindUserByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	return regularUser.SavedPosts, nil
+}
+
 func removeFromSlice(s []string, r string) []string {
 	for i, v := range s {
 		if v == r {
