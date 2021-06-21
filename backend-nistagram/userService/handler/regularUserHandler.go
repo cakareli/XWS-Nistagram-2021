@@ -196,3 +196,20 @@ func (handler *RegularUserHandler) UpdateDislikedPosts(w http.ResponseWriter, r 
 	}
 	w.Header().Set("Content-Type", "application/json")
 }
+
+func (handler *RegularUserHandler) SavePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postSaveDTO dto.PostSaveDTO
+	err := json.NewDecoder(r.Body).Decode(&postSaveDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.SavePost(postSaveDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Header().Set("Content-Type", "application/json")
+}
