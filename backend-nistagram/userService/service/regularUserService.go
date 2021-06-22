@@ -302,11 +302,13 @@ func createRegularUserDtoFromRegularUser(allRegularUsers []model.RegularUser) []
 func createRegularUserProfileDataDto(regularUser *model.RegularUser) *dto.RegularUserProfileDataDTO{
 	var regularUserProfileDataDto dto.RegularUserProfileDataDTO
 
+	regularUserProfileDataDto.Id = regularUser.Id
 	regularUserProfileDataDto.Name  = regularUser.Name
 	regularUserProfileDataDto.Surname = regularUser.Surname
 	regularUserProfileDataDto.Username = regularUser.Username
 	regularUserProfileDataDto.Biography = regularUser.Biography
 	regularUserProfileDataDto.WebSite = regularUser.WebSite
+	regularUserProfileDataDto.ProfilePrivacy = regularUser.ProfilePrivacy
 
 	return &regularUserProfileDataDto
 }

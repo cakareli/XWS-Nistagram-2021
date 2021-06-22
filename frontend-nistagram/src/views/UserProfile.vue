@@ -44,9 +44,20 @@
                       readonly
                     ></v-textarea>
                 </v-col>
+                <v-col>
+                  <h3>Followers:</h3>
+                  <label>{{this.followers}}</label>
+                </v-col>
+                <v-col>
+                  <h3>Following:</h3>
+                  <label>{{this.following}}</label>
+                </v-col>
             </v-row>
             <v-row justify="center">
-                <v-btn class="mx-5">Follow</v-btn>
+                <v-btn class="mx-5"
+                @click="followUser">
+                Follow
+                </v-btn>
                 <v-btn  class="mx-5">Unfollow</v-btn>
                 <v-btn  class="mx-5">Mute</v-btn>
                 <v-btn  class="mx-5">Block</v-btn>
@@ -223,12 +234,17 @@ export default {
       allTagsDialog: false,
       postId: 0,
       searchInput: "",
+      id: "",
       username: "",
       name: "",
       surname: "",
       biography: "",
       webSite: "",
-      space: " "
+      privacyType: 0,
+      space: " ",
+      isPrivate: false,
+      followers: 0,
+      following: 0,
     };
   },
   created() {
@@ -237,9 +253,30 @@ export default {
 
   methods: {
     checkLoggedUser() {
-      if (getId().length != 0) {
+      if (getToken() != null) {
         this.loggedUser = true;
       }
+    },
+    followUser(){
+        if(this.privacyType === 0){
+          this.isPrivate = false
+        }else{
+          this.isPrivate = true
+        }
+        let newFollowDTO = {
+          followerId : getId(),
+          followedId : this.id,
+          isPrivate : this.isPrivate
+        }
+        axios.post("http://localhost:8081/api/follow/follow",
+                  newFollowDTO)
+        .then(response => {
+            console.log(response)
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
     },
     loadUserProfileData(){
         axios.get("http://localhost:8081/api/user/regular-user-by-username/"+this.username, {
@@ -249,10 +286,31 @@ export default {
         })
         .then((response) => {
           this.userData = response.data;
+          this.id = this.userData._id
           this.name = this.userData.name;
           this.surname = this.userData.surname;
           this.biography = this.userData.biography;
           this.webSite = this.userData.webSite;
+          this.privacyType = this.userData.profilePrivacy.PrivacyType
+
+          axios.get("http://localhost:8081/api/follow/followers/"+this.id, {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followers = response.data.length
+          })
+
+          axios.get("http://localhost:8081/api/follow/followings/"+this.id, {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.following = response.data.length
+          })
+
         }).catch(error => {
                 if(error.response.status === 404){
                     console.log = "Account with that username doesn't exist!";
@@ -298,9 +356,9 @@ export default {
     },
   },
   mounted() {
+    this.loadUserProfileData();
     this.checkLoggedUser();
     this.loadAllUserPosts();
-    this.loadUserProfileData();
   },
 }
 

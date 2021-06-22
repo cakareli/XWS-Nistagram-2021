@@ -25,7 +25,7 @@
             <v-spacer></v-spacer>
               <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
           </v-bottom-navigation>
-          <v-row justify="center">
+          <v-row justify="center" v-show="loggedUser">
             <v-card height="160px" width="550px" class="pa-5 grey lighten-5">
                 <v-row height="160px">
                   <v-slide-group multiple show-arrows class="mt-9" >
@@ -189,7 +189,7 @@
 <script>
 
 import axios from "axios";
-import { getId, getToken, getUsername} from "../security/token.js";
+import { getToken, getUsername} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
@@ -233,11 +233,7 @@ export default {
 
     loadAllPublicPostsForGuest() {
       axios
-        .get("http://localhost:8081/api/media-content/public-posts", {
-          headers: {
-            Authorization: "Bearer " + getToken(),
-          },
-        })
+        .get("http://localhost:8081/api/media-content/public-posts", )
         .then((response) => {
           this.allPublicPosts = response.data;
         });
@@ -260,7 +256,7 @@ export default {
     },
     
     checkLoggedUser() {
-      if (getId().length != 0) {
+      if (getToken() != null) {
         this.loggedUser = true;
       }
     },
@@ -339,7 +335,9 @@ export default {
   mounted() {
     this.checkLoggedUser();
     this.loadAllPublicPostsForGuest();
-    this.loadAllStories();
+    if(this.loggedUser){
+      this.loadAllStories();
+    }
   },
 };
 </script>
