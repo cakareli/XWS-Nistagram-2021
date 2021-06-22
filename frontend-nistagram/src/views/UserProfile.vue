@@ -55,12 +55,15 @@
             </v-row>
             <v-row justify="center">
                 <v-btn class="mx-5"
-                @click="followUser">
+                @click="followUser" v-show="!followed">
                 Follow
                 </v-btn>
-                <v-btn  class="mx-5">Unfollow</v-btn>
-                <v-btn  class="mx-5">Mute</v-btn>
-                <v-btn  class="mx-5">Block</v-btn>
+                <v-btn  class="mx-5" @click="unfollowUser" v-show="followed">Unfollow</v-btn>
+                <v-btn  class="mx-5" @click="addToClose">Add To Close Friends</v-btn>
+                <v-btn  class="mx-5" @click="muteUser">Mute</v-btn>
+                <v-btn  class="mx-5" @click="blockUser" v-show="!blocked">Block</v-btn>
+                <v-btn  class="mx-5" @click="unblockUser" v-show="blocked">Unblock</v-btn>
+                
             </v-row>
         </v-card>
       </v-row> 
@@ -210,7 +213,7 @@
 
 <script>
 
-import { getId, getToken } from "../security/token.js";
+import { getId, getUsername, getToken } from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
@@ -245,6 +248,10 @@ export default {
       isPrivate: false,
       followers: 0,
       following: 0,
+      blocked: false,
+      blockedUsers: [],
+      followed: false,
+      followedUsers: []
     };
   },
   created() {
@@ -272,6 +279,62 @@ export default {
                   newFollowDTO)
         .then(response => {
             console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    unfollowUser(){
+        axios.post("http://localhost:8081/api/follow/remove-following/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    muteUser(){
+        axios.put("http://localhost:8081/api/follow/mute-following/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    addToClose(){
+        axios.put("http://localhost:8081/api/follow/add-to-close/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    blockUser(){
+      axios.post("http://localhost:8081/api/follow/block-user/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    unblockUser(){
+      axios.post("http://localhost:8081/api/follow/unblock-user/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
         }).catch(error => {
           if(error.response.status === 400){
             console.log("Bad request")
@@ -300,6 +363,14 @@ export default {
           })
           .then(response => {
             this.followers = response.data.length
+            console.log(response);
+            this.followedUsers = response.data
+            for(let i = 0; i<this.followedUsers.length; i++){
+                if(getUsername() === this.followedUsers[i].username){
+                  alert(this.followedUsers[i].username)
+                  this.followed = true;
+                }
+            }
           })
 
           axios.get("http://localhost:8081/api/follow/followings/"+this.id, {
@@ -311,11 +382,8 @@ export default {
             this.following = response.data.length
           })
 
-        }).catch(error => {
-                if(error.response.status === 404){
-                    console.log = "Account with that username doesn't exist!";
-                }
-        });
+      })
+        
     },
     loadAllUserPosts() {
       axios.get("http://localhost:8081/api/media-content/search-user/"+this.username, {
@@ -354,11 +422,53 @@ export default {
       this.allPostHashtags = allPostHashtags;
       this.allHashtagsDialog = true;
     },
+    checkBlockedUser(){
+      axios
+        .get("http://localhost:8081/api/follow/blocked-users/" + getId())
+        .then((response) => {
+          console.log(response);
+          
+          this.blockedUsers = response.data;
+          for(let i = 0; i<this.blockedUsers.length; i++){
+              if(this.username === this.blockedUsers[i].username){
+                alert(this.blockedUsers[i].username)
+                this.blocked = true;
+              }
+          }
+        })
+        .catch((error) => {
+          if (error.response.status === 400) {
+            this.snackbarText = "Bad request, try again!";
+            this.snackbar = true;
+          }
+        });
+    },
+    checkFollowedUser(){
+      axios
+        .get("http://localhost:8081/api/follow/followers/" + this.id)
+        .then((response) => {
+          console.log(response);
+          for(let i = 0; i<response.data.length; i++){
+              if(this.username === response.data[i].username){
+                alert(this.response.data[i].username)
+                this.followed = true;
+              }
+          }
+        })
+        .catch((error) => {
+          if (error.response.status === 400) {
+            this.snackbarText = "Bad request, try again!";
+            this.snackbar = true;
+          }
+        });
+    }
   },
   mounted() {
     this.loadUserProfileData();
     this.checkLoggedUser();
     this.loadAllUserPosts();
+    this.checkBlockedUser();
+    //this.checkFollowedUser();
   },
 }
 

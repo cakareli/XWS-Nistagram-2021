@@ -140,6 +140,21 @@ func (repository *RegularUserRepository) GetAllPublicRegularUsers() ([]bson.D, e
 	return postsFiltered, nil
 }
 
+func (repository *RegularUserRepository) GetAllRegularUsers() ([]bson.D, error){
+
+	usersCollection := repository.Database.Collection("regularUsers")
+	filterCursor, err := usersCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered, nil
+}
+
 func (repository *RegularUserRepository) GetUserSearchResults(searchInput string, allPublicRegularUsers []model.RegularUser) []model.RegularUser{
 	var searchResults []model.RegularUser
 	for i := 0; i<len(allPublicRegularUsers); i++{

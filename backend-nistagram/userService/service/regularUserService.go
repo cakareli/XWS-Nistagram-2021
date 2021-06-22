@@ -177,7 +177,7 @@ func (service *RegularUserService) FindRegularUserLikedAndDislikedPosts(username
 }
 
 func (service *RegularUserService) GetUserSearchResults(searchInput string) ([]model.RegularUser, error){
-	searchPublicRegularUser,err := service.RegularUserRepository.GetAllPublicRegularUsers()
+	searchPublicRegularUser,err := service.RegularUserRepository.GetAllRegularUsers()
 	if err != nil {
 		return nil, err
 	}

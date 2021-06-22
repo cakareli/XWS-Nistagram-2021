@@ -48,6 +48,27 @@
                 >
               </v-list-item>
 
+              <v-list-item @click="$router.push('/close-friends')">
+                <v-list-item-title>
+                  <v-icon small>mdi-account-heart</v-icon>
+                  Close Friends</v-list-item-title
+                >
+              </v-list-item>
+
+              <v-list-item @click="$router.push('/muted-users')">
+                <v-list-item-title>
+                  <v-icon small>mdi-volume-off</v-icon>
+                  Muted Users</v-list-item-title
+                >
+              </v-list-item>
+
+              <v-list-item @click="$router.push('/blocked-users')">
+                <v-list-item-title>
+                  <v-icon small>mdi-account-cancel</v-icon>
+                  Blocked Users</v-list-item-title
+                >
+              </v-list-item>
+
               <v-list-item @click="$router.push('/saved-posts')">
                 <v-list-item-title>
                   <v-icon small>mdi-bookmark</v-icon>
@@ -86,7 +107,44 @@
           </v-list>
         </v-navigation-drawer>
 
-
+    <v-container>
+      <v-row justify="center">
+        <v-card width="800px" class="pa-12 grey lighten-4">
+            <v-row justify="center">
+                
+                <v-col>
+                    <h2>@{{this.username}}</h2>
+                    <br>
+                    <h3>{{this.name}} {{this.space}} {{this.surname}}</h3>
+                    <br>
+                    <a icon :href="`${this.webSite}`" target="_blank">
+                        {{this.webSite}}
+                    </a>
+                    <br><br>
+                    <v-textarea
+                      label="Biography"
+                      v-model="this.biography"
+                      auto-grow
+                      outlined
+                      rows="1"
+                      width="170"
+                      readonly
+                    ></v-textarea>
+                </v-col>
+                <v-col>
+                  <br>
+                  <br>
+                  <v-btn>Followers: {{this.followersNumber}}</v-btn>
+                </v-col>
+                <v-col>
+                  <br>
+                  <br>
+                  <v-btn>Following: {{this.followingsNumber}}</v-btn>
+                </v-col>
+            </v-row>
+        </v-card>
+      </v-row> 
+    </v-container>
 
     <v-container>
       <v-row justify="center">
@@ -204,7 +262,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2">
+            <v-btn class= "mx-2" @click="$router.push('/notifications').catch(()=>{})">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -250,7 +308,7 @@ export default {
       surname: "",
       username: "",
       biography: "",
-      website: "",
+      webSite: "",
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
@@ -259,7 +317,12 @@ export default {
       allPostComments: [],
       allPostTags: [],
       allTagsDialog: false,
-      postId: 0
+      postId: 0,
+      followersNumber: "",
+      followingsNumber: "",
+      followers: "",
+      followings: "",
+      space: " "
     };
   },
   methods: {
@@ -276,7 +339,7 @@ export default {
           this.surname = this.regularUser.Surname;
           this.username = this.regularUser.Username;
           this.biography = this.regularUser.Biography;
-          this.website = this.regularUser.WebSite;
+          this.webSite = this.regularUser.WebSite;
         })
         .catch((error) => {
           if (error.response.status === 500) {
@@ -289,6 +352,28 @@ export default {
               "You are unauthorized to get patient informations!";
           }
         });
+    },
+    loadUserProfileData(){
+          axios.get("http://localhost:8081/api/follow/followers/"+this.id, {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followersNumber = response.data.length
+            console.log(response);
+            this.followers = response.data;
+          })
+
+          axios.get("http://localhost:8081/api/follow/followings/"+this.id, {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followingsNumber = response.data.length
+            this.followings = response.data
+          })
     },
     logout() {
       removeToken();
@@ -389,6 +474,7 @@ export default {
   mounted() {
     this.loadRegisteredUser();
     this.loadUsersPosts();
+    this.loadUserProfileData();
   },
 };
 </script>

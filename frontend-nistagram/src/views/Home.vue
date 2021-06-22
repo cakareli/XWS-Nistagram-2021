@@ -25,7 +25,7 @@
             <v-spacer></v-spacer>
               <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
           </v-bottom-navigation>
-          <v-row justify="center" v-show="loggedUser">
+          <v-row justify="center">
             <v-card height="160px" width="550px" class="pa-5 grey lighten-5">
                 <v-row height="160px">
                   <v-slide-group multiple show-arrows class="mt-9" >
@@ -158,7 +158,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2" v-show="loggedUser">
+            <v-btn class= "mx-2" v-show="loggedUser" @click="$router.push('/notifications').catch(()=>{})">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -189,7 +189,7 @@
 <script>
 
 import axios from "axios";
-import { getToken, getUsername} from "../security/token.js";
+import { getId, getToken, getUsername} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
@@ -233,7 +233,11 @@ export default {
 
     loadAllPublicPostsForGuest() {
       axios
-        .get("http://localhost:8081/api/media-content/public-posts", )
+        .get("http://localhost:8081/api/media-content/public-posts", {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
         .then((response) => {
           this.allPublicPosts = response.data;
         });
@@ -256,7 +260,7 @@ export default {
     },
     
     checkLoggedUser() {
-      if (getToken() != null) {
+      if (getId().length != 0) {
         this.loggedUser = true;
       }
     },
@@ -314,30 +318,12 @@ export default {
     },
     savePost(postId){
       console.log(postId);
-      let savePostDTO = {
-        username: getUsername(),
-        postId: postId,
-        isAdd: "yes",
-      }
-        axios.put("http://localhost:8081/api/user/save-post",
-            savePostDTO,
-        {
-          headers: {
-            Authorization: "Bearer " + getToken(),
-        },
-        })
-        .then((response) => {
-            console.log(response)
-            this.$router.go()
-        });
     }
   },
   mounted() {
     this.checkLoggedUser();
     this.loadAllPublicPostsForGuest();
-    if(this.loggedUser){
-      this.loadAllStories();
-    }
+    this.loadAllStories();
   },
 };
 </script>
