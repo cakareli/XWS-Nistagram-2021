@@ -134,12 +134,12 @@
                 <v-col>
                   <br>
                   <br>
-                  <v-btn>Followers: {{this.followersNumber}}</v-btn>
+                  <v-btn @click="viewFollowers">Followers: {{this.followersNumber}}</v-btn>
                 </v-col>
                 <v-col>
                   <br>
                   <br>
-                  <v-btn>Following: {{this.followingsNumber}}</v-btn>
+                  <v-btn @click="viewFollowings">Following: {{this.followingsNumber}}</v-btn>
                 </v-col>
             </v-row>
         </v-card>
@@ -281,6 +281,9 @@
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+    <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
+    <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
+
   </v-app>
 </template>
 
@@ -296,11 +299,13 @@ import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
+import ViewAllFollowers from "../components/ViewAllFollowers.vue";
+import ViewAllFollowings from "../components/ViewAllFollowings.vue";
 
 
 export default {
   name: "Account",
-  components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
+  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings},
   data() {
     return {
       drawer: false,
@@ -320,12 +325,20 @@ export default {
       postId: 0,
       followersNumber: "",
       followingsNumber: "",
-      followers: "",
-      followings: "",
-      space: " "
+      allFollowers: "",
+      allFollowings: "",
+      space: " ",
+      viewAllFollowingsDialog: false,
+      viewAllFollowersDialog: false
     };
   },
   methods: {
+    viewFollowers(){
+      this.viewAllFollowersDialog = true;
+    },
+    viewFollowings(){
+      this.viewAllFollowingsDialog = true;
+    },
     loadRegisteredUser() {
       axios
         .get("http://localhost:8081/api/user/logged-user/" + getId(), {
@@ -354,7 +367,7 @@ export default {
         });
     },
     loadUserProfileData(){
-          axios.get("http://localhost:8081/api/follow/followers/"+this.id, {
+          axios.get("http://localhost:8081/api/follow/followers/" + getId(), {
             headers: {
             Authorization: "Bearer " + getToken(),
           }
@@ -362,17 +375,17 @@ export default {
           .then(response => {
             this.followersNumber = response.data.length
             console.log(response);
-            this.followers = response.data;
+            this.allFollowers = response.data;
           })
 
-          axios.get("http://localhost:8081/api/follow/followings/"+this.id, {
+          axios.get("http://localhost:8081/api/follow/followings/" + getId(), {
             headers: {
             Authorization: "Bearer " + getToken(),
           }
           })
           .then(response => {
             this.followingsNumber = response.data.length
-            this.followings = response.data
+            this.allFollowings = response.data
           })
     },
     logout() {

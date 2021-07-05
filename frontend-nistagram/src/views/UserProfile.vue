@@ -45,12 +45,14 @@
                     ></v-textarea>
                 </v-col>
                 <v-col>
-                  <h3>Followers:</h3>
-                  <label>{{this.followers}}</label>
+                  <br>
+                  <br>
+                  <v-btn @click="viewFollowers">Followers: {{this.followersNumber}}</v-btn>
                 </v-col>
                 <v-col>
-                  <h3>Following:</h3>
-                  <label>{{this.following}}</label>
+                  <br>
+                  <br>
+                  <v-btn @click="viewFollowings">Following: {{this.followingsNumber}}</v-btn>
                 </v-col>
             </v-row>
             <v-row justify="center">
@@ -207,6 +209,8 @@
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+    <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
+    <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
 
     </v-app>
 </template>
@@ -219,11 +223,13 @@ import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import axios from "axios";
 import AllHashtags from "../components/AllHashtags.vue";
+import ViewAllFollowers from "../components/ViewAllFollowers.vue";
+import ViewAllFollowings from "../components/ViewAllFollowings.vue";
 
 
 export default {
     name: "UserProfile",
-    components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
+    components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings },
     data() {
     return {
       loggedUser: false,
@@ -246,12 +252,16 @@ export default {
       privacyType: 0,
       space: " ",
       isPrivate: false,
-      followers: 0,
-      following: 0,
+      followersNumber: 0,
+      followingsNumber: 0,
       blocked: false,
       blockedUsers: [],
       followed: false,
-      followedUsers: []
+      followedUsers: [],
+      allFollowers: "",
+      allFollowings: "",
+      viewAllFollowingsDialog: false,
+      viewAllFollowersDialog: false
     };
   },
   created() {
@@ -259,6 +269,12 @@ export default {
     },
 
   methods: {
+    viewFollowers(){
+      this.viewAllFollowersDialog = true;
+    },
+    viewFollowings(){
+      this.viewAllFollowingsDialog = true;
+    },
     checkLoggedUser() {
       if (getToken() != null) {
         this.loggedUser = true;
@@ -362,7 +378,8 @@ export default {
           }
           })
           .then(response => {
-            this.followers = response.data.length
+            this.followersNumber = response.data.length
+            this.allFollowers = response.data
             console.log(response);
             this.followedUsers = response.data
             for(let i = 0; i<this.followedUsers.length; i++){
@@ -379,7 +396,8 @@ export default {
           }
           })
           .then(response => {
-            this.following = response.data.length
+            this.followingsNumber = response.data.length
+            this.allFollowings = response.data
           })
 
       })
