@@ -35,7 +35,7 @@
                         </v-col>
                       <v-spacer />
                       <v-col>
-                        <v-btn small @click="loadUserProfile(user.Username)">
+                        <v-btn small @click="loadUserProfile(user.username)">
                           <span>View profile</span>
                         </v-btn>
                         <v-btn class="success" small @click="accept(user.userId)">

@@ -42,10 +42,10 @@
           </v-row>
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allPublicPosts" :key="post.Id">
+              <v-list-item v-for="post in allPublicPosts.slice().reverse()" :key="post.Id">
                 <v-card height="750" width="550" class="grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>

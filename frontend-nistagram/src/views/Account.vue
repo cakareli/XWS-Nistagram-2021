@@ -151,10 +151,10 @@
         <v-card width="800px" class="pa-12">         
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allUserPosts" :key="post.Username">
+              <v-list-item v-for="post in allUserPosts.slice().reverse()" :key="post.Username">
                 <v-card height="750" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
@@ -202,32 +202,59 @@
                       x-small
                       class="mr-3"
                       @click="likePost(post.Id)"
-                      >Like</v-btn
+                      >
+                      <v-icon x-small left>mdi-thumb-up</v-icon>
+                      <span>Like</span>
+                      </v-btn
                     >
+
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
                     <v-btn
                       x-small
+                      class="error"
+                      @click="reportPost(post.Id)"
+                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
+                      <span>Report</span>
+                      </v-btn>
+                    
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                      x-small
+                      class="mr-3"
                       @click="dislikePost(post.Id)"
-                      >Dislike</v-btn
-                    >
-                    <v-spacer />
+                      >
+                      <v-icon x-small left>mdi-thumb-down</v-icon>
+                      <span>Dislike</span>
+                      </v-btn >
+                    
+                  </v-row>
+                  <br>
+                  <v-row class="ma-2">
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllHashtags(post.Hashtags)"
                       >Hashtags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllTags(post.Tags)"
                       >Tags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="commentPost(post.Id)"
                       >Comment</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
@@ -283,6 +310,7 @@
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
     <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
+    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
 
   </v-app>
 </template>
@@ -301,11 +329,12 @@ import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
 import ViewAllFollowers from "../components/ViewAllFollowers.vue";
 import ViewAllFollowings from "../components/ViewAllFollowings.vue";
+import ReportPost from "../components/ReportPost.vue"
 
 
 export default {
   name: "Account",
-  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings},
+  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings, ReportPost},
   data() {
     return {
       drawer: false,
@@ -329,7 +358,8 @@ export default {
       allFollowings: "",
       space: " ",
       viewAllFollowingsDialog: false,
-      viewAllFollowersDialog: false
+      viewAllFollowersDialog: false,
+      reportPostDialog: false,
     };
   },
   methods: {
@@ -338,6 +368,10 @@ export default {
     },
     viewFollowings(){
       this.viewAllFollowingsDialog = true;
+    },
+    reportPost(id){
+      this.reportPostDialog = true;
+      this.postId = id;
     },
     loadRegisteredUser() {
       axios
@@ -374,7 +408,6 @@ export default {
           })
           .then(response => {
             this.followersNumber = response.data.length
-            console.log(response);
             this.allFollowers = response.data;
           })
 

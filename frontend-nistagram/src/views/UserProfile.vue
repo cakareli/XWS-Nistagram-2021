@@ -55,14 +55,13 @@
                   <v-btn @click="viewFollowings">Following: {{this.followingsNumber}}</v-btn>
                 </v-col>
             </v-row>
-            <v-row justify="center">
-                <v-btn class="mx-5"
-                @click="followUser" v-show="!followed">
-                Follow
-                </v-btn>
+            <v-row justify="center" v-show="!loggedUserProfile">
+                <v-btn  class="mx-5" @click="followUser" v-show="!followed">Follow</v-btn>
                 <v-btn  class="mx-5" @click="unfollowUser" v-show="followed">Unfollow</v-btn>
-                <v-btn  class="mx-5" @click="addToClose">Add To Close Friends</v-btn>
-                <v-btn  class="mx-5" @click="muteUser">Mute</v-btn>
+                <v-btn  class="mx-5" @click="addToClose" v-show="!isClose">Add To Close Friends</v-btn>
+                <v-btn  class="mx-5" @click="removeFromClose" v-show="isClose">Remove From Close Friends</v-btn>
+                <v-btn  class="mx-5" @click="muteUser" v-show="!muted">Mute</v-btn>
+                <v-btn  class="mx-5" @click="unmuteUser" v-show="muted">Unmute</v-btn>
                 <v-btn  class="mx-5" @click="blockUser" v-show="!blocked">Block</v-btn>
                 <v-btn  class="mx-5" @click="unblockUser" v-show="blocked">Unblock</v-btn>
                 
@@ -77,10 +76,10 @@
         <v-card width="800px" class="pa-12">
             <v-row justify="center" >
             <v-list>
-              <v-list-item v-for="post in allUserPosts" :key="post.Username">
+              <v-list-item v-for="post in allUserPosts.slice().reverse()" :key="post.Username">
                 <v-card height="750" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
@@ -188,7 +187,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2" v-show="loggedUser">
+            <v-btn class= "mx-2" @click="$router.push('/notifications').catch(()=>{})">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -233,6 +232,7 @@ export default {
     data() {
     return {
       loggedUser: false,
+      loggedUserProfile: false,
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
@@ -261,7 +261,9 @@ export default {
       allFollowers: "",
       allFollowings: "",
       viewAllFollowingsDialog: false,
-      viewAllFollowersDialog: false
+      viewAllFollowersDialog: false,
+      isClose: false,
+      muted: false
     };
   },
   created() {
@@ -324,6 +326,9 @@ export default {
           }
         })
     },
+    unmuteUser(){
+
+    },
     addToClose(){
         axios.put("http://localhost:8081/api/follow/add-to-close/" + getId() + "/" + this.id)
         .then(response => {
@@ -335,6 +340,10 @@ export default {
           }
         })
     },
+    removeFromClose(){
+
+    },
+
     blockUser(){
       axios.post("http://localhost:8081/api/follow/block-user/" + getId() + "/" + this.id)
         .then(response => {
@@ -358,7 +367,8 @@ export default {
         })
     },
     loadUserProfileData(){
-        axios.get("http://localhost:8081/api/user/regular-user-by-username/"+this.username, {
+        
+        axios.get("http://localhost:8081/api/user/regular-user-by-username/" + this.username, {
             headers: {
             Authorization: "Bearer " + getToken(),
           },
@@ -371,6 +381,9 @@ export default {
           this.biography = this.userData.biography;
           this.webSite = this.userData.webSite;
           this.privacyType = this.userData.profilePrivacy.PrivacyType
+          if(this.id === getId()){
+            this.loggedUserProfile = true;
+          }
 
           axios.get("http://localhost:8081/api/follow/followers/"+this.id, {
             headers: {
@@ -384,7 +397,6 @@ export default {
             this.followedUsers = response.data
             for(let i = 0; i<this.followedUsers.length; i++){
                 if(getUsername() === this.followedUsers[i].username){
-                  alert(this.followedUsers[i].username)
                   this.followed = true;
                 }
             }
@@ -400,11 +412,21 @@ export default {
             this.allFollowings = response.data
           })
 
+          this.loadAllUserPosts()
       })
         
     },
     loadAllUserPosts() {
-      axios.get("http://localhost:8081/api/media-content/search-user/"+this.username, {
+      let userFound = false;
+      if(this.privacyType === 1){
+        for(let i = 0; i<this.allFollowers.length; i++){
+          if(getUsername().equals(this.allFollowers[i].username)){
+            userFound = true;
+
+          } 
+        }
+      } else if (this.privacyType === 0 || userFound){
+        axios.get("http://localhost:8081/api/media-content/regular-user-posts/"+ this.username, {
           headers: {
             Authorization: "Bearer " + getToken(),
           },
@@ -417,6 +439,8 @@ export default {
             console.log("Internal server error");
           }
         });
+      }
+      
     },
     likePost(postId) {
       console.log(postId);
@@ -449,7 +473,6 @@ export default {
           this.blockedUsers = response.data;
           for(let i = 0; i<this.blockedUsers.length; i++){
               if(this.username === this.blockedUsers[i].username){
-                alert(this.blockedUsers[i].username)
                 this.blocked = true;
               }
           }
@@ -468,7 +491,6 @@ export default {
           console.log(response);
           for(let i = 0; i<response.data.length; i++){
               if(this.username === response.data[i].username){
-                alert(this.response.data[i].username)
                 this.followed = true;
               }
           }
@@ -484,7 +506,7 @@ export default {
   mounted() {
     this.loadUserProfileData();
     this.checkLoggedUser();
-    this.loadAllUserPosts();
+    //this.loadAllUserPosts();
     this.checkBlockedUser();
     //this.checkFollowedUser();
   },

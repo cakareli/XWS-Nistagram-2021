@@ -22,10 +22,10 @@
         <v-card width="800px" class="pa-12">         
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allLikedPosts" :key="post.Username">
+              <v-list-item v-for="post in allLikedPosts.slice().reverse()" :key="post.Username">
                 <v-card height="750" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
