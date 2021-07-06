@@ -39,6 +39,13 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) TurnNotificationsForUserOn(loggedUserId string, followingId string) bool {
+	fmt.Println("turning notifications for user on...")
+
+	userNotificationsTurnedOn := service.FollowRepository.SetFollowNotificationsTrue(loggedUserId, followingId)
+	return userNotificationsTurnedOn
+}
+
 func (service *FollowService) AddToCloseFollowers(loggedUserId string, followingId string) bool {
 	fmt.Println("adding user to close followers...")
 
