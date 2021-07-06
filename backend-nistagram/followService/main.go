@@ -36,19 +36,6 @@ func SetupCors() *cors.Cors {
 func handleFunc(handler *handler.FollowHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
-	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
-	router.HandleFunc("/mute-following/{loggedUserId}/{followingId}", handler.MuteFollowing).Methods("PUT")
-	router.HandleFunc("/notifications/{loggedUserId}/{followingId}", handler.TurnNotificationsForUserOn).Methods("PUT")
-	router.HandleFunc("/block-user/{loggedUserId}/{userId}", handler.BlockUser).Methods("POST")
-	router.HandleFunc("/unblock-user/{loggedUserId}/{userId}", handler.UnblockUser).Methods("POST")
-	router.HandleFunc("/remove-following/{loggedUserId}/{followingId}", handler.RemoveFollowing).Methods("POST")
-	router.HandleFunc("/remove-follower/{loggedUserId}/{followerId}", handler.RemoveFollower).Methods("POST")
-	router.HandleFunc("/followers/{loggedUserId}", handler.FindAllFollowers).Methods("GET")
-	router.HandleFunc("/followings/{loggedUserId}", handler.FindAllFollowings).Methods("GET")
-	router.HandleFunc("/blocked-users/{loggedUserId}", handler.FindAllBlockedUsers).Methods("GET")
-	router.HandleFunc("/muted-users/{loggedUserId}", handler.FindAllMutedUsers).Methods("GET")
-
 	c := SetupCors()
 
 	http.Handle("/", c.Handler(router))
