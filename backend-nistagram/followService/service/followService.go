@@ -39,6 +39,13 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) TurnNotificationsForUserOn(loggedUserId string, followingId string) bool {
+	fmt.Println("turning notifications for user on...")
+
+	userNotificationsOn := service.FollowRepository.SetFollowNotificationsTrue(loggedUserId, followingId)
+	return userNotificationsOn
+}
+
 func (service *FollowService) BlockUser(loggedUserId string, userId string) bool {
 	fmt.Println("blocking user...")
 

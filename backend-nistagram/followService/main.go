@@ -10,7 +10,6 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
-	"os"
 )
 
 func initFollowRepository(databaseSession *neo4j.Session) *repository.FollowRepository {
@@ -40,6 +39,7 @@ func handleFunc(handler *handler.FollowHandler) {
 	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
 	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
 	router.HandleFunc("/mute-following/{loggedUserId}/{followingId}", handler.MuteFollowing).Methods("PUT")
+	router.HandleFunc("/notifications/{loggedUserId}/{followingId}", handler.TurnNotificationsForUserOn).Methods("PUT")
 	router.HandleFunc("/block-user/{loggedUserId}/{userId}", handler.BlockUser).Methods("POST")
 	router.HandleFunc("/unblock-user/{loggedUserId}/{userId}", handler.UnblockUser).Methods("POST")
 	router.HandleFunc("/remove-following/{loggedUserId}/{followingId}", handler.RemoveFollowing).Methods("POST")
@@ -52,7 +52,7 @@ func handleFunc(handler *handler.FollowHandler) {
 	c := SetupCors()
 
 	http.Handle("/", c.Handler(router))
-	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
+	err := http.ListenAndServe(fmt.Sprintf(":8081"), c.Handler(router))
 	if err != nil {
 		log.Println(err)
 	}
@@ -64,7 +64,7 @@ func initDatabase() (neo4j.Session, error) {
 		session neo4j.Session
 		err     error
 	)
-	if driver, err = neo4j.NewDriver("neo4j://neo4j:7687", neo4j.BasicAuth("neo4j", "12345", "")); err != nil {
+	if driver, err = neo4j.NewDriver("neo4j://localhost:7687", neo4j.BasicAuth("neo4j", "12345", "")); err != nil {
 		return nil, err
 	}
 
