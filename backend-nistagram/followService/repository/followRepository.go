@@ -25,7 +25,6 @@ func (repository *FollowRepository) AddFollowing(newFollow dto.NewFollowDTO) boo
 		return false
 	}
 	if result.Next() {
-		println(&result)
 		return true
 	}
 	return false
@@ -48,7 +47,6 @@ func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, f
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -63,7 +61,6 @@ func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, foll
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -78,7 +75,6 @@ func (repository *FollowRepository) SetFollowMutedFalse(loggedUserId string, fol
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -93,7 +89,20 @@ func (repository *FollowRepository) SetFollowNotificationsTrue(loggedUserId stri
 		return false
 	}
 	if result.Next() {
-		println(result)
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) SetFollowNotificationsFalse(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {notifications: TRUE}]->(u2:User{Id:$followingId}) set f.notifications = false return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
 		return true
 	}
 	return false
@@ -108,7 +117,6 @@ func (repository *FollowRepository) SetFollowCloseTrue(loggedUserId string, foll
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -128,7 +136,6 @@ func (repository *FollowRepository) BlockUser(loggedUserId string, userId string
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false

@@ -59,8 +59,8 @@ func (handler *FollowHandler) UnmuteFollowing(w http.ResponseWriter, r *http.Req
 	params := mux.Vars(r)
 	loggedUserId := params["loggedUserId"]
 	followingId := params["followingId"]
-	userIsMuted := handler.FollowService.UnmuteFollowing(loggedUserId, followingId)
-	if !userIsMuted {
+	userIsUnmuted := handler.FollowService.UnmuteFollowing(loggedUserId, followingId)
+	if !userIsUnmuted {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusOK)
@@ -74,6 +74,19 @@ func (handler *FollowHandler) TurnNotificationsForUserOn(w http.ResponseWriter, 
 	followingId := params["followingId"]
 	userNotificationsTurnedOn := handler.FollowService.TurnNotificationsForUserOn(loggedUserId, followingId)
 	if !userNotificationsTurnedOn {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (handler *FollowHandler) TurnNotificationsForUserOff(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userNotificationsTurnedOff := handler.FollowService.TurnNotificationsForUserOff(loggedUserId, followingId)
+	if !userNotificationsTurnedOff {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusOK)
