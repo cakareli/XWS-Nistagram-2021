@@ -39,6 +39,7 @@ func handleFunc(handler *handler.FollowHandler) {
 	router.HandleFunc("/follow", handler.FollowUser).Methods("POST")
 	router.HandleFunc("/accept-follow/{loggedUserId}/{followerId}", handler.AcceptFollowRequest).Methods("PUT")
 	router.HandleFunc("/mute-following/{loggedUserId}/{followingId}", handler.MuteFollowing).Methods("PUT")
+	router.HandleFunc("/unmute-following/{loggedUserId}/{followingId}", handler.UnmuteFollowing).Methods("PUT")
 	router.HandleFunc("/notifications/{loggedUserId}/{followingId}", handler.TurnNotificationsForUserOn).Methods("PUT")
 	router.HandleFunc("/add-to-close/{loggedUserId}/{followingId}", handler.AddToCloseFollowers).Methods("PUT")
 	router.HandleFunc("/block-user/{loggedUserId}/{userId}", handler.BlockUser).Methods("POST")

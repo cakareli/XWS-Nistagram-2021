@@ -39,6 +39,13 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) UnmuteFollowing(loggedUserId string, followingId string) bool {
+	fmt.Println("unmuting user...")
+
+	userIsUnmuted := service.FollowRepository.SetFollowMutedFalse(loggedUserId, followingId)
+	return userIsUnmuted
+}
+
 func (service *FollowService) TurnNotificationsForUserOn(loggedUserId string, followingId string) bool {
 	fmt.Println("turning notifications for user on...")
 
