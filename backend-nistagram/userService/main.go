@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
-	"os"
 )
 
 func initUserRepository(database *mongo.Database) *repository.RegularUserRepository {
@@ -61,7 +60,7 @@ func handleFunc(userHandler *handler.RegularUserHandler, verificationRequestHand
 	c := SetupCors()
 
 	http.Handle("/", c.Handler(router))
-	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), c.Handler(router))
+	err := http.ListenAndServe(fmt.Sprintf(":8083"), c.Handler(router))
 	if err != nil {
 		log.Println(err)
 	}
@@ -77,7 +76,7 @@ func SetupCors() *cors.Cors {
 }
 
 func initDatabase() *mongo.Database{
-	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 )
 
 type FollowService struct {
@@ -207,7 +206,7 @@ func (service *FollowService) FindAllFollowersWithNotificationsTurnedOn(loggedUs
 func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {
 	var userDTOs []dto.UserDTO
 	postBody, _ := json.Marshal(userIds)
-	requestUrl := fmt.Sprintf("http://%s:%s/by-users-ids", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
+	requestUrl := fmt.Sprintf("http://localhost:8083/by-users-ids")
 	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)

@@ -15,6 +15,7 @@ import (
 
 type PostService struct {
 	PostRepository *repository.PostRepository
+	NotificationRepository *repository.NotificationRepository
 }
 
 func (service *PostService) GetAllRegularUserPosts(username string) []model.Post {
@@ -65,11 +66,33 @@ func (service *PostService) CreateNewPost(postUploadDto dto.PostUploadDTO) error
 	if err != nil {
 		return err
 	}
-	err = service.PostRepository.Create(post)
-	if err != nil {
-		return err
+	postId, err1 := service.PostRepository.Create(post)
+	if err1 != nil {
+		return err1
 	}
+
+	followersIds, err2 := getUserFollowersWithNotificationsTurnedOn(post.RegularUser.Id)
+	if err2 != nil {
+		return err2
+	}
+
+	notification := CreateNotificationFromPost(postId, post.RegularUser.Id, followersIds, model.NotificationType(0))
+	err3 := service.NotificationRepository.CreateNotification(notification)
+	if err3 != nil {
+		return err3
+	}
+
 	return nil
+}
+
+func CreateNotificationFromPost(postId string, userId string, receiversIds []string, notificationType model.NotificationType) *model.Notification {
+	var notification model.Notification
+	notification.EventId = postId
+	notification.UserId = userId
+	notification.ReceiversIds = receiversIds
+	notification.NotificationType = notificationType
+
+	return &notification
 }
 
 func CreatePostsFromDocuments(PostsDocuments []bson.D) []model.Post {
@@ -299,8 +322,22 @@ func createCommentFromCommentDTO(commentDTO *dto.CommentDTO) (*model.Comment, er
 	return &comment, nil
 }
 
+func getUserFollowersWithNotificationsTurnedOn(userId string) ([]string, error) {
+	requestUrl := fmt.Sprintf("http://localhost:8081/followers-with-notifications/%s", userId)
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var followersIds []string
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&followersIds)
+
+	return followersIds, nil
+}
+
 func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
-	requestUrl := fmt.Sprintf("http://%s:%s/by-username/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
+	requestUrl := fmt.Sprintf("http://localhost:8083/by-username/%s", username)
 	resp, err := http.Get(requestUrl)
 	if err != nil {
 		fmt.Println(err)

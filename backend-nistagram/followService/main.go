@@ -56,7 +56,6 @@ func handleFunc(handler *handler.FollowHandler) {
 	router.HandleFunc("/close-followers/{loggedUserId}", handler.FindAllUserCloseFollowers).Methods("GET")
 	router.HandleFunc("/followers-with-notifications/{loggedUserId}", handler.FindAllFollowersWithNotificationsTurnedOn).Methods("GET")
 
-
 	c := SetupCors()
 
 	http.Handle("/", c.Handler(router))

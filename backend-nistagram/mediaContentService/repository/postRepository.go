@@ -15,13 +15,13 @@ type PostRepository struct {
 	Database *mongo.Database
 }
 
-func (repository *PostRepository) Create(post *model.Post) error {
+func (repository *PostRepository) Create(post *model.Post) (string, error) {
 	postsCollection := repository.Database.Collection("posts")
-	_, err := postsCollection.InsertOne(context.TODO(), &post)
+	res, err := postsCollection.InsertOne(context.TODO(), &post)
 	if err != nil {
-		return fmt.Errorf("post is NOT created")
+		return "", fmt.Errorf("post is NOT created")
 	}
-	return nil
+	return res.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
 func (repository *PostRepository) GetAllByUsername(username string) []bson.D{
