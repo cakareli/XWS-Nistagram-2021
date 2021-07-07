@@ -266,6 +266,31 @@ func (service *PostService) GetUsersFeed(usersIds []string) (*[]dto.PostDTO, err
 	return postDTOs, nil
 }
 
+func (service *PostService) ReportPost(postReportDTO dto.PostReportDTO) error {
+	fmt.Println("Disliking post...")
+
+	postId, _ := primitive.ObjectIDFromHex(postReportDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+
+	regularUser, err := getRegularUserFromUsername(postReportDTO.Username)
+	if err != nil {
+		return err
+	}
+	var inappropriateContentPost model.InappropriateContentPost
+	inappropriateContentPost.Post = *post
+	inappropriateContentPost.RegularUser = *regularUser
+	inappropriateContentPost.Text = postReportDTO.Text
+
+	err = service.PostRepository.CreatePostReport(&inappropriateContentPost)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func createPostDTOsFromPosts(posts []model.Post) *[]dto.PostDTO{
 	var postDTOs []dto.PostDTO
 	for i := 0; i < len(posts); i++{
