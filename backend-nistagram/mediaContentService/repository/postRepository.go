@@ -147,3 +147,12 @@ func (repository *PostRepository) GetTagSearchResults(searchInput string, allPub
 	return searchResult
 
 }
+
+func (repository *PostRepository) CreatePostReport(inappropriateContentPost *model.InappropriateContentPost) error {
+	postReportsCollection := repository.Database.Collection("postReports")
+	_, err := postReportsCollection.InsertOne(context.TODO(), &inappropriateContentPost)
+	if err != nil {
+		return fmt.Errorf("Post report is NOT created")
+	}
+	return nil
+}

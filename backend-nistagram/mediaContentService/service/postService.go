@@ -215,6 +215,31 @@ func (service *PostService) UpdatePostsPrivacy(privacyUpdateDTO *dto.PrivacyUpda
 	return nil
 }
 
+func (service *PostService) ReportPost(postReportDTO dto.PostReportDTO) error {
+	fmt.Println("Disliking post...")
+
+	postId, _ := primitive.ObjectIDFromHex(postReportDTO.PostId)
+	post, err := service.PostRepository.FindPostById(postId)
+	if err != nil {
+		return err
+	}
+
+	regularUser, err := getRegularUserFromUsername(postReportDTO.Username)
+	if err != nil {
+		return err
+	}
+	var inappropriateContentPost model.InappropriateContentPost
+	inappropriateContentPost.Post = *post
+	inappropriateContentPost.RegularUser = *regularUser
+	inappropriateContentPost.Text = postReportDTO.Text
+
+	err = service.PostRepository.CreatePostReport(&inappropriateContentPost)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {

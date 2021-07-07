@@ -174,3 +174,22 @@ func (handler *PostHandler) DislikePost(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusCreated)
 	}
 }
+
+func (handler *PostHandler) ReportPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postReportDTO dto.PostReportDTO
+	err := json.NewDecoder(r.Body).Decode(&postReportDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.ReportPost(postReportDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}
