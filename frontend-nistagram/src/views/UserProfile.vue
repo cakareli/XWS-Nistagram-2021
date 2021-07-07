@@ -44,12 +44,27 @@
                       readonly
                     ></v-textarea>
                 </v-col>
+                <v-col>
+                  <br>
+                  <br>
+                  <v-btn @click="viewFollowers">Followers: {{this.followersNumber}}</v-btn>
+                </v-col>
+                <v-col>
+                  <br>
+                  <br>
+                  <v-btn @click="viewFollowings">Following: {{this.followingsNumber}}</v-btn>
+                </v-col>
             </v-row>
-            <v-row justify="center">
-                <v-btn class="mx-5">Follow</v-btn>
-                <v-btn  class="mx-5">Unfollow</v-btn>
-                <v-btn  class="mx-5">Mute</v-btn>
-                <v-btn  class="mx-5">Block</v-btn>
+            <v-row justify="center" v-show="!loggedUserProfile">
+                <v-btn  class="mx-5" @click="followUser" v-show="!followed">Follow</v-btn>
+                <v-btn  class="mx-5" @click="unfollowUser" v-show="followed">Unfollow</v-btn>
+                <v-btn  class="mx-5" @click="addToClose" v-show="!isClose">Add To Close Friends</v-btn>
+                <v-btn  class="mx-5" @click="removeFromClose" v-show="isClose">Remove From Close Friends</v-btn>
+                <v-btn  class="mx-5" @click="muteUser" v-show="!muted">Mute</v-btn>
+                <v-btn  class="mx-5" @click="unmuteUser" v-show="muted">Unmute</v-btn>
+                <v-btn  class="mx-5" @click="blockUser" v-show="!blocked">Block</v-btn>
+                <v-btn  class="mx-5" @click="unblockUser" v-show="blocked">Unblock</v-btn>
+                
             </v-row>
         </v-card>
       </v-row> 
@@ -61,10 +76,10 @@
         <v-card width="800px" class="pa-12">
             <v-row justify="center" >
             <v-list>
-              <v-list-item v-for="post in allUserPosts" :key="post.Username">
-                <v-card height="750" width="550" class="ma-3 grey lighten-5">
+              <v-list-item v-for="post in allUserPosts.slice().reverse()" :key="post.Username">
+                <v-card height="800" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
@@ -108,37 +123,61 @@
                     <span> Dislikes: {{ post.Dislikes }}</span>
                   </v-row>
                   <v-row class="ma-2">
+                    <v-btn x-small class="mr-3" @click="likePost(post.Id)" v-show="loggedUser">
+                      <v-icon x-small left>mdi-thumb-up</v-icon>
+                      <span>Like</span>
+                    </v-btn>
+
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                      x-small
+                      class="error"
+                      @click="reportPost(post.Id)"
+                      v-show="loggedUser"
+                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
+                      <span>Report</span>
+                      </v-btn>
+                    
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="likePost(post.Id)"
-                      v-show="loggedUser"
-                      >Like</v-btn
-                    >
-                    <v-btn
-                      x-small
                       @click="dislikePost(post.Id)"
                       v-show="loggedUser"
-                      >Dislike</v-btn
-                    >
-                    <v-spacer />
+                      >
+                      <v-icon x-small left>mdi-thumb-down</v-icon>
+                      <span>Dislike</span>
+                      </v-btn >
+                    
+                  </v-row>
+                  <br>
+                  <v-row class="ma-2">
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllHashtags(post.Hashtags)"
-                      >Hashtags</v-btn>
+                      >Hashtags</v-btn
+                    >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllTags(post.Tags)"
                       >Tags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="commentPost(post.Id)"
+                      v-show="loggedUser"
                       >Comment</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
@@ -172,7 +211,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2" v-show="loggedUser">
+            <v-btn class= "mx-2" @click="$router.push('/notifications').catch(()=>{})" v-show="loggedUser">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -193,26 +232,32 @@
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+    <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
+    <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
+    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
 
     </v-app>
 </template>
 
 <script>
 
-import { getId, getToken } from "../security/token.js";
+import { getId, getUsername, getToken } from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import axios from "axios";
 import AllHashtags from "../components/AllHashtags.vue";
-
+import ViewAllFollowers from "../components/ViewAllFollowers.vue";
+import ViewAllFollowings from "../components/ViewAllFollowings.vue";
+import ReportPost from "../components/ReportPost.vue"
 
 export default {
     name: "UserProfile",
-    components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
+    components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings, ReportPost },
     data() {
     return {
       loggedUser: false,
+      loggedUserProfile: false,
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
@@ -223,12 +268,28 @@ export default {
       allTagsDialog: false,
       postId: 0,
       searchInput: "",
+      id: "",
       username: "",
       name: "",
       surname: "",
       biography: "",
       webSite: "",
-      space: " "
+      privacyType: 0,
+      space: " ",
+      isPrivate: false,
+      followersNumber: 0,
+      followingsNumber: 0,
+      blocked: false,
+      blockedUsers: [],
+      followed: false,
+      followedUsers: [],
+      allFollowers: "",
+      allFollowings: "",
+      viewAllFollowingsDialog: false,
+      viewAllFollowersDialog: false,
+      isClose: false,
+      muted: false,
+       reportPostDialog: false,
     };
   },
   created() {
@@ -236,31 +297,170 @@ export default {
     },
 
   methods: {
+    reportPost(id){
+      this.reportPostDialog = true;
+      this.postId = id;
+    },
+    viewFollowers(){
+      this.viewAllFollowersDialog = true;
+    },
+    viewFollowings(){
+      this.viewAllFollowingsDialog = true;
+    },
     checkLoggedUser() {
-      if (getId().length != 0) {
+      if (getToken() != null) {
         this.loggedUser = true;
       }
     },
+    followUser(){
+        if(this.privacyType === 0){
+          this.isPrivate = false
+        }else{
+          this.isPrivate = true
+        }
+        let newFollowDTO = {
+          followerId : getId(),
+          followedId : this.id,
+          isPrivate : this.isPrivate
+        }
+        axios.post("http://localhost:8081/api/follow/follow",
+                  newFollowDTO)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    unfollowUser(){
+        axios.post("http://localhost:8081/api/follow/remove-following/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    muteUser(){
+        axios.put("http://localhost:8081/api/follow/mute-following/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    unmuteUser(){
+
+    },
+    addToClose(){
+        axios.put("http://localhost:8081/api/follow/add-to-close/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    removeFromClose(){
+
+    },
+
+    blockUser(){
+      axios.post("http://localhost:8081/api/follow/block-user/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    unblockUser(){
+      axios.post("http://localhost:8081/api/follow/unblock-user/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
     loadUserProfileData(){
-        axios.get("http://localhost:8081/api/user/regular-user-by-username/"+this.username, {
+        axios.get("http://localhost:8081/api/user/regular-user-by-username/" + this.username, {
             headers: {
             Authorization: "Bearer " + getToken(),
           },
         })
         .then((response) => {
           this.userData = response.data;
+          this.id = this.userData._id
           this.name = this.userData.name;
           this.surname = this.userData.surname;
           this.biography = this.userData.biography;
           this.webSite = this.userData.webSite;
-        }).catch(error => {
-                if(error.response.status === 404){
-                    console.log = "Account with that username doesn't exist!";
+          this.privacyType = this.userData.profilePrivacy.PrivacyType
+          if(!this.loggedUser){
+             this.loggedUserProfile = true;
+          }else{
+            if(this.id === getId()){
+            this.loggedUserProfile = true;
+            }
+          }
+          
+
+          axios.get("http://localhost:8081/api/follow/followers/"+this.id, {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followersNumber = response.data.length
+            this.allFollowers = response.data
+            console.log(response);
+            this.followedUsers = response.data
+            for(let i = 0; i<this.followedUsers.length; i++){
+                if(getUsername() === this.followedUsers[i].username){
+                  this.followed = true;
                 }
-        });
+            }
+          })
+
+          axios.get("http://localhost:8081/api/follow/followings/"+this.id, {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followingsNumber = response.data.length
+            this.allFollowings = response.data
+          })
+
+          this.loadAllUserPosts()
+      })
+        
     },
     loadAllUserPosts() {
-      axios.get("http://localhost:8081/api/media-content/search-user/"+this.username, {
+      let userFound = false;
+      if(this.privacyType === 1){
+        for(let i = 0; i<this.allFollowers.length; i++){
+          if(getUsername().equals(this.allFollowers[i].username)){
+            userFound = true;
+
+          } 
+        }
+      } else if (this.privacyType === 0 || userFound){
+        axios.get("http://localhost:8081/api/media-content/regular-user-posts/"+ this.username, {
           headers: {
             Authorization: "Bearer " + getToken(),
           },
@@ -273,6 +473,8 @@ export default {
             console.log("Internal server error");
           }
         });
+      }
+      
     },
     likePost(postId) {
       console.log(postId);
@@ -296,11 +498,31 @@ export default {
       this.allPostHashtags = allPostHashtags;
       this.allHashtagsDialog = true;
     },
+    checkBlockedUser(){
+      axios
+        .get("http://localhost:8081/api/follow/blocked-users/" + getId())
+        .then((response) => {
+          console.log(response);
+          
+          this.blockedUsers = response.data;
+          for(let i = 0; i<this.blockedUsers.length; i++){
+              if(this.username === this.blockedUsers[i].username){
+                this.blocked = true;
+              }
+          }
+        })
+        .catch((error) => {
+          if (error.response.status === 400) {
+            this.snackbarText = "Bad request, try again!";
+            this.snackbar = true;
+          }
+        });
+    },
   },
   mounted() {
     this.checkLoggedUser();
-    this.loadAllUserPosts();
     this.loadUserProfileData();
+    this.checkBlockedUser();
   },
 }
 

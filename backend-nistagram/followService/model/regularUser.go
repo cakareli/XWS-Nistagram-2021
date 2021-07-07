@@ -7,4 +7,5 @@ type RegularUser struct {
 	UserType UserType `json:"userType"`
 	Followings []Following `json:"followings"`
 	Followers []Follower `json:"followers"`
+	Username string `bson:"username"`
 }

@@ -177,7 +177,7 @@ func (service *RegularUserService) FindRegularUserLikedAndDislikedPosts(username
 }
 
 func (service *RegularUserService) GetUserSearchResults(searchInput string) ([]model.RegularUser, error){
-	searchPublicRegularUser,err := service.RegularUserRepository.GetAllPublicRegularUsers()
+	searchPublicRegularUser,err := service.RegularUserRepository.GetAllRegularUsers()
 	if err != nil {
 		return nil, err
 	}
@@ -302,11 +302,13 @@ func createRegularUserDtoFromRegularUser(allRegularUsers []model.RegularUser) []
 func createRegularUserProfileDataDto(regularUser *model.RegularUser) *dto.RegularUserProfileDataDTO{
 	var regularUserProfileDataDto dto.RegularUserProfileDataDTO
 
+	regularUserProfileDataDto.Id = regularUser.Id
 	regularUserProfileDataDto.Name  = regularUser.Name
 	regularUserProfileDataDto.Surname = regularUser.Surname
 	regularUserProfileDataDto.Username = regularUser.Username
 	regularUserProfileDataDto.Biography = regularUser.Biography
 	regularUserProfileDataDto.WebSite = regularUser.WebSite
+	regularUserProfileDataDto.ProfilePrivacy = regularUser.ProfilePrivacy
 
 	return &regularUserProfileDataDto
 }

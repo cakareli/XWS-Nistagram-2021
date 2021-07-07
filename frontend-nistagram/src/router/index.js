@@ -13,6 +13,10 @@ import DislikedPosts from '../views/DislikedPosts.vue'
 import SavedPosts from '../views/SavedPosts.vue'
 import VerificationRequest from '../views/VerificationRequest.vue'
 import ProfilePrivacy from '../views/ProfilePrivacy.vue'
+import BlockedUsers from '../views/BlockedUsers.vue'
+import MutedUsers from '../views/MutedUsers.vue'
+import CloseFriends from '../views/CloseFriends.vue'
+import Notification from '../views/Notification.vue'
 
 Vue.use(VueRouter)
 
@@ -81,6 +85,26 @@ const routes = [
     path: '/updateProfilePrivacy',
     name: 'ProfilePrivacy',
     component: ProfilePrivacy
+  },
+  {
+    path: '/blocked-users',
+    name: 'BlockedUsers',
+    component: BlockedUsers
+  },
+  {
+    path: '/muted-users',
+    name: 'MutedUsers',
+    component: MutedUsers
+  },
+  {
+    path: '/close-friends',
+    name: 'CloseFriends',
+    component: CloseFriends
+  },
+  {
+    path: '/notifications',
+    name: 'Notification',
+    component: Notification
   }
 
 ]

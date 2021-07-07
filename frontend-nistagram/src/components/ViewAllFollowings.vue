@@ -6,9 +6,9 @@
                     <v-card-title>
                             <h3>All Followings:</h3>
                     </v-card-title>
-                        <v-row v-for= "item in allFollowings" :key = "item.userId" @click="$router.push('/user-profile/' + item.userId).catch(()=>{})">
+                        <v-row v-for= "item in allFollowings" :key = "item.userId">
                             <v-col>
-                                <a icon :href="getLink(item.userId)" class="ml-3">
+                                <a icon :href="getLink(item.username)" class="ml-3">
                                     @{{item.username}} 
                                 </a>
                             </v-col>
@@ -43,8 +43,8 @@ export default {
         close() {
         this.$emit('update:viewAllFollowingsDialog', false)
         },
-        getLink(userId){
-            return '/user-profile/' + userId;
+        getLink(username){
+            return '/user-profile/' + username;
         }
     }
 }
