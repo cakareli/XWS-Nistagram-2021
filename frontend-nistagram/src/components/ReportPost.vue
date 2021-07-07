@@ -6,7 +6,7 @@
                     <v-card-title>
                             <h3>Why are you reporting this post?</h3>
                     </v-card-title>
-                        <v-radio-group>
+                        <v-radio-group mandatory v-model="text">
                             <v-radio label="It's spam" value="It's spam"></v-radio>
                             <v-radio label="Nudity or sexual activity" value="Nudity or sexual activity"></v-radio>
                             <v-radio label="I just don't like it" value="I just don't like it"></v-radio>
@@ -16,7 +16,7 @@
                     <v-card-actions>
                         <v-btn color="error" @click.native="close">Cancel</v-btn>
                         <v-spacer></v-spacer>
-                        <v-btn color="success">Submit</v-btn>
+                        <v-btn color="success" @click="submitReport">Submit</v-btn>
                     </v-card-actions>
                 </v-card>
              </v-flex>
@@ -26,6 +26,8 @@
 
 <script>
 
+import axios from "axios";
+
 export default {
    name: 'ReportPost',
     components: {
@@ -34,16 +36,59 @@ export default {
         reportPostDialog: {
         default: false,
         },
+        reportedPost : {}
     },
     data() {
         return {
-            
+            text: "",
         }
     },
     methods : {
         close() {
-        this.$emit('update:reportPostDialog', false)
+            this.$emit('update:reportPostDialog', false)
         },
+        submitReport(){
+            alert("Ulazi u submit")
+            if(this.reportedPost.MediaContentType === 0 || this.reportedPost.MediaContentType === 2){
+                alert("Post")
+                axios.post("http://localhost:8081/api/media-content/report-post",{
+                text: this.text,
+                postId: this.reportedPost.Id,
+                username: this.reportedPost.RegularUser.Username
+                })
+                .then((response)=>{
+                    console.log(response)
+                })
+                .catch(error=>{
+                    if(error.response.status === 400){
+                        console.log("Status bad request")
+                    }
+                    else if(error.response.status === 404){
+                        console.log("Status not found")
+                    }
+                })
+            }
+            else if(this.reportedPost.MediaContentType === 1){
+                alert("Story")
+                axios.post("http://localhost:8081/api/media-content/report-story",{
+                text: this.text,
+                storyId: this.reportedPost.Id,
+                username: this.reportedPost.RegularUser.Username
+                })
+                .then((response)=>{
+                    console.log(response)
+                })
+                .catch(error=>{
+                    if(error.response.status === 400){
+                        console.log("Status bad request")
+                    }
+                    else if(error.response.status === 404){
+                        console.log("Status not found")
+                    }
+                })
+            }
+            this.$emit('update:reportPostDialog', false)
+        }
     }
 }
 </script>

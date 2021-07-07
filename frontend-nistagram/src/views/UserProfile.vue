@@ -134,7 +134,7 @@
                     <v-btn
                       x-small
                       class="error"
-                      @click="reportPost(post.Id)"
+                      @click="reportPost(post)"
                       v-show="loggedUser"
                     ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
                       <span>Report</span>
@@ -234,7 +234,7 @@
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
     <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
-    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
+    <ReportPost :reportPostDialog.sync="reportPostDialog" :reportedPost="reportedPost"/>
 
     </v-app>
 </template>
@@ -289,7 +289,8 @@ export default {
       viewAllFollowersDialog: false,
       isClose: false,
       muted: false,
-       reportPostDialog: false,
+      reportPostDialog: false,
+      reportedPost: {},
     };
   },
   created() {
@@ -297,9 +298,9 @@ export default {
     },
 
   methods: {
-    reportPost(id){
+    reportPost(post){
       this.reportPostDialog = true;
-      this.postId = id;
+      this.reportedPost = post;
     },
     viewFollowers(){
       this.viewAllFollowersDialog = true;

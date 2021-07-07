@@ -210,14 +210,6 @@
 
                     <v-spacer></v-spacer>
                     <v-spacer></v-spacer>
-
-                    <v-btn
-                      x-small
-                      class="error"
-                      @click="reportPost(post.Id)"
-                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
-                      <span>Report</span>
-                      </v-btn>
                     
                     <v-spacer></v-spacer>
                     <v-spacer></v-spacer>
@@ -310,7 +302,6 @@
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
     <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
-    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
 
   </v-app>
 </template>
@@ -329,12 +320,11 @@ import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
 import ViewAllFollowers from "../components/ViewAllFollowers.vue";
 import ViewAllFollowings from "../components/ViewAllFollowings.vue";
-import ReportPost from "../components/ReportPost.vue"
 
 
 export default {
   name: "Account",
-  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings, ReportPost},
+  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings},
   data() {
     return {
       drawer: false,
@@ -359,7 +349,6 @@ export default {
       space: " ",
       viewAllFollowingsDialog: false,
       viewAllFollowersDialog: false,
-      reportPostDialog: false,
     };
   },
   methods: {
@@ -368,10 +357,6 @@ export default {
     },
     viewFollowings(){
       this.viewAllFollowingsDialog = true;
-    },
-    reportPost(id){
-      this.reportPostDialog = true;
-      this.postId = id;
     },
     loadRegisteredUser() {
       axios

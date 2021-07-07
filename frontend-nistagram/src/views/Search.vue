@@ -150,7 +150,7 @@
                     <v-btn
                       x-small
                       class="error"
-                      @click="reportPost(post.Id)"
+                      @click="reportPost(post)"
                       v-show="loggedUser"
                     ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
                       <span>Report</span>
@@ -248,7 +248,7 @@
     />    
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>  
-    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
+    <ReportPost :reportPostDialog.sync="reportPostDialog" :reportedPost="reportedPost"/>
 
   </v-app>
 </template>
@@ -285,15 +285,16 @@ export default {
       searchInput: "",
       space: " ",
       showPublicPosts: true,
-      reportPostDialog: false
+      reportPostDialog: false,
+      reportedPost: {},
     };
   },
 
   methods: {
 
-    reportPost(id){
+    reportPost(post){
       this.reportPostDialog = true;
-      this.postId = id;
+      this.reportedPost = post;
     },
     checkLoggedUser() {
       if (getToken() != null) {

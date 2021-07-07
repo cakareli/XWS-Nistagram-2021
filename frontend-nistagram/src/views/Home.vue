@@ -42,7 +42,7 @@
           </v-row>
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allPublicPosts.slice().reverse()" :key="post.id">
+              <v-list-item v-for="post in allPublicPosts" :key="post.id">
                 <v-card height="790" width="550" class="grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
@@ -100,7 +100,7 @@
                     <v-btn
                       x-small
                       class="error"
-                      @click="reportPost(post.Id)"
+                      @click="reportPost(post)"
                       v-show="loggedUser"
                     ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
                       <span>Report</span>
@@ -200,7 +200,7 @@
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <ViewStory :viewStoryDialog.sync="viewStoryDialog" :storyView="storyView" />
-    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
+    <ReportPost :reportPostDialog.sync="reportPostDialog" :reportedPost="reportedPost"/>
 
     <v-main>
       <router-view />
@@ -243,16 +243,17 @@ export default {
       allPostHashtags: [],
       allPostComments: [],
       storyView: {},
-      postId: "",
+      reportedPost: {},
       reportPostDialog: false,
+      postId: ""
     }
   },
 
   methods: {
 
-    reportPost(id){
+    reportPost(post){
       this.reportPostDialog = true;
-      this.postId = id;
+      this.reportedPost = post;
     },
 
     viewStory(story){
