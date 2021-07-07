@@ -54,6 +54,8 @@ func handleFunc(handler *handler.FollowHandler) {
 	router.HandleFunc("/muted-users/{loggedUserId}", handler.FindAllUserMutedUsers).Methods("GET")
 	router.HandleFunc("/follow-requests/{loggedUserId}", handler.FindAllUserFollowRequests).Methods("GET")
 	router.HandleFunc("/close-followers/{loggedUserId}", handler.FindAllUserCloseFollowers).Methods("GET")
+	router.HandleFunc("/followers-with-notifications/{loggedUserId}", handler.FindAllFollowersWithNotificationsTurnedOn).Methods("GET")
+
 
 	c := SetupCors()
 

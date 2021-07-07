@@ -194,6 +194,16 @@ func (service *FollowService) FindAllUserCloseFollowers(loggedUserId string) ([]
 	return userDTOs, nil
 }
 
+func (service *FollowService) FindAllFollowersWithNotificationsTurnedOn(loggedUserId string) ([]string, error) {
+	fmt.Println("getting all followers with notifications turned on...")
+
+	followersIds, err := service.FollowRepository.FindAllFollowersWithNotificationsTurnedOn(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	return followersIds, nil
+}
+
 func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {
 	var userDTOs []dto.UserDTO
 	postBody, _ := json.Marshal(userIds)
