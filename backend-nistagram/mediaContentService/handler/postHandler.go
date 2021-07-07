@@ -228,3 +228,20 @@ func (handler *PostHandler) GetAllSavedPostsByUsername(w http.ResponseWriter, r 
 		_, _ = w.Write(dislikedPostsJson)
 	}
 }
+
+func (handler *PostHandler) GetUsersFeed(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-Type", "application/json")
+	var usersIds []string
+	err := json.NewDecoder(r.Body).Decode(&usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	postDtos, err := handler.PostService.GetUsersFeed(usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(postDtos)
+}

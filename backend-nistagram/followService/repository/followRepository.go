@@ -170,6 +170,25 @@ func (repository *FollowRepository) FindAllUserFollowingsIds(userId string) ([]s
 	return followingsIds, nil
 }
 
+func (repository *FollowRepository) FindAllFeedUsersIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var feedUsersIds []string
+	result, err := session.Run("match (u1:User{Id:$userId})" +
+		"-[f:follow{blocked:FALSE,muted:FALSE,request:FALSE}]->(u) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		feedUsersIds = append(feedUsersIds, id)
+	}
+	if len(feedUsersIds) == 0 {
+		return nil, fmt.Errorf("no feed users found")
+	}
+	return feedUsersIds, nil
+}
+
 func (repository *FollowRepository) FindAllUserBlockedUsersIds(userId string) ([]string, error){
 	session := *repository.DatabaseSession
 	var blockedUsersIds []string

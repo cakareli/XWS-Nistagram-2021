@@ -58,6 +58,7 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/liked-posts/{username}", handlerPost.GetAllLikedPostsByUsername).Methods("GET")
 	router.HandleFunc("/disliked-posts/{username}", handlerPost.GetAllDislikedPostsByUsername).Methods("GET")
 	router.HandleFunc("/saved-posts/{username}", handlerPost.GetAllSavedPostsByUsername).Methods("GET")
+	router.HandleFunc("/feed-posts", handlerPost.GetUsersFeed).Methods("POST")
 
 	c := SetupCors()
 

@@ -42,8 +42,8 @@
           </v-row>
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allPublicPosts.slice().reverse()" :key="post.Id">
-                <v-card height="750" width="550" class="grey lighten-5">
+              <v-list-item v-for="post in allPublicPosts.slice().reverse()" :key="post.id">
+                <v-card height="790" width="550" class="grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
@@ -89,34 +89,53 @@
                     <span> Dislikes: {{ post.Dislikes }}</span>
                   </v-row>
                   <v-row class="ma-2">
+                    <v-btn x-small class="mr-3" @click="likePost(post.Id)" v-show="loggedUser">
+                      <v-icon x-small left>mdi-thumb-up</v-icon>
+                      <span>Like</span>
+                    </v-btn>
+
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                      x-small
+                      class="error"
+                      @click="reportPost(post.Id)"
+                      v-show="loggedUser"
+                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
+                      <span>Report</span>
+                      </v-btn>
+                    
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="likePost(post.Id)"
-                      v-show="loggedUser"
-                      >Like</v-btn
-                    >
-                    <v-btn
-                      x-small
                       @click="dislikePost(post.Id)"
                       v-show="loggedUser"
-                      >Dislike</v-btn
-                    >
-                    <v-spacer />
+                      >
+                      <v-icon x-small left>mdi-thumb-down</v-icon>
+                      <span>Dislike</span>
+                      </v-btn >
+                    
+                  </v-row>
+                  <br>
+                  <v-row class="ma-2">
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllHashtags(post.Hashtags)"
-                      v-show="loggedUser"
                       >Hashtags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllTags(post.Tags)"
-                      v-show="loggedUser"
                       >Tags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
@@ -124,6 +143,7 @@
                       v-show="loggedUser"
                       >Comment</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
@@ -180,6 +200,8 @@
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <ViewStory :viewStoryDialog.sync="viewStoryDialog" :storyView="storyView" />
+    <ReportPost :reportPostDialog.sync="reportPostDialog"/>
+
     <v-main>
       <router-view />
     </v-main>
@@ -189,13 +211,13 @@
 <script>
 
 import axios from "axios";
-import {getToken, getUsername} from "../security/token.js";
+import {getToken, getUsername, getId} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
 import ViewStory from "../components/ViewStory.vue";
-
+import ReportPost from "../components/ReportPost.vue"
 
 export default {
   name: "Home",
@@ -204,7 +226,8 @@ export default {
     AddPostComment,
     AllTags,
     AllHashtags,
-    ViewStory
+    ViewStory,
+    ReportPost
   },
   data() {
     return {
@@ -220,24 +243,48 @@ export default {
       allPostHashtags: [],
       allPostComments: [],
       storyView: {},
-      postId: ""
+      postId: "",
+      reportPostDialog: false,
     }
   },
 
   methods: {
+
+    reportPost(id){
+      this.reportPostDialog = true;
+      this.postId = id;
+    },
 
     viewStory(story){
       this.storyView = this.allStories[story]
       this.viewStoryDialog = true
     },
 
-    loadAllPublicPostsForGuest() {
-      axios
+    loadPosts(){
+      if(!this.loggedUser){
+        axios
         .get("http://localhost:8081/api/media-content/public-posts")
         .then((response) => {
           this.allPublicPosts = response.data;
         });
-    },
+      }
+      else{
+        axios.post("http://localhost:8081/api/follow/users-for-feed/"+getId(),{
+        headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+
+        .then((response) => {
+          this.allPublicPosts = response.data;
+        }).catch(error => {
+            if(error.response.status === 500){
+                this.snackbarText = "Internal server error occurred!";
+                this.snackbar = true;
+            }
+        })
+      }
+    }, 
     loadAllStories(){
       axios
         .get("http://localhost:8081/api/media-content/regular-user-stories/"+getUsername(), {
@@ -314,11 +361,11 @@ export default {
     },
     savePost(postId){
       console.log(postId);
-    }
+    },
   },
   mounted() {
     this.checkLoggedUser();
-    this.loadAllPublicPostsForGuest();
+    this.loadPosts();
     this.loadAllStories();
   },
 };

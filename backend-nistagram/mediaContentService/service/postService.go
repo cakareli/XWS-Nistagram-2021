@@ -254,6 +254,39 @@ func (service *PostService) GetAllSavedPostsByUsername(username string) ([]model
 	return savedPosts, nil
 }
 
+func (service *PostService) GetUsersFeed(usersIds []string) (*[]dto.PostDTO, error) {
+	var posts []model.Post
+	for i:=0; i < len(usersIds); i++ {
+		post := service.PostRepository.FindAllPostsByUserId(usersIds[i])
+		postDocument := CreatePostsFromDocuments(post)
+		posts = appendPosts(posts, postDocument)
+	}
+
+	postDTOs := createPostDTOsFromPosts(posts)
+	return postDTOs, nil
+}
+
+func createPostDTOsFromPosts(posts []model.Post) *[]dto.PostDTO{
+	var postDTOs []dto.PostDTO
+	for i := 0; i < len(posts); i++{
+		var postDTO dto.PostDTO
+		postDTO.Id = posts[i].Id.Hex()
+		postDTO.Hashtags = posts[i].Hashtags
+		postDTO.Tags = posts[i].Tags
+		postDTO.Description = posts[i].Description
+		postDTO.MediaPaths = posts[i].MediaPaths
+		postDTO.UploadDate = posts[i].UploadDate
+		postDTO.MediaContentType = posts[i].MediaContentType
+		postDTO.RegularUser = posts[i].RegularUser
+		postDTO.Likes = posts[i].Likes
+		postDTO.Dislikes = posts[i].Dislikes
+		postDTO.Location = posts[i].Location
+		postDTO.Comment = posts[i].Comment
+		postDTOs = append(postDTOs, postDTO)
+	}
+	return &postDTOs
+}
+
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){
 	regularUser, err := getRegularUserFromUsername(postUploadDto.Username)
 	if err != nil {
@@ -380,4 +413,11 @@ func updateUserDislikedPosts(postLikeDTO dto.PostLikeDTO, isAdd string) error {
 	}
 	fmt.Println(resp.StatusCode)
 	return nil
+}
+
+func appendPosts(allPosts []model.Post, newPosts []model.Post) []model.Post{
+	for i := 0; i<len(newPosts); i++{
+		allPosts = append(allPosts, newPosts[i])
+	}
+	return allPosts
 }

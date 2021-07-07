@@ -1,0 +1,21 @@
+package dto
+
+import (
+	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+type PostDTO struct {
+	Id string `json:"Id"`
+	Hashtags []string `json:"Hashtags"`
+	Tags []model.RegularUser `json:"Tags"`
+	Description string `json:"Description"`
+	MediaPaths []string `json:"MediaPaths"`
+	UploadDate *primitive.DateTime `json:"UploadDate"`
+	MediaContentType model.MediaContentType `json:"MediaContentType"`
+	Location string `json:"Location"`
+	RegularUser model.RegularUser `json:"RegularUser"`
+	Likes int `json:"Likes"`
+	Dislikes int `json:"Dislikes"`
+	Comment []model.Comment `json:"Comment"`
+}
