@@ -106,6 +106,19 @@ func (handler *FollowHandler) AddToCloseFollowers(w http.ResponseWriter, r *http
 	}
 }
 
+func (handler *FollowHandler) RemoveFromCloseFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userIsRemoved := handler.FollowService.RemoveFromCloseFollowers(loggedUserId, followingId)
+	if !userIsRemoved {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *FollowHandler) BlockUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
