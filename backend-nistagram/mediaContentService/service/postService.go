@@ -76,23 +76,13 @@ func (service *PostService) CreateNewPost(postUploadDto dto.PostUploadDTO) error
 		return err2
 	}
 
-	notification := CreateNotificationFromPost(postId, post.RegularUser.Id, followersIds, model.NotificationType(0))
+	notification := CreateNotificationFromEvent(postId, post.RegularUser.Id, followersIds, model.NotificationType(0))
 	err3 := service.NotificationRepository.CreateNotification(notification)
 	if err3 != nil {
 		return err3
 	}
 
 	return nil
-}
-
-func CreateNotificationFromPost(postId string, userId string, receiversIds []string, notificationType model.NotificationType) *model.Notification {
-	var notification model.Notification
-	notification.EventId = postId
-	notification.UserId = userId
-	notification.ReceiversIds = receiversIds
-	notification.NotificationType = notificationType
-
-	return &notification
 }
 
 func CreatePostsFromDocuments(PostsDocuments []bson.D) []model.Post {

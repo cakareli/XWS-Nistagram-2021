@@ -19,3 +19,13 @@ func (service *NotificationService) CreateNewNotification(notification model.Not
 	}
 	return nil
 }
+
+func CreateNotificationFromEvent(eventId string, userId string, receiversIds []string, notificationType model.NotificationType) *model.Notification {
+	var notification model.Notification
+	notification.EventId = eventId
+	notification.UserId = userId
+	notification.ReceiversIds = receiversIds
+	notification.NotificationType = notificationType
+
+	return &notification
+}

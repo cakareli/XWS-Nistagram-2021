@@ -30,8 +30,8 @@ func initStoryRepository(database *mongo.Database) *repository.StoryRepository {
 	return &repository.StoryRepository{Database: database}
 }
 
-func initStoryService(repository *repository.StoryRepository) *service.StoryService {
-	return &service.StoryService{StoryRepository: repository}
+func initStoryService(repository1 *repository.StoryRepository, repository2 *repository.NotificationRepository) *service.StoryService {
+	return &service.StoryService{StoryRepository: repository1, NotificationRepository: repository2}
 }
 
 func initStoryHandler(service *service.StoryService) *handler.StoryHandler {
@@ -110,10 +110,6 @@ func initDatabase() *mongo.Database{
 func main() {
 	mediaContentDatabase := initDatabase()
 
-	storyRepository := initStoryRepository(mediaContentDatabase)
-	storyService := initStoryService(storyRepository)
-	storyHandler := initStoryHandler(storyService)
-
 	notificationRepository := initNotificationRepository(mediaContentDatabase)
 	notificationService := initNotificationService(notificationRepository)
 	notificationHandler := initNotificationHandler(notificationService)
@@ -121,6 +117,10 @@ func main() {
 	postRepository := initPostRepository(mediaContentDatabase)
 	postService := initPostService(postRepository, notificationRepository)
 	postHandler := initPostHandler(postService)
+
+	storyRepository := initStoryRepository(mediaContentDatabase)
+	storyService := initStoryService(storyRepository, notificationRepository)
+	storyHandler := initStoryHandler(storyService)
 
 	handleFunc(postHandler, storyHandler, notificationHandler)
 }
