@@ -6,4 +6,6 @@ const(
 	PostNotification NotificationType = iota
 	StoryNotification
 	CommentNotification
+	LikeNotification
+	DislikeNotification
 )

@@ -118,7 +118,7 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 
 	var usersToNotify []string
 	usersToNotify = append(usersToNotify, post.RegularUser.Id)
-	notification := CreateNotificationFromComment(commentDTO.PostId, comment.RegularUser.Id, usersToNotify)
+	notification := CreateNotificationFromEvent(commentDTO.PostId, comment.RegularUser.Id, usersToNotify, model.NotificationType(2))
 	err3 := service.NotificationRepository.CreateNotification(notification)
 	if err3 != nil {
 		return err3
@@ -143,6 +143,19 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
 		post.Likes = post.Likes + 1
 		updateUserLikedPosts(postLikeDTO, "yes")
+
+		regularUser, err := getRegularUserFromUsername(postLikeDTO.Username)
+		if err != nil {
+			return err
+		}
+
+		var usersToNotify []string
+		usersToNotify = append(usersToNotify, post.RegularUser.Id)
+		notification := CreateNotificationFromEvent(postLikeDTO.PostId, regularUser.Id, usersToNotify, model.NotificationType(3))
+		err3 := service.NotificationRepository.CreateNotification(notification)
+		if err3 != nil {
+			return err3
+		}
 	}
 	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
 		post.Dislikes = post.Dislikes -1
@@ -155,6 +168,19 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 		err = updateUserDislikedPosts(postLikeDTO, "no")
 		if( err != nil){
 			fmt.Println(err)
+		}
+
+		regularUser, err := getRegularUserFromUsername(postLikeDTO.Username)
+		if err != nil {
+			return err
+		}
+
+		var usersToNotify []string
+		usersToNotify = append(usersToNotify, post.RegularUser.Id)
+		notification := CreateNotificationFromEvent(postLikeDTO.PostId, regularUser.Id, usersToNotify, model.NotificationType(3))
+		err3 := service.NotificationRepository.CreateNotification(notification)
+		if err3 != nil {
+			return err3
 		}
 	}
 	if(contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
@@ -169,6 +195,7 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -350,7 +377,7 @@ func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 }
 
 func getRegularUserLikedAndDislikedPostsByUsername(username string) (*dto.UserLikedAndDislikedDTO, error) {
-	requestUrl := fmt.Sprintf("http://%s:%s/liked-and-disliked/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
+	requestUrl := fmt.Sprintf("http://localhost:8083/liked-and-disliked/%s", username)
 	resp, err := http.Get(requestUrl)
 	if err != nil {
 		fmt.Println(err)
