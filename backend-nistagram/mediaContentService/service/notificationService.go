@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
+	"os"
 )
 
 type NotificationService struct {
@@ -107,7 +108,7 @@ func GetUserByUserId(id string) ([]dto.UserDTO, error) {
 	var userIds []string
 	userIds = append(userIds, id)
 	postBody, _ := json.Marshal(userIds)
-	requestUrl := fmt.Sprintf("http://localhost:8083/by-users-ids")
+	requestUrl := fmt.Sprintf("http://%s:%s/by-users-ids", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"))
 	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)

@@ -375,7 +375,7 @@ func createCommentFromCommentDTO(commentDTO *dto.CommentDTO) (*model.Comment, er
 }
 
 func getUserFollowersWithNotificationsTurnedOn(userId string) ([]string, error) {
-	requestUrl := fmt.Sprintf("http://localhost:8081/followers-with-notifications/%s", userId)
+	requestUrl := fmt.Sprintf("http://%s:%s/followers-with-notifications/%s", os.Getenv("FOLLOW_SERVICE_DOMAIN"), os.Getenv("FOLLOW_SERVICE_PORT"), userId)
 	resp, err := http.Get(requestUrl)
 	if err != nil {
 		fmt.Println(err)
@@ -389,7 +389,7 @@ func getUserFollowersWithNotificationsTurnedOn(userId string) ([]string, error) 
 }
 
 func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
-	requestUrl := fmt.Sprintf("http://localhost:8083/by-username/%s", username)
+	requestUrl := fmt.Sprintf("http://%s:%s/by-username/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
 	resp, err := http.Get(requestUrl)
 	if err != nil {
 		fmt.Println(err)
@@ -403,7 +403,7 @@ func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
 }
 
 func getRegularUserLikedAndDislikedPostsByUsername(username string) (*dto.UserLikedAndDislikedDTO, error) {
-	requestUrl := fmt.Sprintf("http://localhost:8083/liked-and-disliked/%s", username)
+	requestUrl := fmt.Sprintf("http://%s:%s/liked-and-disliked/%s", os.Getenv("USER_SERVICE_DOMAIN"), os.Getenv("USER_SERVICE_PORT"), username)
 	resp, err := http.Get(requestUrl)
 	if err != nil {
 		fmt.Println(err)
