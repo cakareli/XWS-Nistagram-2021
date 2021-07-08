@@ -296,3 +296,21 @@ func (handler *FollowHandler) FindAllFollowersWithNotificationsTurnedOn(w http.R
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(followers)
 }
+
+func (handler *FollowHandler) FindAllFeedUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	postsForFeed, err := handler.FollowService.FindAllPostsForFeed(loggedUserId)
+	if err != nil {
+		if err.Error() == "no feed users found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(postsForFeed)
+}

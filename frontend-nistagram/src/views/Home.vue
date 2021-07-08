@@ -25,7 +25,7 @@
             <v-spacer></v-spacer>
               <v-btn @click="$router.push('/login')" class="grey lighten-2">Login</v-btn>
           </v-bottom-navigation>
-          <v-row justify="center">
+          <v-row justify="center" v-show="loggedUser">
             <v-card height="160px" width="550px" class="pa-5 grey lighten-5">
                 <v-row height="160px">
                   <v-slide-group multiple show-arrows class="mt-9" >
@@ -42,10 +42,10 @@
           </v-row>
           <v-row justify="center">
             <v-list>
-              <v-list-item v-for="post in allPublicPosts" :key="post.Id">
-                <v-card height="750" width="550" class="grey lighten-5">
+              <v-list-item v-for="post in allPublicPosts" :key="post.id">
+                <v-card height="790" width="550" class="grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
@@ -89,34 +89,53 @@
                     <span> Dislikes: {{ post.Dislikes }}</span>
                   </v-row>
                   <v-row class="ma-2">
+                    <v-btn x-small class="mr-3" @click="likePost(post.Id)" v-show="loggedUser">
+                      <v-icon x-small left>mdi-thumb-up</v-icon>
+                      <span>Like</span>
+                    </v-btn>
+
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                      x-small
+                      class="error"
+                      @click="reportPost(post)"
+                      v-show="loggedUser"
+                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
+                      <span>Report</span>
+                      </v-btn>
+                    
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="likePost(post.Id)"
-                      v-show="loggedUser"
-                      >Like</v-btn
-                    >
-                    <v-btn
-                      x-small
                       @click="dislikePost(post.Id)"
                       v-show="loggedUser"
-                      >Dislike</v-btn
-                    >
-                    <v-spacer />
+                      >
+                      <v-icon x-small left>mdi-thumb-down</v-icon>
+                      <span>Dislike</span>
+                      </v-btn >
+                    
+                  </v-row>
+                  <br>
+                  <v-row class="ma-2">
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllHashtags(post.Hashtags)"
-                      v-show="loggedUser"
                       >Hashtags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllTags(post.Tags)"
-                      v-show="loggedUser"
                       >Tags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
@@ -124,6 +143,7 @@
                       v-show="loggedUser"
                       >Comment</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
@@ -158,7 +178,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2" v-show="loggedUser">
+            <v-btn class= "mx-2" v-show="loggedUser" @click="$router.push('/notifications').catch(()=>{})">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -180,6 +200,8 @@
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
     <ViewStory :viewStoryDialog.sync="viewStoryDialog" :storyView="storyView" />
+    <ReportPost :reportPostDialog.sync="reportPostDialog" :reportedPost="reportedPost"/>
+
     <v-main>
       <router-view />
     </v-main>
@@ -189,13 +211,13 @@
 <script>
 
 import axios from "axios";
-import { getId, getToken, getUsername} from "../security/token.js";
+import {getToken, getUsername, getId} from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
 import ViewStory from "../components/ViewStory.vue";
-
+import ReportPost from "../components/ReportPost.vue"
 
 export default {
   name: "Home",
@@ -204,7 +226,8 @@ export default {
     AddPostComment,
     AllTags,
     AllHashtags,
-    ViewStory
+    ViewStory,
+    ReportPost
   },
   data() {
     return {
@@ -220,28 +243,49 @@ export default {
       allPostHashtags: [],
       allPostComments: [],
       storyView: {},
+      reportedPost: {},
+      reportPostDialog: false,
       postId: ""
     }
   },
 
   methods: {
 
+    reportPost(post){
+      this.reportPostDialog = true;
+      this.reportedPost = post;
+    },
+
     viewStory(story){
       this.storyView = this.allStories[story]
       this.viewStoryDialog = true
     },
 
-    loadAllPublicPostsForGuest() {
-      axios
-        .get("http://localhost:8081/api/media-content/public-posts", {
-          headers: {
-            Authorization: "Bearer " + getToken(),
-          },
-        })
+    loadPosts(){
+      if(!this.loggedUser){
+        axios
+        .get("http://localhost:8081/api/media-content/public-posts")
         .then((response) => {
           this.allPublicPosts = response.data;
         });
-    },
+      }
+      else{
+        axios.post("http://localhost:8081/api/follow/users-for-feed/"+getId(),{
+        headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        })
+
+        .then((response) => {
+          this.allPublicPosts = response.data;
+        }).catch(error => {
+            if(error.response.status === 500){
+                this.snackbarText = "Internal server error occurred!";
+                this.snackbar = true;
+            }
+        })
+      }
+    }, 
     loadAllStories(){
       axios
         .get("http://localhost:8081/api/media-content/regular-user-stories/"+getUsername(), {
@@ -260,7 +304,7 @@ export default {
     },
     
     checkLoggedUser() {
-      if (getId().length != 0) {
+      if (getToken() != null) {
         this.loggedUser = true;
       }
     },
@@ -318,27 +362,11 @@ export default {
     },
     savePost(postId){
       console.log(postId);
-      let savePostDTO = {
-        username: getUsername(),
-        postId: postId,
-        isAdd: "yes",
-      }
-        axios.put("http://localhost:8081/api/user/save-post",
-            savePostDTO,
-        {
-          headers: {
-            Authorization: "Bearer " + getToken(),
-        },
-        })
-        .then((response) => {
-            console.log(response)
-            this.$router.go()
-        });
-    }
+    },
   },
   mounted() {
     this.checkLoggedUser();
-    this.loadAllPublicPostsForGuest();
+    this.loadPosts();
     this.loadAllStories();
   },
 };

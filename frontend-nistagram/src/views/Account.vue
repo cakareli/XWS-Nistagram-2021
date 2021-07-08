@@ -48,6 +48,27 @@
                 >
               </v-list-item>
 
+              <v-list-item @click="$router.push('/close-friends')">
+                <v-list-item-title>
+                  <v-icon small>mdi-account-heart</v-icon>
+                  Close Friends</v-list-item-title
+                >
+              </v-list-item>
+
+              <v-list-item @click="$router.push('/muted-users')">
+                <v-list-item-title>
+                  <v-icon small>mdi-volume-off</v-icon>
+                  Muted Users</v-list-item-title
+                >
+              </v-list-item>
+
+              <v-list-item @click="$router.push('/blocked-users')">
+                <v-list-item-title>
+                  <v-icon small>mdi-account-cancel</v-icon>
+                  Blocked Users</v-list-item-title
+                >
+              </v-list-item>
+
               <v-list-item @click="$router.push('/saved-posts')">
                 <v-list-item-title>
                   <v-icon small>mdi-bookmark</v-icon>
@@ -86,7 +107,44 @@
           </v-list>
         </v-navigation-drawer>
 
-
+    <v-container>
+      <v-row justify="center">
+        <v-card width="800px" class="pa-12 grey lighten-4">
+            <v-row justify="center">
+                
+                <v-col>
+                    <h2>@{{this.username}}</h2>
+                    <br>
+                    <h3>{{this.name}} {{this.space}} {{this.surname}}</h3>
+                    <br>
+                    <a icon :href="`${this.webSite}`" target="_blank">
+                        {{this.webSite}}
+                    </a>
+                    <br><br>
+                    <v-textarea
+                      label="Biography"
+                      v-model="this.biography"
+                      auto-grow
+                      outlined
+                      rows="1"
+                      width="170"
+                      readonly
+                    ></v-textarea>
+                </v-col>
+                <v-col>
+                  <br>
+                  <br>
+                  <v-btn @click="viewFollowers">Followers: {{this.followersNumber}}</v-btn>
+                </v-col>
+                <v-col>
+                  <br>
+                  <br>
+                  <v-btn @click="viewFollowings">Following: {{this.followingsNumber}}</v-btn>
+                </v-col>
+            </v-row>
+        </v-card>
+      </v-row> 
+    </v-container>
 
     <v-container>
       <v-row justify="center">
@@ -96,7 +154,7 @@
               <v-list-item v-for="post in allUserPosts" :key="post.Username">
                 <v-card height="750" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
@@ -144,32 +202,51 @@
                       x-small
                       class="mr-3"
                       @click="likePost(post.Id)"
-                      >Like</v-btn
+                      >
+                      <v-icon x-small left>mdi-thumb-up</v-icon>
+                      <span>Like</span>
+                      </v-btn
                     >
+
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+                    
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
                     <v-btn
                       x-small
+                      class="mr-3"
                       @click="dislikePost(post.Id)"
-                      >Dislike</v-btn
-                    >
-                    <v-spacer />
+                      >
+                      <v-icon x-small left>mdi-thumb-down</v-icon>
+                      <span>Dislike</span>
+                      </v-btn >
+                    
+                  </v-row>
+                  <br>
+                  <v-row class="ma-2">
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllHashtags(post.Hashtags)"
                       >Hashtags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllTags(post.Tags)"
                       >Tags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="commentPost(post.Id)"
                       >Comment</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
@@ -204,7 +281,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2">
+            <v-btn class= "mx-2" @click="$router.push('/notifications').catch(()=>{})">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -223,6 +300,9 @@
     />
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+    <ViewAllFollowers :viewAllFollowersDialog.sync="viewAllFollowersDialog" :allFollowers="allFollowers"/>
+    <ViewAllFollowings :viewAllFollowingsDialog.sync="viewAllFollowingsDialog" :allFollowings="allFollowings"/>
+
   </v-app>
 </template>
 
@@ -238,11 +318,13 @@ import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
+import ViewAllFollowers from "../components/ViewAllFollowers.vue";
+import ViewAllFollowings from "../components/ViewAllFollowings.vue";
 
 
 export default {
   name: "Account",
-  components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
+  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ViewAllFollowers, ViewAllFollowings},
   data() {
     return {
       drawer: false,
@@ -250,7 +332,7 @@ export default {
       surname: "",
       username: "",
       biography: "",
-      website: "",
+      webSite: "",
       allUserPosts: [],
       allPostCommentsDialog: false,
       addPostCommentDialog: false,
@@ -259,10 +341,23 @@ export default {
       allPostComments: [],
       allPostTags: [],
       allTagsDialog: false,
-      postId: 0
+      postId: 0,
+      followersNumber: "",
+      followingsNumber: "",
+      allFollowers: "",
+      allFollowings: "",
+      space: " ",
+      viewAllFollowingsDialog: false,
+      viewAllFollowersDialog: false,
     };
   },
   methods: {
+    viewFollowers(){
+      this.viewAllFollowersDialog = true;
+    },
+    viewFollowings(){
+      this.viewAllFollowingsDialog = true;
+    },
     loadRegisteredUser() {
       axios
         .get("http://localhost:8081/api/user/logged-user/" + getId(), {
@@ -276,7 +371,7 @@ export default {
           this.surname = this.regularUser.Surname;
           this.username = this.regularUser.Username;
           this.biography = this.regularUser.Biography;
-          this.website = this.regularUser.WebSite;
+          this.webSite = this.regularUser.WebSite;
         })
         .catch((error) => {
           if (error.response.status === 500) {
@@ -289,6 +384,27 @@ export default {
               "You are unauthorized to get patient informations!";
           }
         });
+    },
+    loadUserProfileData(){
+          axios.get("http://localhost:8081/api/follow/followers/" + getId(), {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followersNumber = response.data.length
+            this.allFollowers = response.data;
+          })
+
+          axios.get("http://localhost:8081/api/follow/followings/" + getId(), {
+            headers: {
+            Authorization: "Bearer " + getToken(),
+          }
+          })
+          .then(response => {
+            this.followingsNumber = response.data.length
+            this.allFollowings = response.data
+          })
     },
     logout() {
       removeToken();
@@ -389,6 +505,7 @@ export default {
   mounted() {
     this.loadRegisteredUser();
     this.loadUsersPosts();
+    this.loadUserProfileData();
   },
 };
 </script>

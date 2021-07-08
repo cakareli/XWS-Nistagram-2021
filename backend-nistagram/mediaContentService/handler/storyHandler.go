@@ -63,3 +63,22 @@ func (handler *StoryHandler) GetAllRegularUserStories(w http.ResponseWriter, r *
 		_, _ = w.Write(regularUserStoriesJson)
 	}
 }
+
+func (handler *StoryHandler) ReportStory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var storyReportDTO dto.StoryReportDTO
+	err := json.NewDecoder(r.Body).Decode(&storyReportDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.StoryService.ReportStory(storyReportDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}

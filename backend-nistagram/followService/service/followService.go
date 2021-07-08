@@ -138,6 +138,27 @@ func (service *FollowService) FindAllUserFollowings(loggedUserId string) ([]dto.
 	return userDTOs, nil
 }
 
+func (service *FollowService) FindAllPostsForFeed(loggedUserId string) ([]dto.PostDTO, error) {
+	fmt.Println("getting all feed users...")
+
+	feedUsers, err := service.FollowRepository.FindAllFeedUsersIds(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	userDTOs, err2 := service.getUserDTOsFromUserIds(feedUsers)
+	if err2 != nil {
+		return nil, err2
+	}
+	var userIds []string
+	userIds = appendArray(userIds, userDTOs)
+	userIds = append(userIds, loggedUserId)
+	postDTOs, err3 := service.getPostsFromFeedUserIds(userIds)
+	if err3 != nil {
+		return nil, err3
+	}
+	return postDTOs, nil
+}
+
 func (service *FollowService) FindAllUserBlockedUsers(loggedUserId string) ([]dto.UserDTO, error) {
 	fmt.Println("getting all blocked users...")
 
@@ -217,4 +238,27 @@ func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.Us
 	decoder := json.NewDecoder(resp.Body)
 	_ = decoder.Decode(&userDTOs)
 	return userDTOs, nil
+}
+
+func (service *FollowService) getPostsFromFeedUserIds(userIds []string) ([]dto.PostDTO, error){
+	var postDTOs []dto.PostDTO
+	postBody, _ := json.Marshal(userIds)
+	requestUrl := fmt.Sprintf("http://%s:%s/feed-posts", os.Getenv("MEDIA_CONTENT_SERVICE_DOMAIN"), os.Getenv("MEDIA_CONTENT_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	fmt.Println(resp.StatusCode)
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&postDTOs)
+	return postDTOs, nil
+}
+
+func appendArray(firstSlice []string, secondSlice []dto.UserDTO) []string{
+	for i := 0; i < len(secondSlice); i++{
+		firstSlice = append(firstSlice,secondSlice[i].UserId)
+	}
+	return firstSlice
 }

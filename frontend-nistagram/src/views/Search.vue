@@ -93,9 +93,9 @@
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="post in allPublicPosts" :key="post.Username">
-                <v-card height="750" width="550" class="ma-3 grey lighten-5">
+                <v-card height="800" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
-                    <h4>@{{ post.RegularUser.Username }}</h4>
+                    <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
                     <v-spacer/>
                     <v-btn small  @click="savePost(post.Id)">
                       <v-icon>mdi-bookmark</v-icon>
@@ -139,38 +139,61 @@
                     <span> Dislikes: {{ post.Dislikes }}</span>
                   </v-row>
                   <v-row class="ma-2">
+                     <v-btn  x-small class="mr-3" @click="likePost(post.Id)" v-show="loggedUser">
+                      <v-icon x-small left>mdi-thumb-up</v-icon>
+                      <span>Like</span>
+                    </v-btn>
+
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                      x-small
+                      class="error"
+                      @click="reportPost(post)"
+                      v-show="loggedUser"
+                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
+                      <span>Report</span>
+                      </v-btn>
+                    
+                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
+
                     <v-btn
                       x-small
                       class="mr-3"
-                      @click="likePost(post.Id)"
-                      v-show="loggedUser"
-                      >Like</v-btn
-                    >
-                    <v-btn
-                      x-small
                       @click="dislikePost(post.Id)"
                       v-show="loggedUser"
-                      >Dislike</v-btn
-                    >
-                    <v-spacer />
+                      >
+                      <v-icon x-small left>mdi-thumb-down</v-icon>
+                      <span>Dislike</span>
+                      </v-btn >
+                    
+                  </v-row>
+                  <br>
+                  <v-row class="ma-2">
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllHashtags(post.Hashtags)"
                       >Hashtags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="viewAllTags(post.Tags)"
                       >Tags</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn
                       x-small
                       class="mr-3"
                       @click="commentPost(post.Id)"
+                      v-show="loggedUser"
                       >Comment</v-btn
                     >
+                    <v-spacer></v-spacer>
                     <v-btn x-small @click="viewAllPostComments(post.Comment)"
                       >View all comments</v-btn
                     >
@@ -204,7 +227,7 @@
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
 
-            <v-btn class= "mx-2" v-show="loggedUser">
+            <v-btn class= "mx-2" v-show="loggedUser" @click="$router.push('/notifications').catch(()=>{})">
               <v-icon>mdi-bell-ring</v-icon>
             </v-btn>
 
@@ -225,21 +248,23 @@
     />    
     <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
     <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>  
+    <ReportPost :reportPostDialog.sync="reportPostDialog" :reportedPost="reportedPost"/>
+
   </v-app>
 </template>
 
 <script>
-import { getId, getToken, getUsername } from "../security/token.js";
+import {getToken, getUsername } from "../security/token.js";
 import AllPostComments from "../components/AllPostComments.vue";
 import AddPostComment from "../components/AddPostComment.vue";
 import AllTags from "../components/AllTags.vue";
 import axios from "axios";
 import AllHashtags from "../components/AllHashtags.vue";
-
+import ReportPost from "../components/ReportPost.vue"
 
 export default {
   name: "Search",
-  components: { AllPostComments, AddPostComment, AllTags, AllHashtags },
+  components: { AllPostComments, AddPostComment, AllTags, AllHashtags, ReportPost },
 
   data() {
     return {
@@ -259,13 +284,20 @@ export default {
       showLocation: false,
       searchInput: "",
       space: " ",
-      showPublicPosts: true
+      showPublicPosts: true,
+      reportPostDialog: false,
+      reportedPost: {},
     };
   },
 
   methods: {
+
+    reportPost(post){
+      this.reportPostDialog = true;
+      this.reportedPost = post;
+    },
     checkLoggedUser() {
-      if (getId().length != 0) {
+      if (getToken() != null) {
         this.loggedUser = true;
       }
     },

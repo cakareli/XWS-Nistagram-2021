@@ -6,6 +6,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/repository"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type StoryService struct {
@@ -75,6 +76,31 @@ func CreateStoriesFromDocuments(StoriesDocuments []bson.D) []model.Story {
 		publicStories = append(publicStories, story)
 	}
 	return publicStories
+}
+
+func (service *StoryService) ReportStory(storyReportDTO dto.StoryReportDTO) error {
+	fmt.Println("Disliking post...")
+
+	storyId, _ := primitive.ObjectIDFromHex(storyReportDTO.StoryId)
+	story, err := service.StoryRepository.FindStoryById(storyId)
+	if err != nil {
+		return err
+	}
+
+	regularUser, err := getRegularUserFromUsername(storyReportDTO.Username)
+	if err != nil {
+		return err
+	}
+	var inappropriateContentStory model.InappropriateContentStory
+	inappropriateContentStory.Story = *story
+	inappropriateContentStory.RegularUser = *regularUser
+	inappropriateContentStory.Text = storyReportDTO.Text
+
+	err = service.StoryRepository.CreateStoryReport(&inappropriateContentStory)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.Story, error){

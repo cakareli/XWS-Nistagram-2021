@@ -228,3 +228,39 @@ func (handler *PostHandler) GetAllSavedPostsByUsername(w http.ResponseWriter, r 
 		_, _ = w.Write(dislikedPostsJson)
 	}
 }
+
+func (handler *PostHandler) GetUsersFeed(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-Type", "application/json")
+	var usersIds []string
+	err := json.NewDecoder(r.Body).Decode(&usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	postDtos, err := handler.PostService.GetUsersFeed(usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(postDtos)
+}
+
+func (handler *PostHandler) ReportPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postReportDTO dto.PostReportDTO
+	err := json.NewDecoder(r.Body).Decode(&postReportDTO)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.PostService.ReportPost(postReportDTO)
+	if err != nil {
+		if err.Error() == "regular user is NOT found" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}

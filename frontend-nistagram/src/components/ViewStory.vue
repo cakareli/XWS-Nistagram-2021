@@ -41,6 +41,13 @@
                       class="mr-3"
                       @click="viewAllTags(storyView.Tags)"
                       >Tags</v-btn>
+                    <v-btn
+                      x-small
+                      class="error"
+                      @click="reportPost(storyView)"
+                    ><v-icon x-small left color="white">mdi-alert-octagon</v-icon>
+                      <span>Report</span>
+                    </v-btn>
                       <v-spacer/>
                       <v-btn small color="grey lighten-3" @click.native="close">Close</v-btn>
                   </v-row>
@@ -48,7 +55,8 @@
              </v-flex>
         </v-layout>
         <AllTags :allTagsDialog.sync="allTagsDialog" :allPostTags="allPostTags"/>
-    <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+        <AllHashtags :allHashtagsDialog.sync="allHashtagsDialog" :allPostHashtags="allPostHashtags"/>
+        <ReportPost :reportPostDialog.sync="reportPostDialog" :reportedPost="reportedPost"/>
     </v-dialog> 
 </template>
 
@@ -56,12 +64,14 @@
 
 import AllTags from "../components/AllTags.vue";
 import AllHashtags from "../components/AllHashtags.vue";
+import ReportPost from "../components/ReportPost.vue"
 
 export default {
     name: 'ViewStory',
     components: {
         AllTags,
         AllHashtags,
+        ReportPost
     },
     props: {
         viewStoryDialog: {
@@ -75,6 +85,8 @@ export default {
             allPostHashtags: [], 
             allTagsDialog: false,
             allHashtagsDialog: false,
+            reportPostDialog: false,
+            reportedPost: {}
         }
     },
     
@@ -89,7 +101,11 @@ export default {
         viewAllHashtags(allPostHashtags) {
             this.allPostHashtags = allPostHashtags;
             this.allHashtagsDialog = true;
-        },        
+        },
+        reportPost(story){
+          this.reportPostDialog = true;
+          this.reportedPost = story;
+        }       
     }
 }
 </script>

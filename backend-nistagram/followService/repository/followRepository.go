@@ -187,7 +187,7 @@ func (repository *FollowRepository) FindAllUserFollowersIds(userId string) ([]st
 	session := *repository.DatabaseSession
 	var followersIds []string
 	result, err := session.Run("match (u)" +
-		"-[f:follow{blocked:FALSE}]->(u1:User{Id:$userId}) return u.Id",
+		"-[f:follow{blocked:FALSE,request:FALSE}]->(u1:User{Id:$userId}) return u.Id",
 		map[string]interface{}{"userId":userId,})
 	if err != nil {
 		return nil, err
@@ -206,7 +206,7 @@ func (repository *FollowRepository) FindAllUserFollowingsIds(userId string) ([]s
 	session := *repository.DatabaseSession
 	var followingsIds []string
 	result, err := session.Run("match (u1:User{Id:$userId})" +
-		"-[f:follow{blocked:FALSE}]->(u) return u.Id",
+		"-[f:follow{blocked:FALSE,request:FALSE}]->(u) return u.Id",
 		map[string]interface{}{"userId":userId,})
 	if err != nil {
 		return nil, err
@@ -219,6 +219,25 @@ func (repository *FollowRepository) FindAllUserFollowingsIds(userId string) ([]s
 		return nil, fmt.Errorf("no followings found")
 	}
 	return followingsIds, nil
+}
+
+func (repository *FollowRepository) FindAllFeedUsersIds(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var feedUsersIds []string
+	result, err := session.Run("match (u1:User{Id:$userId})" +
+		"-[f:follow{blocked:FALSE,muted:FALSE,request:FALSE}]->(u) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		feedUsersIds = append(feedUsersIds, id)
+	}
+	if len(feedUsersIds) == 0 {
+		return nil, fmt.Errorf("no feed users found")
+	}
+	return feedUsersIds, nil
 }
 
 func (repository *FollowRepository) FindAllUserBlockedUsersIds(userId string) ([]string, error){

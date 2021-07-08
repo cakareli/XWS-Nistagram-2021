@@ -66,3 +66,23 @@ func (repository *StoryRepository) GetAllStoriesByUsername(username string) []bs
 	}
 	return storiesFiltered
 }
+
+func (repository *StoryRepository) CreateStoryReport(inappropriateContentStory *model.InappropriateContentStory) error {
+	storyReportsCollection := repository.Database.Collection("storyReports")
+	_, err := storyReportsCollection.InsertOne(context.TODO(), &inappropriateContentStory)
+	if err != nil {
+		return fmt.Errorf("Story report is NOT created")
+	}
+	return nil
+}
+
+func (repository *StoryRepository) FindStoryById(storyId primitive.ObjectID) (*model.Story, error){
+	var story *model.Story
+	result:= repository.Database.Collection("stories").FindOne(context.Background(), bson.M{"_id": storyId})
+	result.Decode(&story)
+
+	if story == nil {
+		return nil, fmt.Errorf("Story is NOT found!")
+	}
+	return story, nil
+}

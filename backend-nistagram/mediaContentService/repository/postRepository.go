@@ -168,3 +168,12 @@ func (repository *PostRepository) GetAllPostsByIds(ids []string) []bson.D{
 	}
 	return postsFiltered
 }
+
+func (repository *PostRepository) CreatePostReport(inappropriateContentPost *model.InappropriateContentPost) error {
+	postReportsCollection := repository.Database.Collection("postReports")
+	_, err := postReportsCollection.InsertOne(context.TODO(), &inappropriateContentPost)
+	if err != nil {
+		return fmt.Errorf("Post report is NOT created")
+	}
+	return nil
+}

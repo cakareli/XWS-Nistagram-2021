@@ -72,6 +72,9 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/saved-posts/{username}", handlerPost.GetAllSavedPostsByUsername).Methods("GET")
 	router.HandleFunc("/new-notification", handlerNotification.CreateNewNotification).Methods("POST")
 	router.HandleFunc("/notifications/{userId}", handlerNotification.GetAllNotificationsByUserId).Methods("GET")
+	router.HandleFunc("/feed-posts", handlerPost.GetUsersFeed).Methods("POST")
+	router.HandleFunc("/report-post", handlerPost.ReportPost).Methods("POST")
+	router.HandleFunc("/report-story", handlerStory.ReportStory).Methods("POST")
 
 	c := SetupCors()
 

@@ -128,7 +128,22 @@ func (repository *RegularUserRepository) FindUserByUsername(username string) (*m
 func (repository *RegularUserRepository) GetAllPublicRegularUsers() ([]bson.D, error){
 
 	usersCollection := repository.Database.Collection("regularUsers")
-	filterCursor, err := usersCollection.Find(context.TODO(), bson.M{"profilePrivacy.privacyType": 0})
+	filterCursor, err := usersCollection.Find(context.TODO(), bson.M{"privacyType": 0})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered, nil
+}
+
+func (repository *RegularUserRepository) GetAllRegularUsers() ([]bson.D, error){
+
+	usersCollection := repository.Database.Collection("regularUsers")
+	filterCursor, err := usersCollection.Find(context.TODO(), bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
