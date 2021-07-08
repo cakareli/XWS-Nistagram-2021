@@ -11,6 +11,7 @@ import (
 
 type StoryService struct {
 	StoryRepository *repository.StoryRepository
+	NotificationRepository *repository.NotificationRepository
 }
 
 func (service *StoryService) GetAllRegularUserStories(username string) []model.Story {
@@ -27,10 +28,22 @@ func (service *StoryService) CreateNewStory(storyUploadDTO dto.StoryUploadDTO) e
 	if err != nil {
 		return err
 	}
-	err = service.StoryRepository.CreateStory(story)
-	if err != nil {
+	storyId, err1 := service.StoryRepository.CreateStory(story)
+	if err1 != nil {
 		return err
 	}
+
+	followersIds, err2 := getUserFollowersWithNotificationsTurnedOn(story.RegularUser.Id)
+	if err2 != nil {
+		return err2
+	}
+
+	notification := CreateNotificationFromEvent(storyId, story.RegularUser.Id, followersIds, model.NotificationType(1))
+	err3 := service.NotificationRepository.CreateNotification(notification)
+	if err3 != nil {
+		return err3
+	}
+
 	return nil
 }
 
