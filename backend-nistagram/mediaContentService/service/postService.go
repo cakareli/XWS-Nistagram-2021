@@ -115,6 +115,15 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 	if err != nil {
 		return err
 	}
+
+	var usersToNotify []string
+	usersToNotify = append(usersToNotify, post.RegularUser.Id)
+	notification := CreateNotificationFromComment(commentDTO.PostId, comment.RegularUser.Id, usersToNotify)
+	err3 := service.NotificationRepository.CreateNotification(notification)
+	if err3 != nil {
+		return err3
+	}
+
 	return nil
 }
 

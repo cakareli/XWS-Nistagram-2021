@@ -29,3 +29,13 @@ func CreateNotificationFromEvent(eventId string, userId string, receiversIds []s
 
 	return &notification
 }
+
+func CreateNotificationFromComment(postId string, userId string, receiversIds []string) *model.Notification {
+	var notification model.Notification
+	notification.EventId = postId
+	notification.UserId = userId
+	notification.ReceiversIds = receiversIds
+	notification.NotificationType = model.NotificationType(2)
+
+	return &notification
+}
