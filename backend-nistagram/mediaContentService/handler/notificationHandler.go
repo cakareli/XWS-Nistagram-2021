@@ -4,6 +4,7 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/service"
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/model"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -24,5 +25,19 @@ func (handler *NotificationHandler) CreateNewNotification(w http.ResponseWriter,
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusCreated)
+	}
+}
+
+func (handler *NotificationHandler) GetAllNotificationsByUserId(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	userId := params["userId"]
+
+	notificationsDTOs, err := handler.NotificationService.GetAllNotificationsByUserId(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(notificationsDTOs)
 	}
 }
