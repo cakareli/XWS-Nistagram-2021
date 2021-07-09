@@ -19,13 +19,12 @@ func (repository *FollowRepository) AddFollowing(newFollow dto.NewFollowDTO) boo
 		return false
 	}
 	result, err3 := session.Run("match (u1:User), (u2:User) where u1.Id = $followerId and " +
-		"u2.Id = $followedId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : FALSE, request: $isPrivate}]->(u2) return f",
+		"u2.Id = $followedId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : FALSE, notifications : FALSE, request: $isPrivate}]->(u2) return f",
 		map[string]interface{}{"followerId":newFollow.FollowerId, "followedId":newFollow.FollowedId, "isPrivate":newFollow.IsPrivate })
 	if err3 != nil {
 		return false
 	}
 	if result.Next() {
-		println(&result)
 		return true
 	}
 	return false
@@ -48,7 +47,6 @@ func (repository *FollowRepository) SetFollowRequestFalse(loggedUserId string, f
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -63,7 +61,48 @@ func (repository *FollowRepository) SetFollowMutedTrue(loggedUserId string, foll
 		return false
 	}
 	if result.Next() {
-		println(result)
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) SetFollowMutedFalse(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {muted: TRUE}]->(u2:User{Id:$followingId}) set f.muted = false return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) SetFollowNotificationsTrue(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {notifications: FALSE}]->(u2:User{Id:$followingId}) set f.notifications = true return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) SetFollowNotificationsFalse(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {notifications: TRUE}]->(u2:User{Id:$followingId}) set f.notifications = false return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
 		return true
 	}
 	return false
@@ -78,7 +117,20 @@ func (repository *FollowRepository) SetFollowCloseTrue(loggedUserId string, foll
 		return false
 	}
 	if result.Next() {
-		println(result)
+		return true
+	}
+	return false
+}
+
+func (repository *FollowRepository) SetFollowCloseFalse(loggedUserId string, followingId string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u1:User{Id:$loggedUserId})" +
+		"-[f:follow {close: TRUE}]->(u2:User{Id:$followingId}) set f.close = false return f;",
+		map[string]interface{}{"loggedUserId":loggedUserId, "followingId":followingId,})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
 		return true
 	}
 	return false
@@ -98,7 +150,6 @@ func (repository *FollowRepository) BlockUser(loggedUserId string, userId string
 		return false
 	}
 	if result.Next() {
-		println(result)
 		return true
 	}
 	return false
@@ -263,6 +314,25 @@ func (repository *FollowRepository) FindAllUserCloseFollowers(userId string) ([]
 		return nil, fmt.Errorf("no close followers found")
 	}
 	return closeFollowers, nil
+}
+
+func (repository *FollowRepository) FindAllFollowersWithNotificationsTurnedOn(userId string) ([]string, error){
+	session := *repository.DatabaseSession
+	var followersIds []string
+	result, err := session.Run("match (u)" +
+		"-[f:follow{blocked:FALSE, notifications:TRUE}]->(u1:User{Id:$userId}) return u.Id",
+		map[string]interface{}{"userId":userId,})
+	if err != nil {
+		return nil, err
+	}
+	for result.Next() {
+		id, _ := result.Record().GetByIndex(0).(string)
+		followersIds = append(followersIds, id)
+	}
+	if len(followersIds) == 0 {
+		return nil, fmt.Errorf("no followers with notifications turned on found")
+	}
+	return followersIds, nil
 }
 
 func (repository *FollowRepository) UserAlreadyFollowed(followerId string, followedId string) error {

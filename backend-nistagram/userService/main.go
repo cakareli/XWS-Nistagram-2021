@@ -77,7 +77,7 @@ func SetupCors() *cors.Cors {
 }
 
 func initDatabase() *mongo.Database{
-	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

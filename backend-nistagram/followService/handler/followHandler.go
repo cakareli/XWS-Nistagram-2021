@@ -54,6 +54,45 @@ func (handler *FollowHandler) MuteFollowing(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (handler *FollowHandler) UnmuteFollowing(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userIsUnmuted := handler.FollowService.UnmuteFollowing(loggedUserId, followingId)
+	if !userIsUnmuted {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (handler *FollowHandler) TurnNotificationsForUserOn(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userNotificationsTurnedOn := handler.FollowService.TurnNotificationsForUserOn(loggedUserId, followingId)
+	if !userNotificationsTurnedOn {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (handler *FollowHandler) TurnNotificationsForUserOff(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userNotificationsTurnedOff := handler.FollowService.TurnNotificationsForUserOff(loggedUserId, followingId)
+	if !userNotificationsTurnedOff {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (handler *FollowHandler) AddToCloseFollowers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -61,6 +100,19 @@ func (handler *FollowHandler) AddToCloseFollowers(w http.ResponseWriter, r *http
 	followingId := params["followingId"]
 	userIsInClose := handler.FollowService.AddToCloseFollowers(loggedUserId, followingId)
 	if !userIsInClose {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (handler *FollowHandler) RemoveFromCloseFollowers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followingId := params["followingId"]
+	userIsRemoved := handler.FollowService.RemoveFromCloseFollowers(loggedUserId, followingId)
+	if !userIsRemoved {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusOK)
@@ -225,6 +277,24 @@ func (handler *FollowHandler) FindAllUserFollowRequests(w http.ResponseWriter, r
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(followRequests)
+}
+
+func (handler *FollowHandler) FindAllFollowersWithNotificationsTurnedOn(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	loggedUserId := params["loggedUserId"]
+	followers, err := handler.FollowService.FindAllFollowersWithNotificationsTurnedOn(loggedUserId)
+	if err != nil {
+		if err.Error() == "no followers with notifications turned on found" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode("")
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(followers)
 }
 
 func (handler *FollowHandler) FindAllFeedUsers(w http.ResponseWriter, r *http.Request) {

@@ -19,8 +19,8 @@ func initPostRepository(database *mongo.Database) *repository.PostRepository {
 	return &repository.PostRepository{Database: database}
 }
 
-func initPostService(repository *repository.PostRepository) *service.PostService {
-	return &service.PostService{PostRepository: repository}
+func initPostService(repository1 *repository.PostRepository, repository2 *repository.NotificationRepository) *service.PostService {
+	return &service.PostService{PostRepository: repository1, NotificationRepository: repository2}
 }
 
 func initPostHandler(service *service.PostService) *handler.PostHandler {
@@ -31,15 +31,27 @@ func initStoryRepository(database *mongo.Database) *repository.StoryRepository {
 	return &repository.StoryRepository{Database: database}
 }
 
-func initStoryService(repository *repository.StoryRepository) *service.StoryService {
-	return &service.StoryService{StoryRepository: repository}
+func initStoryService(repository1 *repository.StoryRepository, repository2 *repository.NotificationRepository) *service.StoryService {
+	return &service.StoryService{StoryRepository: repository1, NotificationRepository: repository2}
 }
 
 func initStoryHandler(service *service.StoryService) *handler.StoryHandler {
 	return &handler.StoryHandler{StoryService: service}
 }
 
-func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHandler) {
+func initNotificationRepository(database *mongo.Database) *repository.NotificationRepository {
+	return &repository.NotificationRepository{Database: database}
+}
+
+func initNotificationService(repository *repository.NotificationRepository) *service.NotificationService {
+	return &service.NotificationService{NotificationRepository: repository}
+}
+
+func initNotificationHandler(service *service.NotificationService) *handler.NotificationHandler {
+	return &handler.NotificationHandler{NotificationService: service}
+}
+
+func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHandler, handlerNotification *handler.NotificationHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/regular-user-posts/{username}", handlerPost.GetAllRegularUserPosts).Methods("GET")
@@ -58,6 +70,8 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/liked-posts/{username}", handlerPost.GetAllLikedPostsByUsername).Methods("GET")
 	router.HandleFunc("/disliked-posts/{username}", handlerPost.GetAllDislikedPostsByUsername).Methods("GET")
 	router.HandleFunc("/saved-posts/{username}", handlerPost.GetAllSavedPostsByUsername).Methods("GET")
+	router.HandleFunc("/new-notification", handlerNotification.CreateNewNotification).Methods("POST")
+	router.HandleFunc("/notifications/{userId}", handlerNotification.GetAllNotificationsByUserId).Methods("GET")
 	router.HandleFunc("/feed-posts", handlerPost.GetUsersFeed).Methods("POST")
 	router.HandleFunc("/report-post", handlerPost.ReportPost).Methods("POST")
 	router.HandleFunc("/report-story", handlerStory.ReportStory).Methods("POST")
@@ -81,7 +95,7 @@ func SetupCors() *cors.Cors {
 }
 
 func initDatabase() *mongo.Database{
-	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
@@ -100,13 +114,17 @@ func initDatabase() *mongo.Database{
 func main() {
 	mediaContentDatabase := initDatabase()
 
+	notificationRepository := initNotificationRepository(mediaContentDatabase)
+	notificationService := initNotificationService(notificationRepository)
+	notificationHandler := initNotificationHandler(notificationService)
+
 	postRepository := initPostRepository(mediaContentDatabase)
-	postService := initPostService(postRepository)
+	postService := initPostService(postRepository, notificationRepository)
 	postHandler := initPostHandler(postService)
 
 	storyRepository := initStoryRepository(mediaContentDatabase)
-	storyService := initStoryService(storyRepository)
+	storyService := initStoryService(storyRepository, notificationRepository)
 	storyHandler := initStoryHandler(storyService)
 
-	handleFunc(postHandler, storyHandler)
+	handleFunc(postHandler, storyHandler, notificationHandler)
 }
