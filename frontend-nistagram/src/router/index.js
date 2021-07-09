@@ -17,6 +17,7 @@ import BlockedUsers from '../views/BlockedUsers.vue'
 import MutedUsers from '../views/MutedUsers.vue'
 import CloseFriends from '../views/CloseFriends.vue'
 import Notification from '../views/Notification.vue'
+import NotificationPost from '../views/ViewPostFromNotification.vue'
 
 Vue.use(VueRouter)
 
@@ -105,6 +106,11 @@ const routes = [
     path: '/notifications',
     name: 'Notification',
     component: Notification
+  },
+  {
+    path: '/notification-post/:post',
+    name: 'NotificationPost',
+    component: NotificationPost
   }
 
 ]
