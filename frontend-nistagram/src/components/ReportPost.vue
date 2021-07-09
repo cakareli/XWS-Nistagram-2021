@@ -48,9 +48,7 @@ export default {
             this.$emit('update:reportPostDialog', false)
         },
         submitReport(){
-            alert("Ulazi u submit")
             if(this.reportedPost.MediaContentType === 0 || this.reportedPost.MediaContentType === 2){
-                alert("Post")
                 axios.post("http://localhost:8081/api/media-content/report-post",{
                 text: this.text,
                 postId: this.reportedPost.Id,
@@ -69,7 +67,6 @@ export default {
                 })
             }
             else if(this.reportedPost.MediaContentType === 1){
-                alert("Story")
                 axios.post("http://localhost:8081/api/media-content/report-story",{
                 text: this.text,
                 storyId: this.reportedPost.Id,

@@ -42,3 +42,11 @@ func (service *AuthenticationService) FindByUsername (dto dto.LoginDTO) (*model.
 	}
 	return user, nil
 }
+
+func (service *AuthenticationService) DeleteUser(id string) error{
+	err := service.AuthenticationRepository.DeleteUser(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

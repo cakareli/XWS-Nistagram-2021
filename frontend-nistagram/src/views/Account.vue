@@ -22,7 +22,7 @@
         <v-navigation-drawer
           v-model="drawer"
           absolute
-          class="grey lighten-4"
+          class="grey lighten-4 pa-8"
           fixed     
         >
           <v-list>

@@ -78,6 +78,22 @@ func CreateStoriesFromDocuments(StoriesDocuments []bson.D) []model.Story {
 	return publicStories
 }
 
+func (service *StoryService) DeleteReportedStory(id primitive.ObjectID) error{
+	err := service.StoryRepository.DeleteReportedStory(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *StoryService) DeleteStory(id primitive.ObjectID) error{
+	err := service.StoryRepository.DeleteStory(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (service *StoryService) ReportStory(storyReportDTO dto.StoryReportDTO) error {
 	fmt.Println("Disliking post...")
 
@@ -101,6 +117,40 @@ func (service *StoryService) ReportStory(storyReportDTO dto.StoryReportDTO) erro
 		return err
 	}
 	return nil
+}
+
+
+func (service *StoryService) GetAllStoryReports() []dto.ReportedStoryDTO {
+	storyReports := service.StoryRepository.GetAllStoryReports()
+
+	storyReportsModel := createStoryReportsFromDocuments(storyReports)
+
+	storyReportsDto := createStoryReportedPostDtoFromModel(storyReportsModel)
+
+	return storyReportsDto
+}
+
+func createStoryReportsFromDocuments(ReportDocuments []bson.D) []model.InappropriateContentStory {
+	var reportPosts []model.InappropriateContentStory
+	for i := 0; i < len(ReportDocuments); i++ {
+		var report model.InappropriateContentStory
+		bsonBytes, _ := bson.Marshal(ReportDocuments[i])
+		_ = bson.Unmarshal(bsonBytes, &report)
+		reportPosts = append(reportPosts, report)
+	}
+	return reportPosts
+}
+
+func createStoryReportedPostDtoFromModel(ReportedDocumentsModel []model.InappropriateContentStory) []dto.ReportedStoryDTO{
+	var reporedPostsDTO []dto.ReportedStoryDTO
+	for i := 0 ;i < len(ReportedDocumentsModel); i++{
+		var reportDTO dto.ReportedStoryDTO
+		reportDTO.Id = ReportedDocumentsModel[i].Id.Hex()
+		reportDTO.Text = ReportedDocumentsModel[i].Text
+		reportDTO.Story = ReportedDocumentsModel[i].Story
+		reporedPostsDTO = append(reporedPostsDTO, reportDTO)
+	}
+	return reporedPostsDTO
 }
 
 func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.Story, error){

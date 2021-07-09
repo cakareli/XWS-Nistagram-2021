@@ -177,3 +177,38 @@ func (repository *PostRepository) CreatePostReport(inappropriateContentPost *mod
 	}
 	return nil
 }
+
+func (repository *PostRepository) GetAllPostReports() []bson.D{
+	reportsCollection := repository.Database.Collection("postReports")
+	filterCursor, err := reportsCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}
+
+func (repository *PostRepository) DeleteReportedPost(id primitive.ObjectID) error{
+
+	reportedPostsCollection := repository.Database.Collection("postReports")
+	_, err := reportedPostsCollection.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repository *PostRepository) DeletePost(id primitive.ObjectID) error{
+
+	postsCollection := repository.Database.Collection("posts")
+	_, err := postsCollection.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+

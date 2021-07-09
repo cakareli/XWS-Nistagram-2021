@@ -1,9 +1,6 @@
 <template>
     <v-app class="grey lighten-2" width="800px">
         <v-app-bar app height="45" class="grey lighten-3">
-        <v-app-bar-nav-icon @click="$router.push('/search')">
-            <v-icon>mdi-arrow-left</v-icon>
-        </v-app-bar-nav-icon>
         <v-row>
           <v-col>
             <v-toolbar-title>
@@ -68,6 +65,18 @@
             </v-row>
         </v-card>
       </v-row> 
+    </v-container>
+    <br><br>
+    <v-container v-show="adminLogged">
+      <br><br>
+      <v-row justify="center">
+        <v-card width="800px" class=" grey lighten-4">
+            <v-row justify="center">
+              <v-btn width="800" class="error">Remove Profile</v-btn>
+            </v-row>
+        </v-card>
+      </v-row>
+      <br><br>
     </v-container>
 
 
@@ -291,6 +300,7 @@ export default {
       muted: false,
       reportPostDialog: false,
       reportedPost: {},
+      adminLogged: false
     };
   },
   created() {
