@@ -21,7 +21,7 @@ import AdministratorHome from '../views/AdministratorHome.vue'
 import VerificationRequests from '../views/VerificationRequests.vue'
 import RemoveProfiles from '../views/RemoveProfiles.vue'
 import InappropriateContent from '../views/InappropriateContent.vue'
-
+import NotificationPost from '../views/ViewPostFromNotification.vue'
 
 Vue.use(VueRouter)
 
@@ -131,6 +131,11 @@ const routes = [
     name: 'InappropriateContent',
     component: InappropriateContent
   },
+  {
+    path: '/notification-post/:post',
+    name: 'NotificationPost',
+    component: NotificationPost
+  }
 ]
 
 const router = new VueRouter({

@@ -14,13 +14,13 @@ type StoryRepository struct {
 	Database *mongo.Database
 }
 
-func (repository *StoryRepository) CreateStory(story *model.Story) error {
+func (repository *StoryRepository) CreateStory(story *model.Story) (string, error) {
 	storiesCollection := repository.Database.Collection("stories")
-	_, err := storiesCollection.InsertOne(context.TODO(), &story)
+	res, err := storiesCollection.InsertOne(context.TODO(), &story)
 	if err != nil {
-		return fmt.Errorf("Story is NOT created!")
+		return "", fmt.Errorf("Story is NOT created!")
 	}
-	return nil
+	return res.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
 func (repository *StoryRepository) UpdateStoryPrivacy(privacyType model.PrivacyType, storyId primitive.ObjectID) error {

@@ -103,7 +103,7 @@ export default {
             this.$router.go()
           })
           .catch((error)=>{
-            if(error.response.data.status === 404){
+            if(error.response === 404){
               console.log("Status not found")
             }
           })

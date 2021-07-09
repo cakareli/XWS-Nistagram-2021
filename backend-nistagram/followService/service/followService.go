@@ -39,11 +39,39 @@ func (service *FollowService) MuteFollowing(loggedUserId string, followingId str
 	return userIsMuted
 }
 
+func (service *FollowService) UnmuteFollowing(loggedUserId string, followingId string) bool {
+	fmt.Println("unmuting user...")
+
+	userIsUnmuted := service.FollowRepository.SetFollowMutedFalse(loggedUserId, followingId)
+	return userIsUnmuted
+}
+
+func (service *FollowService) TurnNotificationsForUserOn(loggedUserId string, followingId string) bool {
+	fmt.Println("turning notifications for user on...")
+
+	userNotificationsTurnedOn := service.FollowRepository.SetFollowNotificationsTrue(loggedUserId, followingId)
+	return userNotificationsTurnedOn
+}
+
+func (service *FollowService) TurnNotificationsForUserOff(loggedUserId string, followingId string) bool {
+	fmt.Println("turning notifications for user off...")
+
+	userNotificationsTurnedOff := service.FollowRepository.SetFollowNotificationsFalse(loggedUserId, followingId)
+	return userNotificationsTurnedOff
+}
+
 func (service *FollowService) AddToCloseFollowers(loggedUserId string, followingId string) bool {
 	fmt.Println("adding user to close followers...")
 
 	userIsInClose := service.FollowRepository.SetFollowCloseTrue(loggedUserId, followingId)
 	return userIsInClose
+}
+
+func (service *FollowService) RemoveFromCloseFollowers(loggedUserId string, followingId string) bool {
+	fmt.Println("removing user from close followers...")
+
+	userIsRemoved := service.FollowRepository.SetFollowCloseFalse(loggedUserId, followingId)
+	return userIsRemoved
 }
 
 func (service *FollowService) BlockUser(loggedUserId string, userId string) bool {
@@ -185,6 +213,16 @@ func (service *FollowService) FindAllUserCloseFollowers(loggedUserId string) ([]
 		return nil, err2
 	}
 	return userDTOs, nil
+}
+
+func (service *FollowService) FindAllFollowersWithNotificationsTurnedOn(loggedUserId string) ([]string, error) {
+	fmt.Println("getting all followers with notifications turned on...")
+
+	followersIds, err := service.FollowRepository.FindAllFollowersWithNotificationsTurnedOn(loggedUserId)
+	if err != nil {
+		return nil, err
+	}
+	return followersIds, nil
 }
 
 func (service *FollowService) getUserDTOsFromUserIds(userIds []string) ([]dto.UserDTO, error) {

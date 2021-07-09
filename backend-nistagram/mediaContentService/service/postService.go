@@ -15,6 +15,7 @@ import (
 
 type PostService struct {
 	PostRepository *repository.PostRepository
+	NotificationRepository *repository.NotificationRepository
 }
 
 func (service *PostService) GetAllRegularUserPosts(username string) []model.Post {
@@ -75,10 +76,22 @@ func (service *PostService) CreateNewPost(postUploadDto dto.PostUploadDTO) error
 	if err != nil {
 		return err
 	}
-	err = service.PostRepository.Create(post)
-	if err != nil {
-		return err
+	postId, err1 := service.PostRepository.Create(post)
+	if err1 != nil {
+		return err1
 	}
+
+	followersIds, err2 := getUserFollowersWithNotificationsTurnedOn(post.RegularUser.Id)
+	if err2 != nil {
+		return err2
+	}
+
+	notification := CreateNotificationFromEvent(postId, post.RegularUser.Id, followersIds, model.NotificationType(0))
+	err3 := service.NotificationRepository.CreateNotification(notification)
+	if err3 != nil {
+		return err3
+	}
+
 	return nil
 }
 
@@ -135,6 +148,15 @@ func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
 	if err != nil {
 		return err
 	}
+
+	var usersToNotify []string
+	usersToNotify = append(usersToNotify, post.RegularUser.Id)
+	notification := CreateNotificationFromEvent(commentDTO.PostId, comment.RegularUser.Id, usersToNotify, model.NotificationType(2))
+	err3 := service.NotificationRepository.CreateNotification(notification)
+	if err3 != nil {
+		return err3
+	}
+
 	return nil
 }
 
@@ -154,6 +176,19 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
 		post.Likes = post.Likes + 1
 		updateUserLikedPosts(postLikeDTO, "yes")
+
+		regularUser, err := getRegularUserFromUsername(postLikeDTO.Username)
+		if err != nil {
+			return err
+		}
+
+		var usersToNotify []string
+		usersToNotify = append(usersToNotify, post.RegularUser.Id)
+		notification := CreateNotificationFromEvent(postLikeDTO.PostId, regularUser.Id, usersToNotify, model.NotificationType(3))
+		err3 := service.NotificationRepository.CreateNotification(notification)
+		if err3 != nil {
+			return err3
+		}
 	}
 	if(!contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)){
 		post.Dislikes = post.Dislikes -1
@@ -166,6 +201,19 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 		err = updateUserDislikedPosts(postLikeDTO, "no")
 		if( err != nil){
 			fmt.Println(err)
+		}
+
+		regularUser, err := getRegularUserFromUsername(postLikeDTO.Username)
+		if err != nil {
+			return err
+		}
+
+		var usersToNotify []string
+		usersToNotify = append(usersToNotify, post.RegularUser.Id)
+		notification := CreateNotificationFromEvent(postLikeDTO.PostId, regularUser.Id, usersToNotify, model.NotificationType(3))
+		err3 := service.NotificationRepository.CreateNotification(notification)
+		if err3 != nil {
+			return err3
 		}
 	}
 	if(contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)){
@@ -180,6 +228,7 @@ func (service *PostService) LikePost(postLikeDTO dto.PostLikeDTO) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -199,6 +248,19 @@ func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
 	if (!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && !contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)) {
 		post.Dislikes = post.Dislikes + 1
 		updateUserDislikedPosts(postLikeDTO, "yes")
+
+		regularUser, err := getRegularUserFromUsername(postLikeDTO.Username)
+		if err != nil {
+			return err
+		}
+
+		var usersToNotify []string
+		usersToNotify = append(usersToNotify, post.RegularUser.Id)
+		notification := CreateNotificationFromEvent(postLikeDTO.PostId, regularUser.Id, usersToNotify, model.NotificationType(4))
+		err3 := service.NotificationRepository.CreateNotification(notification)
+		if err3 != nil {
+			return err3
+		}
 	}
 	if (!contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId) && contains(userLikedAndDisliked.LikedPostsIds, postLikeDTO.PostId)) {
 		post.Likes = post.Likes - 1
@@ -211,6 +273,19 @@ func (service *PostService) DislikePost(postLikeDTO dto.PostLikeDTO) error {
 		err = updateUserLikedPosts(postLikeDTO, "no")
 		if (err != nil) {
 			fmt.Println(err)
+		}
+
+		regularUser, err := getRegularUserFromUsername(postLikeDTO.Username)
+		if err != nil {
+			return err
+		}
+
+		var usersToNotify []string
+		usersToNotify = append(usersToNotify, post.RegularUser.Id)
+		notification := CreateNotificationFromEvent(postLikeDTO.PostId, regularUser.Id, usersToNotify, model.NotificationType(4))
+		err3 := service.NotificationRepository.CreateNotification(notification)
+		if err3 != nil {
+			return err3
 		}
 	}
 	if (contains(userLikedAndDisliked.DislikedPostsIds, postLikeDTO.PostId)) {
@@ -404,6 +479,20 @@ func createCommentFromCommentDTO(commentDTO *dto.CommentDTO) (*model.Comment, er
 	comment.Text = commentDTO.Text
 
 	return &comment, nil
+}
+
+func getUserFollowersWithNotificationsTurnedOn(userId string) ([]string, error) {
+	requestUrl := fmt.Sprintf("http://%s:%s/followers-with-notifications/%s", os.Getenv("FOLLOW_SERVICE_DOMAIN"), os.Getenv("FOLLOW_SERVICE_PORT"), userId)
+	resp, err := http.Get(requestUrl)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var followersIds []string
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&followersIds)
+
+	return followersIds, nil
 }
 
 func getRegularUserFromUsername(username string) (*model.RegularUser, error) {
