@@ -61,6 +61,14 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/feed-posts", handlerPost.GetUsersFeed).Methods("POST")
 	router.HandleFunc("/report-post", handlerPost.ReportPost).Methods("POST")
 	router.HandleFunc("/report-story", handlerStory.ReportStory).Methods("POST")
+	router.HandleFunc("/get-all-report-post", handlerPost.GetAllPostReports).Methods("GET")
+	router.HandleFunc("/get-all-report-story", handlerStory.GetAllStoryReports).Methods("GET")
+	router.HandleFunc("/delete-reported-post/{id}", handlerPost.DeleteReportedPost).Methods("DELETE")
+	router.HandleFunc("/delete-reported-story/{id}", handlerStory.DeleteReportedStory).Methods("DELETE")
+	router.HandleFunc("/delete-story/{id}", handlerStory.DeleteStory).Methods("DELETE")
+	router.HandleFunc("/delete-post/{id}", handlerPost.DeletePost).Methods("DELETE")
+
+
 
 	c := SetupCors()
 

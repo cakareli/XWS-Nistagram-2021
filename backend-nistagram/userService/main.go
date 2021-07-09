@@ -52,11 +52,17 @@ func handleFunc(userHandler *handler.RegularUserHandler, verificationRequestHand
 	router.HandleFunc("/search-public-regular-users/{searchInput}", userHandler.GetUserSearchResults).Methods("GET")
 	router.HandleFunc("/by-users-ids", userHandler.FindUsersByIds).Methods("POST")
 	router.HandleFunc("/verification-request", verificationRequestHandler.CreateVerificationRequest).Methods("POST")
+	router.HandleFunc("/get-all-verification-requests", verificationRequestHandler.GetAllVerificationRequests).Methods("GET")
 	router.HandleFunc("/liked-and-disliked/{username}", userHandler.FindRegularUserLikedAndDislikedPosts).Methods("GET")
 	router.HandleFunc("/update-liked-posts", userHandler.UpdateLikedPosts).Methods("POST")
 	router.HandleFunc("/update-disliked-posts", userHandler.UpdateDislikedPosts).Methods("POST")
 	router.HandleFunc("/save-post", userHandler.SavePost).Methods("PUT")
 	router.HandleFunc("/saved-posts/{username}", userHandler.GetAllSavedPostsByUsername).Methods("GET")
+	router.HandleFunc("/get-all-regular-users", userHandler.GetAllRegularUsers).Methods("GET")
+	router.HandleFunc("/verify-user", userHandler.VerifyUser).Methods("POST")
+	router.HandleFunc("/delete-verification-request/{id}", verificationRequestHandler.DeleteVerificationRequest).Methods("DELETE")
+	router.HandleFunc("/delete-regular-user/{id}", userHandler.DeleteRegularUser).Methods("DELETE")
+
 
 	c := SetupCors()
 

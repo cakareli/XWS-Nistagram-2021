@@ -69,6 +69,23 @@ func (handler *RegularUserHandler) UpdateProfilePrivacy(w http.ResponseWriter, r
 	}
 }
 
+func (handler *RegularUserHandler) DeleteRegularUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	regularUserId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := handler.RegularUserService.DeleteRegularUser(regularUserId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func (handler *RegularUserHandler) CreateRegularUserPostDTOByUsername(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "application/json")
 	param := mux.Vars(r)
@@ -121,6 +138,18 @@ func (handler *RegularUserHandler) FindUserById(w http.ResponseWriter, r *http.R
 }
 
 func (handler *RegularUserHandler) GetAllPublicRegularUsers(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	allRegularUsersDto, err := handler.RegularUserService.GetAllPublicRegularUsers()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(allRegularUsersDto)
+	}
+}
+
+func (handler *RegularUserHandler) GetAllRegularUsers(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "application/json")
 	allRegularUsersDto, err := handler.RegularUserService.GetAllPublicRegularUsers()
 
@@ -225,4 +254,20 @@ func (handler *RegularUserHandler) GetAllSavedPostsByUsername(w http.ResponseWri
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(savedPosts)
+}
+
+func (handler *RegularUserHandler) VerifyUser(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	var userVerificationDto dto.UserVerificationDTO
+	err := json.NewDecoder(r.Body).Decode(&userVerificationDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.VerifyUser(userVerificationDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
 }

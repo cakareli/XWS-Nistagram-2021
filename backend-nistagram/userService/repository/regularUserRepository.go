@@ -41,6 +41,16 @@ func (repository *RegularUserRepository) ExistByUsername(username string) bool{
 	return false
 }
 
+func (repository *RegularUserRepository) DeleteRegularUser(id primitive.ObjectID) error{
+
+	regularUserCollection := repository.Database.Collection("regularUsers")
+	_, err := regularUserCollection.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repository *RegularUserRepository) UpdatePersonalInformations(user *model.RegularUser) error{
 	regularUserCollection := repository.Database.Collection("regularUsers")
 
@@ -76,6 +86,22 @@ func (repository *RegularUserRepository) UpdateProfilePrivacy(user *model.Regula
 			{"$set", bson.D{{"privacyType", user.ProfilePrivacy.PrivacyType}}},
 			{"$set", bson.D{{"allMessageRequests", user.ProfilePrivacy.AllMessageRequests}}},
 			{"$set", bson.D{{"tagsAllowed", user.ProfilePrivacy.TagsAllowed}}},
+		})
+	if err != nil {
+		log.Fatal(err)
+		return err
+	} else if updatedRegularUser.MatchedCount == 0 {
+		return fmt.Errorf("user does not exist")
+	}
+	return nil
+}
+
+func (repository *RegularUserRepository) UpdateUserType(user *model.RegularUser) error{
+	regularUserCollection := repository.Database.Collection("regularUsers")
+
+	updatedRegularUser, err := regularUserCollection.UpdateOne(context.TODO(), bson.M{"_id": user.Id},
+		bson.D{
+			{"$set", bson.D{{"userType", user.UserType}}},
 		})
 	if err != nil {
 		log.Fatal(err)

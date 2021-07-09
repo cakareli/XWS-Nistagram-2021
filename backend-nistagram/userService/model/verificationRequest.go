@@ -3,7 +3,8 @@ package model
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type VerificationRequest struct {
-	Id primitive.ObjectID `bson:"id,omitempty"`
+
+	Id primitive.ObjectID `bson:"_id,omitempty"`
 	UserId string `bson:"userId,omitempty"`
 	Name string `bson:"verificationName,omitempty"`
 	Surname string `bson:"verificationSurname,omitempty"`

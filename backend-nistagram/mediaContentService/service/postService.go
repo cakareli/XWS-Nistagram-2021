@@ -58,6 +58,16 @@ func (service *PostService) GetAllPublicPosts() []model.Post {
 	return publicPosts
 }
 
+func (service *PostService) GetAllPostReports() []dto.ReportedPostDTO {
+	postReports := service.PostRepository.GetAllPostReports()
+
+	publicPostsModel := createPostReportsFromDocuments(postReports)
+
+	publicPostsDto := createPostReportedPostDtoFromModel(publicPostsModel)
+
+	return publicPostsDto
+}
+
 func (service *PostService) CreateNewPost(postUploadDto dto.PostUploadDTO) error {
 	fmt.Println("Creating new post")
 
@@ -81,6 +91,29 @@ func CreatePostsFromDocuments(PostsDocuments []bson.D) []model.Post {
 		publicPosts = append(publicPosts, post)
 	}
 	return publicPosts
+}
+
+func createPostReportsFromDocuments(ReportDocuments []bson.D) []model.InappropriateContentPost {
+	var reportPosts []model.InappropriateContentPost
+	for i := 0; i < len(ReportDocuments); i++ {
+		var report model.InappropriateContentPost
+		bsonBytes, _ := bson.Marshal(ReportDocuments[i])
+		_ = bson.Unmarshal(bsonBytes, &report)
+		reportPosts = append(reportPosts, report)
+	}
+	return reportPosts
+}
+
+func createPostReportedPostDtoFromModel(ReportedDocumentsModel []model.InappropriateContentPost) []dto.ReportedPostDTO{
+	var reporedPostsDTO []dto.ReportedPostDTO
+	for i := 0 ;i < len(ReportedDocumentsModel); i++{
+		var reportDTO dto.ReportedPostDTO
+		reportDTO.Id = ReportedDocumentsModel[i].Id.Hex()
+		reportDTO.Text = ReportedDocumentsModel[i].Text
+		reportDTO.Post = ReportedDocumentsModel[i].Post
+		reporedPostsDTO = append(reporedPostsDTO, reportDTO)
+	}
+	return reporedPostsDTO
 }
 
 func (service *PostService) CommentPost(commentDTO dto.CommentDTO) error {
@@ -264,6 +297,22 @@ func (service *PostService) GetUsersFeed(usersIds []string) (*[]dto.PostDTO, err
 
 	postDTOs := createPostDTOsFromPosts(posts)
 	return postDTOs, nil
+}
+
+func (service *PostService) DeleteReportedPost(id primitive.ObjectID) error{
+	err := service.PostRepository.DeleteReportedPost(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *PostService) DeletePost(id primitive.ObjectID) error{
+	err := service.PostRepository.DeletePost(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (service *PostService) ReportPost(postReportDTO dto.PostReportDTO) error {

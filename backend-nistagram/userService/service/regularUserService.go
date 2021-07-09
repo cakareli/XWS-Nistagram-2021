@@ -95,6 +95,28 @@ func (service *RegularUserService) updateUserInAuthenticationService(regularUser
 	return nil
 }
 
+func (service *RegularUserService) DeleteRegularUser(id primitive.ObjectID) error{
+	err := service.RegularUserRepository.DeleteRegularUser(id)
+	if err != nil {
+		return err
+	}
+	err1 := service.deleteUserInAuthenticationService(id.Hex())
+	if err1 != nil {
+		return err1
+	}
+	return nil
+}
+
+func (service *RegularUserService) deleteUserInAuthenticationService(id string) error {
+	url := "http://"+os.Getenv("AUTHENTICATION_SERVICE_DOMAIN")+":"+os.Getenv("AUTHENTICATION_SERVICE_PORT")+"/delete-user/"+id
+	_, err := http.NewRequest("DELETE",url, nil)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+
 func (service *RegularUserService) UpdateProfilePrivacy(profilePrivacyDto dto.ProfilePrivacyDTO) error {
 	fmt.Println("Updating regular user")
 
@@ -189,6 +211,18 @@ func (service *RegularUserService) GetUserSearchResults(searchInput string) ([]m
 
 func (service *RegularUserService) GetAllPublicRegularUsers() ([]dto.RegularUserDTO, error){
 	allRegularUsers,err := service.RegularUserRepository.GetAllPublicRegularUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	allRegularUsersModel := CreateUserFromDocuments(allRegularUsers)
+
+	allRegularUsersDto := createRegularUserDtoFromRegularUser(allRegularUsersModel)
+	return allRegularUsersDto,nil
+}
+
+func (service *RegularUserService) GetAllRegularUsers() ([]dto.RegularUserDTO, error){
+	allRegularUsers,err := service.RegularUserRepository.GetAllRegularUsers()
 	if err != nil {
 		return nil, err
 	}
@@ -405,6 +439,22 @@ func (service *RegularUserService) FindRegularUserSavedPosts(username string) ([
 		return nil, err
 	}
 	return regularUser.SavedPosts, nil
+}
+
+func (service *RegularUserService) VerifyUser(userVerificationDto dto.UserVerificationDTO) error {
+	fmt.Println("Verifying user ...")
+
+	id, _ := primitive.ObjectIDFromHex(userVerificationDto.UserId)
+	user, err1 := service.RegularUserRepository.FindUserById(id)
+	if err1 != nil {
+		return err1
+	}
+	user.UserType = userVerificationDto.VerificationType
+	err2 := service.RegularUserRepository.UpdateUserType(user)
+	if err2 != nil {
+		return err2
+	}
+	return nil
 }
 
 func removeFromSlice(s []string, r string) []string {

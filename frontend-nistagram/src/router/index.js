@@ -17,6 +17,11 @@ import BlockedUsers from '../views/BlockedUsers.vue'
 import MutedUsers from '../views/MutedUsers.vue'
 import CloseFriends from '../views/CloseFriends.vue'
 import Notification from '../views/Notification.vue'
+import AdministratorHome from '../views/AdministratorHome.vue'
+import VerificationRequests from '../views/VerificationRequests.vue'
+import RemoveProfiles from '../views/RemoveProfiles.vue'
+import InappropriateContent from '../views/InappropriateContent.vue'
+
 
 Vue.use(VueRouter)
 
@@ -105,8 +110,27 @@ const routes = [
     path: '/notifications',
     name: 'Notification',
     component: Notification
-  }
-
+  },
+  {
+    path: '/administratorHome',
+    name: 'AdministratorHome',
+    component: AdministratorHome
+  },
+  {
+    path: '/verificationRequests',
+    name: 'VerificationRequests',
+    component: VerificationRequests
+  },
+  {
+    path: '/removeProfiles',
+    name: 'RemoveProfiles',
+    component: RemoveProfiles
+  },
+  {
+    path: '/inappropriateContent',
+    name: 'InappropriateContent',
+    component: InappropriateContent
+  },
 ]
 
 const router = new VueRouter({

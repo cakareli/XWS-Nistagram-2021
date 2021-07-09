@@ -86,3 +86,37 @@ func (repository *StoryRepository) FindStoryById(storyId primitive.ObjectID) (*m
 	}
 	return story, nil
 }
+
+func (repository *StoryRepository) GetAllStoryReports() []bson.D{
+	reportsCollection := repository.Database.Collection("storyReports")
+	filterCursor, err := reportsCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var postsFiltered []bson.D
+	if err = filterCursor.All(context.TODO(), &postsFiltered); err != nil {
+		log.Fatal(err)
+	}
+	return postsFiltered
+}
+
+func (repository *StoryRepository) DeleteReportedStory(id primitive.ObjectID) error{
+
+	reportedStoriesCollection := repository.Database.Collection("storyReports")
+	_, err := reportedStoriesCollection.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repository *StoryRepository) DeleteStory(id primitive.ObjectID) error{
+
+	storiesCollection := repository.Database.Collection("stories")
+	_, err := storiesCollection.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}

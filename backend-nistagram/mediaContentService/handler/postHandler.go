@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type PostHandler struct {
@@ -263,4 +264,50 @@ func (handler *PostHandler) ReportPost(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
+}
+
+func (handler *PostHandler) GetAllPostReports(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	postReports := handler.PostService.GetAllPostReports()
+	postReportsJson, err := json.Marshal(postReports)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(postReportsJson)
+	}
+}
+
+func (handler *PostHandler) DeleteReportedPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	postReportId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := handler.PostService.DeleteReportedPost(postReportId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	postId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := handler.PostService.DeletePost(postId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

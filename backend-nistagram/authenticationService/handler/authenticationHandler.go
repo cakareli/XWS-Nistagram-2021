@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"github.com/gorilla/mux"
 )
 
 type AuthenticationHandler struct {
@@ -30,6 +31,18 @@ func (handler *AuthenticationHandler) RegisterUser (res http.ResponseWriter, req
 		return;
 	}
 	res.WriteHeader(http.StatusCreated);
+}
+
+func (handler *AuthenticationHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	err := handler.AuthenticationService.DeleteUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (handler *AuthenticationHandler) UpdateUser (res http.ResponseWriter, req *http.Request) {

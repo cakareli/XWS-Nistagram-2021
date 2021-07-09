@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type StoryHandler struct {
@@ -81,4 +82,50 @@ func (handler *StoryHandler) ReportStory(w http.ResponseWriter, r *http.Request)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
+}
+
+func (handler *StoryHandler) GetAllStoryReports(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	storyReports := handler.StoryService.GetAllStoryReports()
+	storyReportsJson, err := json.Marshal(storyReports)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(storyReportsJson)
+	}
+}
+
+func (handler *StoryHandler) DeleteReportedStory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	storyReportId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := handler.StoryService.DeleteReportedStory(storyReportId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *StoryHandler) DeleteStory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	storyId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err := handler.StoryService.DeleteStory(storyId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

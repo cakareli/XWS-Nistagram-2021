@@ -37,6 +37,18 @@ func (repository *AuthenticationRepository) FindUserByUsername(username string) 
 	return user, nil
 }
 
+func (repository *AuthenticationRepository) DeleteUser(id string) error{
+
+	fmt.Println("DOLAZI DO REPOA")
+	fmt.Println("ID: ",id)
+	sqlDelete := `DELETE FROM users WHERE user_id = $1;`
+	err := repository.Database.Table("users").Exec(sqlDelete, id).Error
+	if  err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repository *AuthenticationRepository) FindUserByUserId(userId string) (*model.User, error){
 	user := &model.User{}
 	err := repository.Database.Table("users").First(&user, "user_id = ?", userId).Error
