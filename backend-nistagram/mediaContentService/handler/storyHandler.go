@@ -129,3 +129,58 @@ func (handler *StoryHandler) DeleteStory(w http.ResponseWriter, r *http.Request)
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func (handler *StoryHandler) FindStoryById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	storyId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	storyDto,err := handler.StoryService.FindStoryById(storyId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(storyDto)
+}
+
+func (handler *StoryHandler) DeleteUserStories(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	var deleteUserDTO dto.DeleteUserDTO
+	err := json.NewDecoder(r.Body).Decode(&deleteUserDTO)
+	if err != nil{
+		return
+	}
+	userId,err1 := primitive.ObjectIDFromHex(deleteUserDTO.Id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err2 := handler.StoryService.DeleteUserStories(userId)
+	if err2 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *StoryHandler) GetStoryFeed(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-Type", "application/json")
+	var usersIds []string
+	err := json.NewDecoder(r.Body).Decode(&usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	storyDtos, err := handler.StoryService.GetStoryFeed(usersIds)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(storyDtos)
+}

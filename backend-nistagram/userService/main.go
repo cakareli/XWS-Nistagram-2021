@@ -61,7 +61,9 @@ func handleFunc(userHandler *handler.RegularUserHandler, verificationRequestHand
 	router.HandleFunc("/get-all-regular-users", userHandler.GetAllRegularUsers).Methods("GET")
 	router.HandleFunc("/verify-user", userHandler.VerifyUser).Methods("POST")
 	router.HandleFunc("/delete-verification-request/{id}", verificationRequestHandler.DeleteVerificationRequest).Methods("DELETE")
-	router.HandleFunc("/delete-regular-user/{id}", userHandler.DeleteRegularUser).Methods("DELETE")
+	router.HandleFunc("/delete-regular-user", userHandler.DeleteRegularUser).Methods("POST")
+	router.HandleFunc("/register-agent", userHandler.RegisterAgent).Methods("POST")
+	//router.HandleFunc("/get-all-agent-requests", userHandler.GetAllAgentRequests).Methods("POST")
 
 
 	c := SetupCors()
@@ -83,7 +85,7 @@ func SetupCors() *cors.Cors {
 }
 
 func initDatabase() *mongo.Database{
-	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

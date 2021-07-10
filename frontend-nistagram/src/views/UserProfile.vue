@@ -61,7 +61,13 @@
                 <v-btn  class="mx-5" @click="unmuteUser" v-show="muted">Unmute</v-btn>
                 <v-btn  class="mx-5" @click="blockUser" v-show="!blocked">Block</v-btn>
                 <v-btn  class="mx-5" @click="unblockUser" v-show="blocked">Unblock</v-btn>
-                
+            </v-row>
+            <br/><br/>
+            <v-row justify="center" v-show="!loggedUserProfile">
+              <v-btn  class="mx-5" @click="addToClose" v-show="!isClose">Add To Close Friends</v-btn>
+              <v-btn  class="mx-5" @click="removeFromClose" v-show="isClose">Remove From Close Friends</v-btn>
+              <v-btn  class="mx-5" @click="turnNotificationsOn" v-show="!notification ">Turn notifications on</v-btn>
+              <v-btn  class="mx-5" @click="turnNotificationsOff" v-show="notification ">Turn notifications off</v-btn>
             </v-row>
         </v-card>
       </v-row> 
@@ -85,7 +91,7 @@
         <v-card width="800px" class="pa-12">
             <v-row justify="center" >
             <v-list>
-              <v-list-item v-for="post in allUserPosts.slice().reverse()" :key="post.Username">
+              <v-list-item v-for="post in allUserPosts" :key="post.Username">
                 <v-card height="800" width="550" class="ma-3 grey lighten-5">
                   <v-card-title class="grey lighten-3" height="10">
                     <a :href="'/user-profile/' + post.RegularUser.Username" class="black--text" style="text-decoration: none; color: inherit;">@{{ post.RegularUser.Username }}</a>
@@ -290,6 +296,8 @@ export default {
       followingsNumber: 0,
       blocked: false,
       blockedUsers: [],
+      mutedUsers: [],
+      closeUsers: [],
       followed: false,
       followedUsers: [],
       allFollowers: "",
@@ -300,7 +308,9 @@ export default {
       muted: false,
       reportPostDialog: false,
       reportedPost: {},
-      adminLogged: false
+      adminLogged: false,
+      notification: false,
+      notificationUsers: [],
     };
   },
   created() {
@@ -368,7 +378,15 @@ export default {
         })
     },
     unmuteUser(){
-
+        axios.put("http://localhost:8081/api/follow/unmute-following/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
     },
     addToClose(){
         axios.put("http://localhost:8081/api/follow/add-to-close/" + getId() + "/" + this.id)
@@ -382,7 +400,15 @@ export default {
         })
     },
     removeFromClose(){
-
+        axios.put("http://localhost:8081/api/follow/remove-from-close/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
     },
 
     blockUser(){
@@ -436,8 +462,13 @@ export default {
           }
           })
           .then(response => {
-            this.followersNumber = response.data.length
-            this.allFollowers = response.data
+            if(response.data === null){
+              this.followersNumber = 0
+            
+            }else{
+              this.followersNumber = response.data.length
+              this.allFollowers = response.data;
+            }
             console.log(response);
             this.followedUsers = response.data
             for(let i = 0; i<this.followedUsers.length; i++){
@@ -453,22 +484,30 @@ export default {
           }
           })
           .then(response => {
-            this.followingsNumber = response.data.length
-            this.allFollowings = response.data
+            if(response.data === null){
+              this.followingsNumber = 0
+              
+            }else{
+              this.followingsNumber = response.data.length
+              this.allFollowings = response.data
+            }
           })
 
           this.loadAllUserPosts()
+          this.checkNotificationFollowers()
       })
         
     },
     loadAllUserPosts() {
       let userFound = false;
       if(this.privacyType === 1){
-        for(let i = 0; i<this.allFollowers.length; i++){
-          if(getUsername().equals(this.allFollowers[i].username)){
-            userFound = true;
+        if(this.allFollowers!==[]){
+          for(let i = 0; i<this.allFollowers.length; i++){
+            if(getUsername().equals(this.allFollowers[i].username)){
+              userFound = true;
 
-          } 
+            } 
+          }
         }
       } else if (this.privacyType === 0 || userFound){
         axios.get("http://localhost:8081/api/media-content/regular-user-posts/"+ this.username, {
@@ -529,11 +568,98 @@ export default {
           }
         });
     },
+
+    checkMutedUser(){
+      axios
+        .get("http://localhost:8081/api/follow/muted-users/" + getId())
+        .then((response) => {
+          console.log(response);
+          
+          this.mutedUsers = response.data;
+          for(let i = 0; i<this.mutedUsers.length; i++){
+              if(this.username === this.mutedUsers[i].username){
+                this.muted = true;
+              }
+          }
+        })
+        .catch((error) => {
+          if (error.response.status === 400) {
+            this.snackbarText = "Bad request, try again!";
+            this.snackbar = true;
+          }
+        });
+    },
+
+    checkCloseFriends(){
+      axios
+        .get("http://localhost:8081/api/follow/close-followers/" + getId())
+        .then((response) => {
+          console.log(response);
+          
+          this.closeUsers = response.data;
+          for(let i = 0; i<this.closeUsers.length; i++){
+              if(this.username === this.closeUsers[i].username){
+                this.isClose = true;
+              }
+          }
+        })
+        .catch((error) => {
+          if (error.response.status === 400) {
+            this.snackbarText = "Bad request, try again!";
+            this.snackbar = true;
+          }
+        });
+    },
+    turnNotificationsOn(){
+      axios.put("http://localhost:8081/api/follow/notifications-on/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    turnNotificationsOff(){
+      axios.put("http://localhost:8081/api/follow/notifications-off/" + getId() + "/" + this.id)
+        .then(response => {
+            console.log(response)
+            this.$router.go()
+        }).catch(error => {
+          if(error.response.status === 400){
+            console.log("Bad request")
+          }
+        })
+    },
+    checkNotificationFollowers(){
+      axios.get("http://localhost:8081/api/follow/followers-with-notifications/" + this.id)
+        .then((response) => {
+          console.log(response);
+          
+          this.notificationUsers = response.data;
+          for(let i = 0; i<this.notificationUsers.length; i++){
+            alert(getId() +"==="+ this.notificationUsers[i])
+              if(getId() === this.notificationUsers[i]){
+                alert("Prolazi")
+                this.notification = true;
+              }
+          }
+        })
+        .catch((error) => {
+          if (error.response.status === 400) {
+            this.snackbarText = "Bad request, try again!";
+            this.snackbar = true;
+          }
+        });
+    },
   },
   mounted() {
     this.checkLoggedUser();
     this.loadUserProfileData();
     this.checkBlockedUser();
+    this.checkMutedUser();
+    this.checkCloseFriends();
   },
 }
 

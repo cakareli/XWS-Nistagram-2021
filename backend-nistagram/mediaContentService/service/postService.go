@@ -15,6 +15,7 @@ import (
 
 type PostService struct {
 	PostRepository *repository.PostRepository
+	StoryRepository repository.StoryRepository
 	NotificationRepository *repository.NotificationRepository
 }
 
@@ -41,6 +42,17 @@ func (service *PostService) GetUserSearchResults(searchInput string) []model.Pos
 	searchPostDocuments := service.PostRepository.GetUserSearchResults(searchInput, searchPosts)
 
 	return searchPostDocuments
+}
+
+func (service *PostService) FindPostById(id primitive.ObjectID) (dto.PostDTO,error) {
+	var post dto.PostDTO
+	searchPostDocument, err := service.PostRepository.FindPostById(id)
+	if err != nil{
+		return post,err
+	}
+	postDto := createPostDTOFromPost(*searchPostDocument)
+
+	return *postDto, nil
 }
 
 func (service *PostService) GetTagSearchResults(searchInput string) []model.Post {
@@ -390,6 +402,16 @@ func (service *PostService) DeletePost(id primitive.ObjectID) error{
 	return nil
 }
 
+func (service *PostService) DeleteUserMediaContent(id primitive.ObjectID) error{
+	postDocuments := service.PostRepository.FindAllPostsByUserId(id.Hex())
+	postModel := CreatePostsFromDocuments(postDocuments)
+	err := service.PostRepository.DeleteUserPostMediaContent(postModel)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (service *PostService) ReportPost(postReportDTO dto.PostReportDTO) error {
 	fmt.Println("Disliking post...")
 
@@ -434,6 +456,23 @@ func createPostDTOsFromPosts(posts []model.Post) *[]dto.PostDTO{
 		postDTOs = append(postDTOs, postDTO)
 	}
 	return &postDTOs
+}
+
+func createPostDTOFromPost(posts model.Post) *dto.PostDTO{
+	var postDTO dto.PostDTO
+	postDTO.Id = posts.Id.Hex()
+	postDTO.Hashtags = posts.Hashtags
+	postDTO.Tags = posts.Tags
+	postDTO.Description = posts.Description
+	postDTO.MediaPaths = posts.MediaPaths
+	postDTO.UploadDate = posts.UploadDate
+	postDTO.MediaContentType = posts.MediaContentType
+	postDTO.RegularUser = posts.RegularUser
+	postDTO.Likes = posts.Likes
+	postDTO.Dislikes = posts.Dislikes
+	postDTO.Location = posts.Location
+	postDTO.Comment = posts.Comment
+	return &postDTO
 }
 
 func createPostFromPostUploadDTO(postUploadDto *dto.PostUploadDTO) (*model.Post, error){

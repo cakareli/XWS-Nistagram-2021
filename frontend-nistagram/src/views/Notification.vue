@@ -19,17 +19,17 @@
         </v-col>
       </v-row>
     </v-app-bar>
-    <v-container>
+    <v-container v-show="requestExists">
       <v-row justify="center">
-        <v-card width="800px" class="pa-12">
+        <v-card width="900px" class="pa-12">
           <v-row justify="center">
             <v-list>
               <v-list-item v-for="user in followRequest" :key="user.username">
-                <v-card height="60" width="600" class="ma-3 grey lighten-5">
+                <v-card height="60" width="800" class="ma-3 grey lighten-5">
                   <v-card-title height="60" class="grey lighten-3">
                     <v-row>
                       <v-col>
-                        <v-row>
+                        <v-row class="ma-1">
                           <h4>@{{ user.username }}</h4>
                         </v-row>
                         </v-col>
@@ -55,6 +55,42 @@
         </v-card>
       </v-row>
     </v-container>
+    <br/><br/>
+    <v-container v-show="notificationExists">
+      <v-row justify="center">
+        <v-card width="900px" class="pa-12">
+          <v-row justify="center">
+            <v-list>
+              <v-list-item v-for="notification in notifications" :key="notification.mediaContentId">
+                <v-card height="60" width="800" class="ma-3 grey lighten-5">
+                  <v-card-title height="60" class="grey lighten-3">
+                    <v-row>
+                      <v-col>
+                        <v-row class="ma-1">
+                          <span>{{ notification.text }}</span>
+                        </v-row>
+                      </v-col>
+                      <v-col v-show="notification.notificationType !== 1">
+                        <v-btn small @click="loadContent(notification.mediaContentId, notification.notificationType)">
+                          <span>View post</span>
+                        </v-btn>
+                      </v-col>
+                      <v-col v-show="notification.notificationType === 1">
+                        <v-btn small @click="loadContent(notification.mediaContentId, notification.notificationType)">
+                          <span>View story</span>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-card-title>
+                  <v-divider></v-divider>
+                </v-card>
+              </v-list-item>
+            </v-list>
+          </v-row>
+        </v-card>
+      </v-row>
+    </v-container>
+
     <v-footer app height="45px" class="grey lighten-3 justify-center">
       <v-container>
         <v-row justify="center">
@@ -93,6 +129,9 @@ export default {
   data() {
     return {
       followRequest: [],
+      notifications: [],
+      notificationExists: true,
+      requestExists: true
     };
   },
 
@@ -103,6 +142,9 @@ export default {
         .then((response) => {
           console.log(response);
           this.followRequest = response.data;
+          if(this.followRequest.length === 0){
+            this.requestExists = false
+          }
         })
         .catch((error) => {
           if (error.response.status === 400) {
@@ -142,9 +184,28 @@ export default {
     loadUserProfile(username){
       this.$router.push('/user-profile/' + username).catch(()=>{})
     },
+    loadNotifications(){
+      axios.get('http://localhost:8081/api/media-content/notifications/'+getId())
+      .then((response)=>{
+        this.notifications = response.data
+        console.log(response.data.status)
+        if(this.notifications.length === 0){
+            this.notificationExists = false
+          }
+      })
+      .catch((error)=>{
+        if(error.status === 400){
+          console.log("Bad request")
+        }
+      })
+    },
+    loadContent(id, contentType){
+      this.$router.push('/notification-post/' + id+"/"+contentType).catch(()=>{})
+    }
   },
   mounted() {
     this.loadAllFollowRequests();
+    this.loadNotifications();
   },
 };
 </script>

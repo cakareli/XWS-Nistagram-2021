@@ -29,14 +29,15 @@
                       </v-col>
                       <v-spacer/>
                       <v-col>
-                        <v-btn small @click="loadUserProfile(user.username)">
-                          <span>View profile</span>
-                        </v-btn>
+                        <v-btn small class="success" @click="verifyUser(user._id)">
+                            <v-icon left>mdi-check-circle-outline</v-icon>
+                            <span>Verify</span>
+                      </v-btn>
                       </v-col>
                       <v-col>
                         <v-btn small class="error" @click="removeUser(user._id)">
                           <v-icon left>mdi-trash-can-outline</v-icon>
-                          <span>Remove</span>
+                          <span>Reject</span>
                         </v-btn>
                       </v-col>
                     </v-row>
@@ -56,7 +57,6 @@
           </v-row>
         </v-container>
     </v-footer>
-
   </v-app>
 </template>
 
@@ -66,14 +66,14 @@ import axios from "axios";
 import { getToken} from "../security/token.js";
 
 export default {
-    name: 'RemoveProfiles',
+    name: 'AgentVerification',
     data() {
-        return{
-            allUsers: []
+        return {
+
         }
     },
     methods: {
-        loadAllRegularUser(){
+        loadAllAgentRequest(){
             axios.get("http://localhost:8081/api/user/get-all-regular-users",{
                 headers: {
                     Authorization: "Bearer " + getToken(),
@@ -88,32 +88,9 @@ export default {
                 }
             })
         },
-        loadUserProfile(username){
-            this.$router.push('/user-profile/' + username).catch(()=>{})
-        },
-        removeUser(id){
-          let removeUserDto = {
-            userId: id
-          }
-          axios.post('http://localhost:8081/api/user/delete-regular-user',removeUserDto,{
-            headers: {
-                    Authorization: "Bearer " + getToken(),
-                },
-          })
-          .then((response)=>{
-            console.log("User removed")
-            console.log(response.data.status)
-            this.$router.go()
-          })
-          .catch((error)=>{
-            if(error.response === 404){
-              console.log("Status not found")
-            }
-          })
-        }
     },
     mounted() {
-        this.loadAllRegularUser();
+        this.loadAllAgentRequest()
     }
 }
 </script>

@@ -32,22 +32,6 @@
             </v-list-item-group>
           </v-list>
     </v-navigation-drawer>
-
-    <v-container>
-      <v-row justify="center">
-        <v-card width="800px" class="pa-12 grey lighten-4">
-            <v-row justify="center">
-                
-                <v-col>
-                    <br>
-                    <h3>{{this.name}} {{this.space}} {{this.surname}}</h3>
-                    <br>
-                    
-                </v-col>
-            </v-row>
-        </v-card>
-      </v-row> 
-    </v-container>
     <br><br><br>
     <v-container>
       <v-row justify="center">
@@ -60,6 +44,9 @@
             </v-row>
             <v-row justify="center" class="ma-5">
                 <v-btn width="250" height="35" @click="$router.push('/removeProfiles')">Remove Profile</v-btn> 
+            </v-row>
+            <v-row justify="center" class="ma-5">
+                <v-btn width="250" height="35" @click="$router.push('/agentVerification')">Agent Verification</v-btn> 
             </v-row>
         </v-card>
       </v-row> 

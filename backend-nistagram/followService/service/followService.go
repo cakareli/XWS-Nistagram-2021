@@ -138,6 +138,14 @@ func (service *FollowService) FindAllUserFollowings(loggedUserId string) ([]dto.
 	return userDTOs, nil
 }
 
+func (service *FollowService) DeleteUser(id string) error{
+	deleted := service.FollowRepository.DeleteUser(id)
+	if !deleted {
+		return nil
+	}
+	return nil
+}
+
 func (service *FollowService) FindAllPostsForFeed(loggedUserId string) ([]dto.PostDTO, error) {
 	fmt.Println("getting all feed users...")
 
@@ -254,6 +262,22 @@ func (service *FollowService) getPostsFromFeedUserIds(userIds []string) ([]dto.P
 	decoder := json.NewDecoder(resp.Body)
 	_ = decoder.Decode(&postDTOs)
 	return postDTOs, nil
+}
+
+func (service *FollowService) getStoriesFromFeedUserIds(userIds []string) ([]dto.StoryDTO, error){
+	var storyDTOs []dto.StoryDTO
+	postBody, _ := json.Marshal(userIds)
+	requestUrl := fmt.Sprintf("http://%s:%s/feed-stories", os.Getenv("MEDIA_CONTENT_SERVICE_DOMAIN"), os.Getenv("MEDIA_CONTENT_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	fmt.Println(resp.StatusCode)
+	decoder := json.NewDecoder(resp.Body)
+	_ = decoder.Decode(&storyDTOs)
+	return storyDTOs, nil
 }
 
 func appendArray(firstSlice []string, secondSlice []dto.UserDTO) []string{

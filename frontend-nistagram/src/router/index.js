@@ -22,6 +22,7 @@ import VerificationRequests from '../views/VerificationRequests.vue'
 import RemoveProfiles from '../views/RemoveProfiles.vue'
 import InappropriateContent from '../views/InappropriateContent.vue'
 import NotificationPost from '../views/ViewPostFromNotification.vue'
+import AgentVerification from '../views/AgentVerification.vue'
 
 Vue.use(VueRouter)
 
@@ -132,10 +133,15 @@ const routes = [
     component: InappropriateContent
   },
   {
-    path: '/notification-post/:post',
+    path: '/notification-post/:post/:contentType',
     name: 'NotificationPost',
     component: NotificationPost
-  }
+  },
+  {
+    path: '/agentVerification',
+    name: 'AgentVerification',
+    component: AgentVerification
+  },
 ]
 
 const router = new VueRouter({

@@ -67,6 +67,17 @@ func (service *StoryService) UpdateStoriesPrivacy(privacyUpdateDTO *dto.PrivacyU
 	return nil
 }
 
+func (service *StoryService) FindStoryById(id primitive.ObjectID) (dto.StoryDTO,error) {
+	var story dto.StoryDTO
+	storyModel, err := service.StoryRepository.FindStoryById(id)
+	if err != nil{
+		return story,err
+	}
+	postDto := createStoryDTOFromStoryModel(*storyModel)
+
+	return *postDto, nil
+}
+
 func CreateStoriesFromDocuments(StoriesDocuments []bson.D) []model.Story {
 	var publicStories []model.Story
 	for i := 0; i < len(StoriesDocuments); i++ {
@@ -88,6 +99,16 @@ func (service *StoryService) DeleteReportedStory(id primitive.ObjectID) error{
 
 func (service *StoryService) DeleteStory(id primitive.ObjectID) error{
 	err := service.StoryRepository.DeleteStory(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *StoryService) DeleteUserStories(id primitive.ObjectID) error{
+	storyDocuments := service.StoryRepository.FindAllStoriesByUserId(id.Hex())
+	storyModel := CreateStoriesFromDocuments(storyDocuments)
+	err := service.StoryRepository.DeleteUserStories(storyModel)
 	if err != nil {
 		return err
 	}
@@ -130,6 +151,18 @@ func (service *StoryService) GetAllStoryReports() []dto.ReportedStoryDTO {
 	return storyReportsDto
 }
 
+func (service *StoryService) GetStoryFeed(usersIds []string) (*[]dto.StoryDTO, error) {
+	var stories []model.Story
+	for i:=0; i < len(usersIds); i++ {
+		story := service.StoryRepository.FindAllStoriesByUserId(usersIds[i])
+		storyModel := CreateStoriesFromDocuments(story)
+		stories = appendStory(stories, storyModel)
+	}
+
+	storyDTOs := createStoryDTOsFromStoryModel(stories)
+	return storyDTOs, nil
+}
+
 func createStoryReportsFromDocuments(ReportDocuments []bson.D) []model.InappropriateContentStory {
 	var reportPosts []model.InappropriateContentStory
 	for i := 0; i < len(ReportDocuments); i++ {
@@ -139,6 +172,24 @@ func createStoryReportsFromDocuments(ReportDocuments []bson.D) []model.Inappropr
 		reportPosts = append(reportPosts, report)
 	}
 	return reportPosts
+}
+
+func createStoryDTOsFromStoryModel(storyModels []model.Story) *[]dto.StoryDTO{
+	var storyDTOs []dto.StoryDTO
+	for i := 0; i < len(storyModels); i++{
+		var storyDTO dto.StoryDTO
+		storyDTO.Id = storyModels[i].Id.Hex()
+		storyDTO.Hashtags = storyModels[i].Hashtags
+		storyDTO.Tags = storyModels[i].Tags
+		storyDTO.Description = storyModels[i].Description
+		storyDTO.MediaPaths = storyModels[i].MediaPaths
+		storyDTO.UploadDate = storyModels[i].UploadDate
+		storyDTO.MediaContentType = storyModels[i].MediaContentType
+		storyDTO.RegularUser = storyModels[i].RegularUser
+		storyDTO.Location = storyModels[i].Location
+		storyDTOs = append(storyDTOs, storyDTO)
+	}
+	return &storyDTOs
 }
 
 func createStoryReportedPostDtoFromModel(ReportedDocumentsModel []model.InappropriateContentStory) []dto.ReportedStoryDTO{
@@ -151,6 +202,20 @@ func createStoryReportedPostDtoFromModel(ReportedDocumentsModel []model.Inapprop
 		reporedPostsDTO = append(reporedPostsDTO, reportDTO)
 	}
 	return reporedPostsDTO
+}
+
+func createStoryDTOFromStoryModel(storyModel model.Story) *dto.StoryDTO{
+	var storyDTO dto.StoryDTO
+	storyDTO.Id = storyModel.Id.Hex()
+	storyDTO.Hashtags = storyModel.Hashtags
+	storyDTO.Tags = storyModel.Tags
+	storyDTO.Description = storyModel.Description
+	storyDTO.MediaPaths = storyModel.MediaPaths
+	storyDTO.UploadDate = storyModel.UploadDate
+	storyDTO.MediaContentType = storyModel.MediaContentType
+	storyDTO.RegularUser = storyModel.RegularUser
+	storyDTO.Location = storyModel.Location
+	return &storyDTO
 }
 
 func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.Story, error){
@@ -179,4 +244,11 @@ func createStoryFromStoryUploadDTO(storyUploadDTO *dto.StoryUploadDTO) (*model.S
 	story.IsHighlighted = false
 	story.MediaContentType = model.MediaContentType(1)
 	return &story, nil
+}
+
+func appendStory(allPosts []model.Story, newPosts []model.Story) []model.Story{
+	for i := 0; i<len(newPosts); i++{
+		allPosts = append(allPosts, newPosts[i])
+	}
+	return allPosts
 }
