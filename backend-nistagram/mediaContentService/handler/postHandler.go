@@ -5,8 +5,8 @@ import (
 	"XWS-Nistagram-2021/backend-nistagram/mediaContentService/service"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"net/http"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
 type PostHandler struct {
@@ -278,7 +278,26 @@ func (handler *PostHandler) GetAllPostReports(w http.ResponseWriter, r *http.Req
 	}
 }
 
+func (handler *PostHandler) FindPostById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	param := mux.Vars(r)
+	id := param["id"]
+	postId,err1 := primitive.ObjectIDFromHex(id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	postDtos,err := handler.PostService.FindPostById(postId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(postDtos)
+}
+
 func (handler *PostHandler) DeleteReportedPost(w http.ResponseWriter, r *http.Request) {
+
 	w.Header().Set("content-type", "application/json")
 	param := mux.Vars(r)
 	id := param["id"]
@@ -306,6 +325,26 @@ func (handler *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 	err := handler.PostService.DeletePost(postId)
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *PostHandler) DeleteUserMediaContent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	var deleteUserDTO dto.DeleteUserDTO
+	err := json.NewDecoder(r.Body).Decode(&deleteUserDTO)
+	if err != nil{
+		return
+	}
+	userId,err1 := primitive.ObjectIDFromHex(deleteUserDTO.Id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err2 := handler.PostService.DeleteUserMediaContent(userId)
+	if err2 != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

@@ -20,6 +20,8 @@ func (repository *StoryRepository) CreateStory(story *model.Story) (string, erro
 	if err != nil {
 		return "", fmt.Errorf("Story is NOT created!")
 	}
+	res.InsertedID.(primitive.ObjectID).Hex()
+
 	return res.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
@@ -118,5 +120,18 @@ func (repository *StoryRepository) DeleteStory(id primitive.ObjectID) error{
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (repository *StoryRepository) DeleteUserStories(stories [] model.Story) error{
+
+	for i := 0; i < len(stories); i++{
+		storiesCollection := repository.Database.Collection("stories")
+		_, err := storiesCollection.DeleteOne(context.TODO(), bson.M{"_id": stories[i].Id})
+		if err != nil{
+			return err
+		}
+	}
+
 	return nil
 }

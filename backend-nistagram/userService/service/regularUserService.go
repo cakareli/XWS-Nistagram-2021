@@ -36,6 +36,25 @@ func (service *RegularUserService) Register(regularUserRegistrationDto dto.Regul
 	return nil
 }
 
+func (service *RegularUserService) RegisterAgent(regularUserRegistrationDto dto.RegularUserRegistrationDTO) error {
+	fmt.Println("Creating agent")
+
+	if service.RegularUserRepository.ExistByUsername(regularUserRegistrationDto.Username) {
+		return fmt.Errorf("username is already taken")
+	}
+
+	var regularUser = createRegularUserFromRegularUserRegistrationDTO(&regularUserRegistrationDto)
+	createdUserId, err := service.RegularUserRepository.Register(regularUser)
+	if err != nil {
+		return err
+	}
+	err2 := service.registerUserInAuthenticationService(regularUserRegistrationDto, createdUserId)
+	if err2 != nil {
+		return err2
+	}
+	return nil
+}
+
 func (service *RegularUserService) registerUserInAuthenticationService(regularUserRegistrationDto dto.RegularUserRegistrationDTO, createdUserId string) error {
 	postBody, _ := json.Marshal(map[string]string{
 		"userId":   createdUserId,
@@ -95,25 +114,89 @@ func (service *RegularUserService) updateUserInAuthenticationService(regularUser
 	return nil
 }
 
-func (service *RegularUserService) DeleteRegularUser(id primitive.ObjectID) error{
-	err := service.RegularUserRepository.DeleteRegularUser(id)
+func (service *RegularUserService) DeleteRegularUser(deleteUserDto dto.DeleteUserDTO) error{
+	id, err := primitive.ObjectIDFromHex(deleteUserDto.Id)
 	if err != nil {
 		return err
 	}
-	err1 := service.deleteUserInAuthenticationService(id.Hex())
+	err1 := service.RegularUserRepository.DeleteRegularUser(id)
 	if err1 != nil {
 		return err1
+	}
+	err2 := service.deleteUserInAuthenticationService(id.Hex())
+	if err2 != nil {
+		return err2
+	}
+	err3 := service.deleteUserDataInMediaContentService(id.Hex())
+	if err3 != nil {
+		return err3
+	}
+	err4 := service.deleteUserDataInFollowService(id.Hex())
+	if err4 != nil {
+		return err4
+	}
+	err5 := service.deleteUserDataInStoryService(id.Hex())
+	if err5 != nil {
+		return err4
 	}
 	return nil
 }
 
 func (service *RegularUserService) deleteUserInAuthenticationService(id string) error {
-	url := "http://"+os.Getenv("AUTHENTICATION_SERVICE_DOMAIN")+":"+os.Getenv("AUTHENTICATION_SERVICE_PORT")+"/delete-user/"+id
-	_, err := http.NewRequest("DELETE",url, nil)
+	postBody, _ := json.Marshal(map[string]string{
+		"userId":   id,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/delete-user", os.Getenv("AUTHENTICATION_SERVICE_DOMAIN"), os.Getenv("AUTHENTICATION_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
+func (service *RegularUserService) deleteUserDataInMediaContentService(id string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"userId":   id,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/delete-user-media-content", os.Getenv("MEDIA_CONTENT_SERVICE_DOMAIN"), os.Getenv("MEDIA_CONTENT_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
+func (service *RegularUserService) deleteUserDataInStoryService(id string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"userId":   id,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/delete-user-stories", os.Getenv("MEDIA_CONTENT_SERVICE_DOMAIN"), os.Getenv("MEDIA_CONTENT_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
+	return nil
+}
+
+
+
+func (service *RegularUserService) deleteUserDataInFollowService(id string) error {
+	postBody, _ := json.Marshal(map[string]string{
+		"userId":   id,
+	})
+	requestUrl := fmt.Sprintf("http://%s:%s/delete-user", os.Getenv("FOLLOW_SERVICE_DOMAIN"), os.Getenv("FOLLOW_SERVICE_PORT"))
+	resp, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(postBody))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(resp.StatusCode)
 	return nil
 }
 
@@ -232,6 +315,18 @@ func (service *RegularUserService) GetAllRegularUsers() ([]dto.RegularUserDTO, e
 	allRegularUsersDto := createRegularUserDtoFromRegularUser(allRegularUsersModel)
 	return allRegularUsersDto,nil
 }
+/*
+func (service *RegularUserService) GetAllAgentRequests() ([]dto.RegularUserDTO, error){
+	allRegularUsers,err := service.RegularUserRepository.GetAllAgentRequests()
+	if err != nil {
+		return nil, err
+	}
+
+	allRegularUsersModel := CreateUserFromDocuments(allRegularUsers)
+
+	allRegularUsersDto := createRegularUserDtoFromRegularUser(allRegularUsersModel)
+	return allRegularUsersDto,nil
+}*/
 
 func CreateUserFromDocuments(UserDocuments []bson.D) []model.RegularUser {
 	var users []model.RegularUser
@@ -289,6 +384,31 @@ func createRegularUserFromRegularUserRegistrationDTO(regularUserDto *dto.Regular
 	regularUser.Gender = regularUserDto.Gender
 
 	return &regularUser
+}
+
+func createAgentFromRegularUserRegistrationDTO(regularUserDto *dto.RegularUserRegistrationDTO) *model.Agent{
+	profilePrivacy := model.ProfilePrivacy{
+		PrivacyType: model.PrivacyType(0),
+		AllMessageRequests: true,
+		TagsAllowed: true,
+	}
+	var agent model.Agent
+	agent.Name = regularUserDto.Name
+	agent.Surname = regularUserDto.Surname
+	agent.Username = regularUserDto.Username
+	agent.Password = regularUserDto.Password
+	agent.Email = regularUserDto.Email
+	agent.PhoneNumber = regularUserDto.PhoneNumber
+	agent.BirthDate = regularUserDto.BirthDate
+	agent.Biography = regularUserDto.Biography
+	agent.WebSite = regularUserDto.WebSite
+	agent.ProfilePrivacy = profilePrivacy
+	agent.IsDisabled = false
+	agent.UserRole = model.UserRole(2)
+	agent.Gender = regularUserDto.Gender
+	agent.Verified = false
+
+	return &agent
 }
 
 func createRegularUserFromRegularUserUpdateDTO(userUpdateDto *dto.RegularUserUpdateDTO) *model.RegularUser{

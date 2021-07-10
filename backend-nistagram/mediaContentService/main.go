@@ -81,8 +81,11 @@ func handleFunc(handlerPost *handler.PostHandler, handlerStory *handler.StoryHan
 	router.HandleFunc("/delete-reported-story/{id}", handlerStory.DeleteReportedStory).Methods("DELETE")
 	router.HandleFunc("/delete-story/{id}", handlerStory.DeleteStory).Methods("DELETE")
 	router.HandleFunc("/delete-post/{id}", handlerPost.DeletePost).Methods("DELETE")
-
-
+	router.HandleFunc("/find-post/{id}", handlerPost.FindPostById).Methods("GET")
+	router.HandleFunc("/find-story/{id}", handlerStory.FindStoryById).Methods("GET")
+	router.HandleFunc("/delete-user-media-content", handlerPost.DeleteUserMediaContent).Methods("POST")
+	router.HandleFunc("/delete-user-stories", handlerStory.DeleteUserStories).Methods("POST")
+	router.HandleFunc("/feed-stories", handlerStory.GetStoryFeed).Methods("POST")
 
 	c := SetupCors()
 
@@ -103,7 +106,7 @@ func SetupCors() *cors.Cors {
 }
 
 func initDatabase() *mongo.Database{
-	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongo-db:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

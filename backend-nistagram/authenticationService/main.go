@@ -35,7 +35,7 @@ func handleFunc(handler *handler.AuthenticationHandler) {
 	router.HandleFunc("/register", handler.RegisterUser).Methods("POST")
 	router.HandleFunc("/login", handler.Login).Methods("POST")
 	router.HandleFunc("/update", handler.UpdateUser).Methods("POST")
-	router.HandleFunc("/delete-user/{id}", handler.DeleteUser).Methods("DELETE")
+	router.HandleFunc("/delete-user", handler.DeleteUser).Methods("POST")
 
 	c := SetupCors()
 

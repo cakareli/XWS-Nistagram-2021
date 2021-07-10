@@ -136,6 +136,21 @@ func (repository *FollowRepository) SetFollowCloseFalse(loggedUserId string, fol
 	return false
 }
 
+func (repository *FollowRepository) DeleteUser(id string) bool{
+	session := *repository.DatabaseSession
+	result, err := session.Run("match (u:User{id:$id}) detach delete u",
+		map[string]interface{}{"id":id})
+	if err != nil {
+		return false
+	}
+	if result.Next() {
+		return true
+	}
+	return false
+}
+
+
+
 func (repository *FollowRepository) BlockUser(loggedUserId string, userId string) bool{
 	session := *repository.DatabaseSession
 	err1 := repository.addUser(session, loggedUserId)
@@ -144,7 +159,7 @@ func (repository *FollowRepository) BlockUser(loggedUserId string, userId string
 		return false
 	}
 	result, err := session.Run("match (u1:User), (u2:User) where u1.Id = $loggedUserId and " +
-		"u2.Id = $userId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : TRUE, request: FALSE}]->(u2) return f",
+		"u2.Id = $userId merge (u1)-[f:follow{close: FALSE, muted: FALSE, blocked : TRUE, notifications : FALSE, request: FALSE}]->(u2) return f",
 		map[string]interface{}{"loggedUserId":loggedUserId, "userId":userId,})
 	if err != nil {
 		return false

@@ -212,3 +212,16 @@ func (repository *PostRepository) DeletePost(id primitive.ObjectID) error{
 	return nil
 }
 
+func (repository *PostRepository) DeleteUserPostMediaContent(posts [] model.Post) error{
+
+	for i := 0; i < len(posts); i++{
+		postsCollection := repository.Database.Collection("posts")
+		_, err := postsCollection.DeleteOne(context.TODO(), bson.M{"_id": posts[i].Id})
+		if err != nil{
+			return err
+		}
+	}
+
+	return nil
+}
+

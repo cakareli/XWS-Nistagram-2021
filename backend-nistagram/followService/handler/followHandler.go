@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 )
 
 type FollowHandler struct {
@@ -313,4 +315,24 @@ func (handler *FollowHandler) FindAllFeedUsers(w http.ResponseWriter, r *http.Re
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(postsForFeed)
+}
+func (handler *FollowHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("content-type", "application/json")
+	var deleteUserDTO dto.DeleteUserDTO
+	err := json.NewDecoder(r.Body).Decode(&deleteUserDTO)
+	if err != nil {
+		return
+	}
+	userId, err1 := primitive.ObjectIDFromHex(deleteUserDTO.Id)
+	if err1 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err2 := handler.FollowService.DeleteUser(userId.Hex())
+	if err2 != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

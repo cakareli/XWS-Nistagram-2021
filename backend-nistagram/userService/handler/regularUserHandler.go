@@ -33,6 +33,26 @@ func (handler *RegularUserHandler) Register(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (handler *RegularUserHandler) RegisterAgent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var regularUserRegistrationDto dto.RegularUserRegistrationDTO
+	err := json.NewDecoder(r.Body).Decode(&regularUserRegistrationDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = handler.RegularUserService.RegisterAgent(regularUserRegistrationDto)
+	if err != nil {
+		if err.Error() == "username is already taken" {
+			w.WriteHeader(http.StatusConflict)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+}
+
 func (handler *RegularUserHandler) UpdatePersonalInformations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var userUpdateDto dto.RegularUserUpdateDTO
@@ -71,14 +91,13 @@ func (handler *RegularUserHandler) UpdateProfilePrivacy(w http.ResponseWriter, r
 
 func (handler *RegularUserHandler) DeleteRegularUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
-	param := mux.Vars(r)
-	id := param["id"]
-	regularUserId,err1 := primitive.ObjectIDFromHex(id)
+	var deleteUserDto dto.DeleteUserDTO
+	err1 := json.NewDecoder(r.Body).Decode(&deleteUserDto)
 	if err1 != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	err := handler.RegularUserService.DeleteRegularUser(regularUserId)
+	err := handler.RegularUserService.DeleteRegularUser(deleteUserDto)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -271,3 +290,15 @@ func (handler *RegularUserHandler) VerifyUser(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusCreated)
 	}
 }
+/*
+func (handler *RegularUserHandler) GetAllAgentRequests(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("content-type", "application/json")
+	allRegularUsersDto, err := handler.RegularUserService.GetAllAgentRequests()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(allRegularUsersDto)
+	}
+}*/

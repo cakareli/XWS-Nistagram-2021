@@ -39,10 +39,7 @@ func (repository *AuthenticationRepository) FindUserByUsername(username string) 
 
 func (repository *AuthenticationRepository) DeleteUser(id string) error{
 
-	fmt.Println("DOLAZI DO REPOA")
-	fmt.Println("ID: ",id)
-	sqlDelete := `DELETE FROM users WHERE user_id = $1;`
-	err := repository.Database.Table("users").Exec(sqlDelete, id).Error
+	err := repository.Database.Exec("DELETE FROM users WHERE user_id = ?", id).Error
 	if  err != nil {
 		return err
 	}
