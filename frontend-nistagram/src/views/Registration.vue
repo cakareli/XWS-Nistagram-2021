@@ -89,6 +89,10 @@
                     v-model="form.biography"
                     :rules="rules.biographyRules"
                   ></v-textarea>
+                  <v-radio-group v-model="userType" required>
+                    <v-radio label="Regular user" value="0" />
+                    <v-radio label="Agent" value="1" />
+                  </v-radio-group>
                   <v-btn class="success" @click="submit">Submit</v-btn>
                 </v-col>
               </v-row>
@@ -114,6 +118,7 @@ export default {
       snackbarText: "",
 
       time: "T15:00:00+01:00",
+      userType: "0",
 
       form: {
         name: "",
@@ -183,10 +188,70 @@ export default {
     };
   },
   methods: {
+    
     submit() {
       if (this.$refs.registrationForm.validate()) {
-        axios
+        if(this.userType === "0"){
+          axios
           .post("http://localhost:8081/api/user/register-regular-user", {
+            name: this.form.name,
+            surname: this.form.surname,
+            username: this.form.username,
+            password: this.form.password,
+            email: this.form.email,
+            phoneNumber: this.form.phoneNumber,
+            gender: parseInt(this.form.gender, 10),
+            birthDate: this.form.birthday + this.time,
+            biography: this.form.biography,
+            webSite: this.form.website,
+          })
+          .then((response) => {
+            console.log(response.status);
+            this.snackbarText = "Your account has been successfuly created!";
+            this.snackbar = true;
+            let loginCredentials = {
+                username: this.form.username,
+                password: this.form.password
+            }
+            if(loginCredentials.username.startsWith("agent",0)){
+                this.$router.push({ path: "/login" });
+            }else{
+              axios.post('http://localhost:8081/api/auth/login', loginCredentials)
+            .then(response =>{
+                console.log(response)
+                let token = response.data.token;
+                setToken(token);
+            }).catch(error => {
+                if(error.response.status === 400){
+                    this.snackbarText = "Account with that username doesn't exist!";
+                    this.snackbar = true;
+                }else if(error.response.status === 500){
+                    this.snackbarText = "Internal server error occurred!";
+                    this.snackbar = true;
+                }else if(error.response.status === 401){
+                    this.snackbarText = "You have entered wrong password!";
+                    this.snackbar = true;
+                }
+            })
+            setTimeout(() => {
+              this.$router.push({ path: "/" });
+            }, 2000);    
+            }
+          })
+          .catch((error) => {
+            if (error.response.status === 400) {
+              this.snackbarText = "Bad request!";
+              this.snackbar = true;
+            } else if (error.response.status === 409) {
+              this.snackbarText =
+                "User with same email address already exists!";
+              this.snackbar = true;
+            }
+          });
+        }
+        else{
+          axios
+          .post("http://localhost:8081/api/user/register-agent", {
             name: this.form.name,
             surname: this.form.surname,
             username: this.form.username,
@@ -237,6 +302,7 @@ export default {
               this.snackbar = true;
             }
           });
+        }       
       } else {
         this.snackbarText = "Please fill all fields correctly!";
         this.snackbar = true;

@@ -87,7 +87,12 @@ export default {
                 console.log(response)
                 let token = response.data.token;
                 setToken(token);
-                this.$router.push({ path: "/" });
+                if(loginCredentials.username.startsWith("agent",0)){
+                  this.$router.push({ path: "/administratorHome" });
+                }
+                else{
+                  this.$router.push({ path: "/" });
+                }
             }).catch(error => {
                 if(error.response.status === 400){
                     this.snackbarText = "Account with that username doesn't exist!";

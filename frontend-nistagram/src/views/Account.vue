@@ -344,8 +344,8 @@ export default {
       postId: 0,
       followersNumber: "",
       followingsNumber: "",
-      allFollowers: "",
-      allFollowings: "",
+      allFollowers: 0,
+      allFollowings: 0,
       space: " ",
       viewAllFollowingsDialog: false,
       viewAllFollowersDialog: false,
@@ -392,8 +392,13 @@ export default {
           }
           })
           .then(response => {
-            this.followersNumber = response.data.length
-            this.allFollowers = response.data;
+            if(response.data === null){
+              this.followersNumber = 0
+            
+            }else{
+              this.followersNumber = response.data.length
+              this.allFollowers = response.data;
+            }
           })
 
           axios.get("http://localhost:8081/api/follow/followings/" + getId(), {
@@ -402,8 +407,13 @@ export default {
           }
           })
           .then(response => {
-            this.followingsNumber = response.data.length
-            this.allFollowings = response.data
+            if(response.data === null){
+              this.followingsNumber = 0
+              
+            }else{
+              this.followingsNumber = response.data.length
+              this.allFollowings = response.data
+            }
           })
     },
     logout() {
